@@ -2,7 +2,7 @@
  (name lgc)
  (preprocess
   (pps ppx_deriving.show))
- (modules lgc syntax grammar lexer compiler))
+ (modules lgc syntax grammar lexer compiler typecheck))
 
 (menhir
  (modules grammar))

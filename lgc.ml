@@ -19,23 +19,28 @@ let parse_file file =
     program
   with
   | Grammar.Error ->
-      Printf.eprintf "parser error";
+      Printf.eprintf "parser error\n";
       close_in chan;
       exit 1
   | Lexer.SyntaxError ->
-      Printf.eprintf "lexer error";
+      Printf.eprintf "lexer error\n";
       close_in chan;
       exit 1
 
 let compile file =
   let program = parse_file file in
   if !debug then print_endline (Syntax.show_program program);
-  let game = Compiler.compile program in
-  let chan = open_out !output_file in
-  Printf.fprintf chan "%s" game;
-  close_out chan
+  try
+    Typecheck.check program;
+    let game = Compiler.compile program in
+    let chan = open_out !output_file in
+    Printf.fprintf chan "%s\n" game;
+    close_out chan
+  with Typecheck.TypeError ->
+    Printf.eprintf "type error\n";
+    exit 1
 
 let () =
   Arg.parse speclist anon_fun usage;
   if List.length !files = 1 then compile (List.hd !files)
-  else Printf.eprintf "expected only 1 file to compile"
+  else Printf.eprintf "expected only 1 file to compile\n"
