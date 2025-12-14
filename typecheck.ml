@@ -1,6 +1,7 @@
 open Syntax
 
 type ty = TUnit | TBool | TInt | TColor | TFun of ty list * ty
+[@@deriving show]
 
 exception TypeError of string
 
@@ -22,12 +23,26 @@ let lookup k e =
 let mem = List.mem_assoc
 
 let expect_tys ts1 ts2 =
-  if ts1 = ts2 then () else raise (TypeError "type mismatch")
+  if ts1 = ts2 then ()
+  else
+    let s1 = List.map show_ty ts1 |> String.concat ", " in
+    let s2 = List.map show_ty ts2 |> String.concat ", " in
+    raise (TypeError (Printf.sprintf "types mismatched (list):\n%s\n%s" s1 s2))
 
-let expect_ty t1 t2 = if t1 = t2 then () else raise (TypeError "type mismatch")
+let expect_ty t1 t2 =
+  if t1 = t2 then ()
+  else
+    let s1 = show_ty t1 in
+    let s2 = show_ty t2 in
+    raise (TypeError (Printf.sprintf "type mismatch (2):\n%s\n%s" s1 s2))
 
 let expect_ty3 t1 t2 t3 =
-  if t1 = t2 && t1 = t3 then () else raise (TypeError "type mismatch")
+  if t1 = t2 && t1 = t3 then ()
+  else
+    let s1 = show_ty t1 in
+    let s2 = show_ty t2 in
+    let s3 = show_ty t3 in
+    raise (TypeError (Printf.sprintf "type mismatch (3):\n%s\n%s\n%s" s1 s2 s3))
 
 let check_typing env = function TName name -> lookup name env.tenv
 
@@ -94,12 +109,19 @@ and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 
 let check_toplevel env = function
   | TLStmt stmt -> check_stmt env stmt
-  | TLDef (name, block) ->
-      if mem name env.venv then
-        raise (TypeError ("duplicate symbol definition: " ^ name))
+  | TLDef def ->
+      if mem def.name env.venv then
+        raise (TypeError ("duplicate symbol definition: " ^ def.name))
       else
-        let _ = check_block env block in
-        { env with venv = (name, TFun ([], TUnit)) :: env.venv }
+        let params =
+          List.map
+            (fun (name, typing) -> (name, check_typing env typing))
+            def.params
+        in
+        let env' = { env with venv = params @ env.venv } in
+        let _ = check_block env' def.body in
+        let tys = List.map snd params in
+        { env with venv = (def.name, TFun (tys, TUnit)) :: env.venv }
 
 let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv } in

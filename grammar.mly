@@ -20,7 +20,14 @@ program: list(toplevel) EOF { Program $1 }
 
 toplevel:
 | stmt { TLStmt $1 }
-| DEF IDENT LPAREN RPAREN DO block END { TLDef ($2, $6) }
+| def { TLDef $1 }
+
+def:
+| DEF name=IDENT LPAREN params=param_list RPAREN DO body=block END { {name; params; body} }
+
+param_list: separated_list(COMMA, param) { $1 }
+
+param: IDENT COLON typing { ($1, $3) }
 
 block: list(stmt) { Block $1 }
 

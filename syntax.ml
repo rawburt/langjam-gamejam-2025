@@ -21,5 +21,8 @@ type stmt =
 
 and block = Block of stmt list [@@deriving show]
 
-type toplevel = TLStmt of stmt | TLDef of string * block [@@deriving show]
+type def = { name : string; params : (string * typing) list; body : block }
+[@@deriving show]
+
+type toplevel = TLStmt of stmt | TLDef of def [@@deriving show]
 type program = Program of toplevel list [@@deriving show]

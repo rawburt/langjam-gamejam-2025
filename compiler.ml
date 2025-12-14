@@ -41,14 +41,16 @@ and compile_block (Block stmts) =
 
 let compile_toplevel = function
   | TLStmt stmt -> compile_stmt stmt
-  | TLDef (name, block) ->
-      Printf.sprintf "function %s() {\n%s\n}" name (compile_block block)
+  | TLDef def ->
+      let params = List.map fst def.params |> String.concat ", " in
+      Printf.sprintf "function %s(%s) {\n%s\n}" def.name params
+        (compile_block def.body)
 
 let add_empty_def name toplevels =
-  let compare = function TLDef (n, _) -> n = name | _ -> false in
+  let compare = function TLDef def -> def.name = name | _ -> false in
   match List.find_opt compare toplevels with
   | Some _ -> toplevels
-  | None -> TLDef (name, Block []) :: toplevels
+  | None -> TLDef { name; params = []; body = Block [] } :: toplevels
 
 let ensure_engine_defs toplevels =
   add_empty_def "update" toplevels |> add_empty_def "draw"
