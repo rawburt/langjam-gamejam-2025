@@ -19,11 +19,13 @@ let parse_file file =
     program
   with
   | Grammar.Error ->
-      Printf.eprintf "parser error\n";
+      Printf.eprintf "[line %d] parser error at token: %s\n"
+        lexbuf.lex_curr_p.pos_lnum (Lexing.lexeme lexbuf);
       close_in chan;
       exit 1
   | Lexer.SyntaxError ->
-      Printf.eprintf "lexer error\n";
+      Printf.eprintf "[line %d] lex error at token: %s\n"
+        lexbuf.lex_curr_p.pos_lnum (Lexing.lexeme lexbuf);
       close_in chan;
       exit 1
 
@@ -36,8 +38,8 @@ let compile file =
     let chan = open_out !output_file in
     Printf.fprintf chan "%s\n" game;
     close_out chan
-  with Typecheck.TypeError ->
-    Printf.eprintf "type error\n";
+  with Typecheck.TypeError msg ->
+    Printf.eprintf "type error: %s\n" msg;
     exit 1
 
 let () =

@@ -1,0 +1,7 @@
+var p: bool = false
+
+if p do
+  pset(64, 64, #ffffff)
+else
+  pset(64, 64, #990000)
+end

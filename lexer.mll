@@ -17,6 +17,15 @@ rule token = parse
   | ',' { COMMA }
   | '(' { LPAREN }
   | ')' { RPAREN }
+  | ':' { COLON }
+  | '=' { EQ }
+  | "var" { VAR }
+  | "true" { TRUE }
+  | "false" { FALSE }
+  | "if" { IF }
+  | "do" { DO }
+  | "else" { ELSE }
+  | "end" { END }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }
   | ident as i { IDENT i }
