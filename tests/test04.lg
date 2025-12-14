@@ -1,0 +1,13 @@
+var pressed: bool = false
+
+def update() do
+  pressed = button(0)
+end
+
+def draw() do
+  if pressed do
+    pset(20, 20, #990000)
+  else
+    pset(20, 20, #FFFFFF)
+  end
+end

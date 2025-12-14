@@ -64,6 +64,13 @@ let rec check_stmt env stmt =
         let expr_ty = check_expr env expr in
         expect_ty ty expr_ty;
         { env with venv = (name, ty) :: env.venv }
+  | SMutate (name, expr) ->
+      if mem name env.venv then (
+        let ty = lookup name env.venv in
+        let expr_ty = check_expr env expr in
+        expect_ty ty expr_ty;
+        env)
+      else raise (TypeError ("symbol not declared: " ^ name))
   | SExpr expr ->
       let _ = check_expr env expr in
       env
@@ -85,7 +92,16 @@ let rec check_stmt env stmt =
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 
-let check (Program stmts) =
+let check_toplevel env = function
+  | TLStmt stmt -> check_stmt env stmt
+  | TLDef (name, block) ->
+      if mem name env.venv then
+        raise (TypeError ("duplicate symbol definition: " ^ name))
+      else
+        let _ = check_block env block in
+        { env with venv = (name, TFun ([], TUnit)) :: env.venv }
+
+let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv } in
-  let _ = check_block base_env stmts in
+  let _ = List.fold_left check_toplevel base_env toplevels in
   ()

@@ -7,7 +7,7 @@ open Syntax
 %token <int> INTEGER
 %token TRUE FALSE
 %token COMMA LPAREN RPAREN COLON EQ
-%token VAR IF DO ELSE END FOR TO
+%token VAR IF DO ELSE END FOR TO DEF
 %token PLUS
 %token EOF
 
@@ -16,7 +16,11 @@ open Syntax
 %start <program> program
 %%
 
-program: block EOF { Program $1 }
+program: list(toplevel) EOF { Program $1 }
+
+toplevel:
+| stmt { TLStmt $1 }
+| DEF IDENT LPAREN RPAREN DO block END { TLDef ($2, $6) }
 
 block: list(stmt) { Block $1 }
 
@@ -25,6 +29,7 @@ typing:
 
 stmt:
 | VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6) }
+| IDENT EQ expr { SMutate ($1, $3) }
 | IF expr DO block ELSE block END { SIfElse ($2, $4, $6) }
 | FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8) }
 | expr { SExpr $1 }

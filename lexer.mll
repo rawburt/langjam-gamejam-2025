@@ -29,6 +29,7 @@ rule token = parse
   | "end" { END }
   | "for" { FOR }
   | "to" { TO }
+  | "def" { DEF }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }
   | ident as i { IDENT i }

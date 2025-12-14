@@ -13,6 +13,7 @@ type expr =
 
 type stmt =
   | SVar of string * typing * expr
+  | SMutate of string * expr
   | SExpr of expr
   | SIfElse of expr * block * block
   | SFor of string * expr * expr * block
@@ -20,4 +21,5 @@ type stmt =
 
 and block = Block of stmt list [@@deriving show]
 
-type program = Program of block [@@deriving show]
+type toplevel = TLStmt of stmt | TLDef of string * block [@@deriving show]
+type program = Program of toplevel list [@@deriving show]

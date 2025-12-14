@@ -1,6 +1,10 @@
 open Syntax
 
-let compile_name = function "pset" -> "engine.pset" | n -> n
+let compile_name = function
+  | "pset" -> "engine.pset"
+  | "button" -> "engine.button"
+  | n -> n
+
 let compile_bop = function Add -> "+"
 
 let rec compile_expr = function
@@ -20,6 +24,7 @@ let rec compile_expr = function
 let rec compile_stmt = function
   | SVar (name, _, expr) ->
       Printf.sprintf "let %s = %s;" name (compile_expr expr)
+  | SMutate (name, expr) -> Printf.sprintf "%s = %s;" name (compile_expr expr)
   | SExpr expr -> compile_expr expr
   | SIfElse (expr, block1, block2) ->
       let e = compile_expr expr in
@@ -34,6 +39,22 @@ let rec compile_stmt = function
 and compile_block (Block stmts) =
   String.concat "\n" (List.map compile_stmt stmts)
 
-let compile (Program block) =
-  let body = compile_block block in
-  Printf.sprintf "function game(engine) {\n%s\n}" body
+let compile_toplevel = function
+  | TLStmt stmt -> compile_stmt stmt
+  | TLDef (name, block) ->
+      Printf.sprintf "function %s() {\n%s\n}" name (compile_block block)
+
+let add_empty_def name toplevels =
+  let compare = function TLDef (n, _) -> n = name | _ -> false in
+  match List.find_opt compare toplevels with
+  | Some _ -> toplevels
+  | None -> TLDef (name, Block []) :: toplevels
+
+let ensure_engine_defs toplevels =
+  add_empty_def "update" toplevels |> add_empty_def "draw"
+
+let compile (Program toplevels) =
+  let toplevels' = ensure_engine_defs toplevels in
+  let body = String.concat "\n" (List.map compile_toplevel toplevels') in
+  Printf.sprintf
+    "function game(engine) {\n%s\nreturn {update:update,draw:draw};\n}" body
