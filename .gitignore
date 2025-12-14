@@ -1,0 +1,6 @@
+_build/
+dist/
+*.log
+.DS_Store
+engine/game.js
+game.js

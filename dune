@@ -1,0 +1,10 @@
+(executable
+ (name lgc)
+ (preprocess
+  (pps ppx_deriving.show))
+ (modules lgc syntax grammar lexer compiler))
+
+(menhir
+ (modules grammar))
+
+(ocamllex lexer)

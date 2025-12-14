@@ -1,0 +1,24 @@
+<html>
+<header>
+  <title>Game</title>
+  <style>
+    body {
+      background: #fff;
+    }
+
+    canvas {
+      background: #000;
+    }
+  </style>
+</header>
+
+<body>
+  <canvas id="canvas" width="640" height="640"></canvas>
+  <script src="./engine.js"></script>
+  <script src="./game.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => { new Engine(game); });
+  </script>
+</body>
+
+</html>
