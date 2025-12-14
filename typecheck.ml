@@ -25,6 +25,10 @@ let expect_tys ts1 ts2 =
   if ts1 = ts2 then () else raise (TypeError "type mismatch")
 
 let expect_ty t1 t2 = if t1 = t2 then () else raise (TypeError "type mismatch")
+
+let expect_ty3 t1 t2 t3 =
+  if t1 = t2 && t1 = t3 then () else raise (TypeError "type mismatch")
+
 let check_typing env = function TName name -> lookup name env.tenv
 
 let check_expr env expr =
@@ -40,6 +44,13 @@ let check_expr env expr =
             expect_tys param_tys expr_tys;
             return_ty
         | _ -> raise (TypeError "not a function"))
+    | EBinary (bop, expr1, expr2) -> (
+        let t1 = check expr1 in
+        let t2 = check expr2 in
+        match bop with
+        | Add ->
+            expect_ty3 TInt t1 t2;
+            TInt)
   in
   check expr
 
@@ -62,6 +73,15 @@ let rec check_stmt env stmt =
       let _ = check_block env block1 in
       let _ = check_block env block2 in
       env
+  | SFor (name, expr1, expr2, block) ->
+      if mem name env.venv then
+        raise (TypeError ("duplicate symbol definition: " ^ name))
+      else (
+        expect_ty TInt (check_expr env expr1);
+        expect_ty TInt (check_expr env expr2);
+        let env' = { env with venv = (name, TInt) :: env.venv } in
+        let _ = check_block env' block in
+        env)
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 

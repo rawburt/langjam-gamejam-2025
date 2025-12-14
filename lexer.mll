@@ -19,6 +19,7 @@ rule token = parse
   | ')' { RPAREN }
   | ':' { COLON }
   | '=' { EQ }
+  | '+' { PLUS }
   | "var" { VAR }
   | "true" { TRUE }
   | "false" { FALSE }
@@ -26,6 +27,8 @@ rule token = parse
   | "do" { DO }
   | "else" { ELSE }
   | "end" { END }
+  | "for" { FOR }
+  | "to" { TO }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }
   | ident as i { IDENT i }

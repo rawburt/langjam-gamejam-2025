@@ -1,0 +1,7 @@
+var offset: int = 45
+
+for x = 0 to 10 do
+  for y = 0 to 10 do
+    pset(offset + x, offset + y, #009900)
+  end
+end
