@@ -15,7 +15,7 @@ open Syntax
 
 program: block EOF { Program $1 }
 
-block: list(stmt) { $1 }
+block: list(stmt) { Block $1 }
 
 typing:
 | IDENT { TName $1 }

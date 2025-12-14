@@ -15,6 +15,6 @@ type stmt =
   | SIfElse of expr * block * block
 [@@deriving show]
 
-and block = stmt list [@@deriving show]
+and block = Block of stmt list [@@deriving show]
 
 type program = Program of block [@@deriving show]

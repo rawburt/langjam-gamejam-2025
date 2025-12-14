@@ -63,7 +63,7 @@ let rec check_stmt env stmt =
       let _ = check_block env block2 in
       env
 
-and check_block env stmts = List.fold_left check_stmt env stmts
+and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 
 let check (Program stmts) =
   let base_env = { tenv = base_tenv; venv = base_venv } in

@@ -21,7 +21,7 @@ let rec compile_stmt = function
       let b2 = compile_block block2 in
       Printf.sprintf "if (%s) {\n%s\n} else {\n%s\n}" e b1 b2
 
-and compile_block stmts = String.concat "\n" (List.map compile_stmt stmts)
+and compile_block (Block stmts) = String.concat "\n" (List.map compile_stmt stmts)
 
 let compile (Program block) =
   let body = compile_block block in
