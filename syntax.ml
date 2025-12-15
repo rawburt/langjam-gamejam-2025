@@ -46,4 +46,4 @@ type record = { name : string; fields : (string * typing) list; loc : loc }
 type toplevel = TLStmt of stmt | TLDef of def | TLRec of record
 [@@deriving show]
 
-type library = Library of toplevel list [@@deriving show]
+type library = Library of { top : toplevel list } [@@deriving show]

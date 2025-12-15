@@ -30,7 +30,7 @@ let mkcompound var bop expr loc =
 %start <library> library
 %%
 
-library: list(toplevel) EOF { Library $1 }
+library: list(toplevel) EOF { Library { top = $1 } }
 
 toplevel:
 | stmt { TLStmt $1 }
