@@ -1,9 +1,8 @@
 var offset: [int] = [4,4]
 var tile_size: int = 4
-var player: [int] = [6,6]
+var player: [int] = [3,3]
 var map: [[int]] = [
   [1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,1],
@@ -13,10 +12,24 @@ var map: [[int]] = [
   [1,1,1,1,1,1,1,1]
 ]
 
+def clamp(n: int, min: int, max: int) int do
+  if n > max do
+    ret max
+  end
+  if n < min do
+    ret min
+  end
+  ret n
+end
+
 def draw_map() do
-  for y = 0 to 8 do
-    for x = 0 to 8 do
-      pset(x + offset[0], y + offset[1], #ffffff)
+  for y = 0 to len(map) do
+    for x = 0 to len(map[y]) do
+      if map[y][x] == 1 do
+        pset(x + offset[0], y + offset[1], #444444)
+      else
+        pset(x + offset[0], y + offset[1], #ffffff)
+      end
     end
   end
 end
@@ -27,16 +40,16 @@ end
 
 def update() do
   if buttonp(0) do
-    player[0] -= 1
+    player[0] = clamp(player[0] - 1, 1, 6)
   end
   if buttonp(1) do
-    player[0] += 1
+    player[0] = clamp(player[0] + 1, 1, 6)
   end
   if buttonp(2) do
-    player[1] -= 1
+    player[1] = clamp(player[1] - 1, 1, 6)
   end
   if buttonp(3) do
-    player[1] += 1
+    player[1] = clamp(player[1] + 1, 1, 6)
   end
 end
 

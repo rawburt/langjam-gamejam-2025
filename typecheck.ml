@@ -14,7 +14,11 @@ exception TypeError of string * loc
 
 let error loc msg = raise (TypeError (msg, loc))
 
-type env = { tenv : (string * ty) list; venv : (string * ty) list }
+type env = {
+  tenv : (string * ty) list;
+  venv : (string * ty) list;
+  ret : ty option;
+}
 
 let base_tenv = [ ("int", TyInt); ("bool", TyBool); ("color", TyColor) ]
 
@@ -23,7 +27,7 @@ let base_venv =
     ("pset", TyFun ([ TyInt; TyInt; TyColor ], TyUnit));
     ("button", TyFun ([ TyInt ], TyBool));
     ("buttonp", TyFun ([ TyInt ], TyBool));
-    ("clear", TyFun ([ ], TyUnit));
+    ("clear", TyFun ([], TyUnit));
     (* `len` is here for name lookup but type checking is handled as a special case for fake parametric polymorphism *)
     ("len", TyFun ([ TyList (TyVar (ref None)) ], TyInt));
   ]
@@ -114,6 +118,14 @@ and check_expr env expr =
             unify loc TyInt t1;
             unify loc TyInt t2;
             TyInt
+        | Lt ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyBool
+        | Gt ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyBool
         | Eq ->
             unify loc t1 t2;
             TyBool)
@@ -161,6 +173,14 @@ let rec check_stmt env stmt =
         let env' = { env with venv = (name, TyInt) :: env.venv } in
         let _ = check_block env' block in
         env)
+  | SRet (expr, loc) -> (
+      let ty = check_expr env expr in
+      match env.ret with
+      | Some t ->
+          unify loc t ty;
+          env
+      | None ->
+          error loc "ret not allowed when function has no defined return value")
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 
@@ -175,12 +195,18 @@ let check_toplevel env = function
             (fun (name, typing) -> (name, lookup_typing def.loc env typing))
             def.params
         in
-        let env' = { env with venv = params @ env.venv } in
+        let ret = Option.map (lookup_typing def.loc env) def.ret in
+        let env' = { env with venv = params @ env.venv; ret } in
         let _ = check_block env' def.body in
         let tys = List.map snd params in
-        { env with venv = (def.name, TyFun (tys, TyUnit)) :: env.venv }
+        {
+          env with
+          venv =
+            (def.name, TyFun (tys, Option.value ret ~default:TyUnit))
+            :: env.venv;
+        }
 
 let check (Program toplevels) =
-  let base_env = { tenv = base_tenv; venv = base_venv } in
+  let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in
   let _ = List.fold_left check_toplevel base_env toplevels in
   ()

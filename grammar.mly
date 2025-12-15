@@ -15,8 +15,8 @@ let mkcompound var bop expr loc =
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF
-%token PLUS MINUS EQEQ TIMES
+%token VAR IF DO ELSE END FOR TO DEF RET
+%token PLUS MINUS EQEQ TIMES LT GT
 %token EOF
 
 %nonassoc EQEQ
@@ -33,7 +33,11 @@ toplevel:
 | def { TLDef $1 }
 
 def:
-| DEF name=IDENT LPAREN params=param_list RPAREN DO body=block END { {name; params; body; loc=mkloc $startpos} }
+| DEF name=IDENT LPAREN params=param_list RPAREN ret=def_ret DO body=block END { {name; params; body; ret; loc=mkloc $startpos} }
+
+def_ret:
+| { None }
+| typing { Some $1 }
 
 param_list: separated_list(COMMA, param) { $1 }
 
@@ -52,6 +56,7 @@ stmt:
 | IF expr DO block END { SIfElse ($2, $4, None, mkloc $startpos) }
 | FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8, mkloc $startpos) }
 | call { SExpr ($1, mkloc $startpos) }
+| RET expr { SRet ($2, mkloc $startpos) }
 
 mutate:
 | var EQ expr { SMutate ($1, $3, mkloc $startpos) }
@@ -72,6 +77,8 @@ expr:
 | PLUS { Add }
 | MINUS { Sub }
 | TIMES { Mul }
+| LT { Lt }
+| GT { Gt }
 | EQEQ { Eq }
 
 var:

@@ -25,6 +25,8 @@ rule token = parse
   | '+' { PLUS }
   | '-' { MINUS }
   | '*' { TIMES }
+  | '<' { LT }
+  | '>' { GT }
   | "==" { EQEQ }
   | "var" { VAR }
   | "true" { TRUE }
@@ -36,6 +38,7 @@ rule token = parse
   | "for" { FOR }
   | "to" { TO }
   | "def" { DEF }
+  | "ret" { RET }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }
   | ident as i { IDENT i }

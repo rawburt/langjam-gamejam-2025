@@ -7,7 +7,13 @@ let compile_name = function
   | "clear" -> "engine.clear"
   | n -> n
 
-let compile_bop = function Add -> "+" | Sub -> "-" | Mul -> "*" | Eq -> "==="
+let compile_bop = function
+  | Add -> "+"
+  | Sub -> "-"
+  | Mul -> "*"
+  | Lt -> "<"
+  | Gt -> ">"
+  | Eq -> "==="
 
 let rec compile_var = function
   | VName (name, _) -> name
@@ -57,6 +63,7 @@ let rec compile_stmt = function
       Printf.sprintf "for (let %s = %s; %s < %s; %s += 1) {\n%s\n}" name
         (compile_expr expr1) name (compile_expr expr2) name
         (compile_block block)
+  | SRet (expr, _) -> Printf.sprintf "return %s;" (compile_expr expr)
 
 and compile_block (Block stmts) =
   String.concat "\n" (List.map compile_stmt stmts)
@@ -73,7 +80,8 @@ let add_empty_def name toplevels =
   match List.find_opt compare toplevels with
   | Some _ -> toplevels
   | None ->
-      TLDef { name; params = []; body = Block []; loc = Loc 0 } :: toplevels
+      TLDef { name; params = []; body = Block []; loc = Loc 0; ret = None }
+      :: toplevels
 
 let ensure_engine_defs toplevels =
   add_empty_def "update" toplevels |> add_empty_def "draw"

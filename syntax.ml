@@ -1,6 +1,6 @@
 type loc = Loc of int [@@deriving show]
 type typing = TName of string | TList of typing [@@deriving show]
-type bop = Add | Sub | Mul | Eq [@@deriving show]
+type bop = Add | Sub | Mul | Lt | Gt | Eq [@@deriving show]
 
 type var = VName of string * loc | VSub of var * expr * loc [@@deriving show]
 
@@ -20,6 +20,7 @@ type stmt =
   | SExpr of expr * loc
   | SIfElse of expr * block * block option * loc
   | SFor of string * expr * expr * block * loc
+  | SRet of expr * loc
 [@@deriving show]
 
 and block = Block of stmt list [@@deriving show]
@@ -28,6 +29,7 @@ type def = {
   name : string;
   params : (string * typing) list;
   body : block;
+  ret : typing option;
   loc : loc;
 }
 [@@deriving show]
