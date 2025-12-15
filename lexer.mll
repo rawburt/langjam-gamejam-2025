@@ -14,9 +14,11 @@ let ws = [' ' '\t' '\r']+
 rule token = parse
   | ws { token lexbuf }
   | '\n' { new_line lexbuf; token lexbuf }
-  | ',' { COMMA }
   | '(' { LPAREN }
   | ')' { RPAREN }
+  | '[' { LBRACK }
+  | ']' { RBRACK }
+  | ',' { COMMA }
   | ':' { COLON }
   | '=' { EQ }
   | '+' { PLUS }

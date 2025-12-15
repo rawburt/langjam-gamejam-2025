@@ -1,4 +1,4 @@
-type typing = TName of string [@@deriving show]
+type typing = TName of string | TList of typing [@@deriving show]
 type var = VName of string [@@deriving show]
 type bop = Add [@@deriving show]
 
@@ -9,6 +9,7 @@ type expr =
   | EVar of var
   | ECall of var * expr list
   | EBinary of bop * expr * expr
+  | EList of expr list
 [@@deriving show]
 
 type stmt =

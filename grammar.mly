@@ -6,7 +6,8 @@ open Syntax
 %token <string> COLOR
 %token <int> INTEGER
 %token TRUE FALSE
-%token COMMA LPAREN RPAREN COLON EQ
+%token LPAREN RPAREN LBRACK RBRACK
+%token COMMA COLON EQ
 %token VAR IF DO ELSE END FOR TO DEF
 %token PLUS
 %token EOF
@@ -33,6 +34,7 @@ block: list(stmt) { Block $1 }
 
 typing:
 | IDENT { TName $1 }
+| LBRACK typing RBRACK { TList $2 }
 
 stmt:
 | VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6) }
@@ -46,6 +48,7 @@ expr:
 | var LPAREN separated_list(COMMA, expr) RPAREN { ECall ($1, $3) }
 | var { EVar $1 }
 | expr bop expr { EBinary ($2, $1, $3) }
+| LBRACK separated_list(COMMA, expr) RBRACK { EList $2 }
 
 %inline bop:
 | PLUS { Add }

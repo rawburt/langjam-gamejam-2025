@@ -20,6 +20,9 @@ let rec compile_expr = function
       let c2 = compile_expr e2 in
       let op = compile_bop bop in
       Printf.sprintf "%s %s %s" c1 op c2
+  | EList exprs ->
+      let items = List.map compile_expr exprs |> String.concat ", " in
+      Printf.sprintf "[%s]" items
 
 let rec compile_stmt = function
   | SVar (name, _, expr) ->
