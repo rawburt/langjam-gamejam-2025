@@ -7,7 +7,8 @@ exception SyntaxError of string
 let error msg = raise (SyntaxError msg)
 }
 
-let ident = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*
+let ident = ['a'-'z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*
+let tident = ['A'-'Z']['a'-'z' 'A'-'Z' '_' '0'-'9']*
 let integer = ['0'-'9']+
 let hex = ['0'-'9' 'a'-'f' 'A'-'F']
 let color = '#' hex hex hex hex hex hex
@@ -22,6 +23,7 @@ rule token = parse
   | '[' { LBRACK }
   | ']' { RBRACK }
   | ',' { COMMA }
+  | '.' { DOT }
   | ':' { COLON }
   | '=' { EQ }
   | '+' { PLUS }
@@ -43,9 +45,11 @@ rule token = parse
   | "to" { TO }
   | "def" { DEF }
   | "ret" { RET }
+  | "rec" { REC }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }
   | ident as i { IDENT i }
+  | tident as t { TIDENT t }
   | '"' { read_string (Buffer.create 17) lexbuf }
   | eof { EOF }
   | _  { error "unexpected token" }

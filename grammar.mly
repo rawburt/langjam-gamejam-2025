@@ -10,13 +10,14 @@ let mkcompound var bop expr loc =
 %}
 
 %token <string> IDENT
+%token <string> TIDENT
 %token <string> COLOR
 %token <int> INTEGER
 %token <string> STRING
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
-%token COMMA COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET
+%token COMMA DOT COLON EQ
+%token VAR IF DO ELSE END FOR TO DEF RET REC
 %token PLUS MINUS EQEQ TIMES LT GT OR AND
 %token EOF
 
@@ -34,6 +35,7 @@ program: list(toplevel) EOF { Program $1 }
 toplevel:
 | stmt { TLStmt $1 }
 | def { TLDef $1 }
+| record { TLRec $1 }
 
 def:
 | DEF name=IDENT LPAREN params=param_list RPAREN ret=def_ret DO body=block END { {name; params; body; ret; loc=mkloc $startpos} }
@@ -46,10 +48,17 @@ param_list: separated_list(COMMA, param) { $1 }
 
 param: IDENT COLON typing { ($1, $3) }
 
+record:
+| REC name=TIDENT DO fields=list(field_decl) END { {name; fields; loc=mkloc $startpos } }
+
+field_decl:
+| IDENT COLON typing { ($1, $3) }
+
 block: list(stmt) { Block $1 }
 
 typing:
 | IDENT { TName $1 }
+| TIDENT { TName $1 }
 | LBRACK typing RBRACK { TList $2 }
 
 stmt:
@@ -75,6 +84,13 @@ expr:
 | var { EVar $1 }
 | expr bop expr { EBinary ($2, $1, $3, mkloc $startpos) }
 | LBRACK separated_list(COMMA, expr) RBRACK { EList ($2, mkloc $startpos) }
+| record_expr { $1 }
+
+record_expr:
+| TIDENT LPAREN separated_list(COMMA, field_expr) RPAREN { ERec ($1, $3, mkloc $startpos) }
+
+field_expr:
+| IDENT COLON expr { ($1, $3) }
 
 %inline bop:
 | PLUS { Add }
@@ -89,6 +105,7 @@ expr:
 var:
 | IDENT { VName ($1, mkloc $startpos) }
 | var LBRACK expr RBRACK { VSub ($1, $3, mkloc $startpos) }
+| var DOT IDENT { VField ($1, $3, mkloc $startpos) }
 
 constant:
 | TRUE { EBool true }

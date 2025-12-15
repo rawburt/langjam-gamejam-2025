@@ -2,7 +2,11 @@ type loc = Loc of int [@@deriving show]
 type typing = TName of string | TList of typing [@@deriving show]
 type bop = Add | Sub | Mul | Lt | Gt | Eq | Or | And [@@deriving show]
 
-type var = VName of string * loc | VSub of var * expr * loc [@@deriving show]
+type var =
+  | VName of string * loc
+  | VSub of var * expr * loc
+  | VField of var * string * loc
+[@@deriving show]
 
 and expr =
   | EBool of bool
@@ -13,6 +17,7 @@ and expr =
   | ECall of var * expr list * loc
   | EBinary of bop * expr * expr * loc
   | EList of expr list * loc
+  | ERec of string * (string * expr) list * loc
 [@@deriving show]
 
 type stmt =
@@ -35,5 +40,10 @@ type def = {
 }
 [@@deriving show]
 
-type toplevel = TLStmt of stmt | TLDef of def [@@deriving show]
+type record = { name : string; fields : (string * typing) list; loc : loc }
+[@@deriving show]
+
+type toplevel = TLStmt of stmt | TLDef of def | TLRec of record
+[@@deriving show]
+
 type program = Program of toplevel list [@@deriving show]

@@ -1,4 +1,5 @@
 open Syntax
+module StringSet = Set.Make (String)
 
 type ty =
   | TyUnit
@@ -9,6 +10,7 @@ type ty =
   | TyFun of ty list * ty
   | TyList of ty
   | TyVar of ty option ref
+  | TyRec of (string * ty) list
 [@@deriving show]
 
 exception TypeError of string * loc
@@ -69,6 +71,18 @@ let rec unify loc t1 t2 =
         (Printf.sprintf "unifcation failed.\nt1' = %s\nt2' = %s\n" (show_ty t1')
            (show_ty t2'))
 
+let has_duplicates fields =
+  let n1 = List.length fields in
+  let n2 = StringSet.(of_list fields |> to_list) |> List.length in
+  not (n1 = n2)
+
+let same_fields f1 f2 =
+  if List.length f1 = List.length f2 then
+    let s1 = StringSet.of_list f1 in
+    let s2 = StringSet.of_list f2 in
+    StringSet.(diff s1 s2 |> to_list) |> List.is_empty
+  else false
+
 let rec lookup_typing loc env = function
   | TName name -> lookup loc name env.tenv
   | TList typing -> TyList (lookup_typing loc env typing)
@@ -83,6 +97,13 @@ let rec check_var env var =
             | TyInt -> t
             | _ -> error loc "subscript expression must be an integer")
         | _ -> error loc "not a list")
+    | VField (v, name, loc) -> (
+        match check v with
+        | TyRec fields -> (
+            match List.assoc_opt name fields with
+            | Some t -> t
+            | None -> error loc ("record does not have field name: " ^ name))
+        | _ -> error loc "not a record")
   in
   check var
 
@@ -115,7 +136,7 @@ and check_expr env expr =
             | TyFun (param_tys, return_ty) ->
                 List.iter2 (unify loc) param_tys expr_tys;
                 return_ty
-            | _ -> error loc "not a function"))
+            | _ -> error loc ("not a function:: " ^ name)))
     | EBinary (bop, expr1, expr2, loc) -> (
         let t1 = check expr1 in
         let t2 = check expr2 in
@@ -165,6 +186,17 @@ and check_expr env expr =
         | t :: ts ->
             List.iter (unify loc t) ts;
             TyList t)
+    | ERec (name, fields, loc) -> (
+        let field_types (n, e) = (n, check e) in
+        let fields' = List.map field_types fields |> List.sort compare in
+        match lookup loc name env.tenv with
+        | TyRec ts ->
+            if same_fields (List.map fst ts) (List.map fst fields') then (
+              (* fields' is sorted nd ts is sorted before adding to env *)
+              List.iter2 (unify loc) (List.map snd ts) (List.map snd fields');
+              TyRec ts)
+            else error loc "missing record fields"
+        | _ -> error loc ("not a record: " ^ name))
   in
   check expr
 
@@ -233,6 +265,16 @@ let check_toplevel env = function
             (def.name, TyFun (tys, Option.value ret ~default:TyUnit))
             :: env.venv;
         }
+  | TLRec record ->
+      if mem record.name env.venv then
+        error record.loc ("duplicate symbol definition: " ^ record.name)
+      else if has_duplicates (List.map fst record.fields) then
+        error record.loc "duplicate field definitions: "
+      else
+        let type_field (n, t) = (n, lookup_typing record.loc env t) in
+        let fields' = List.map type_field record.fields |> List.sort compare in
+        let t = TyRec fields' in
+        { env with tenv = (record.name, t) :: env.tenv }
 
 let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in

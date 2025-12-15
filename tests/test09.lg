@@ -1,0 +1,32 @@
+rec Vec2 do
+  x: int
+  y: int
+end
+
+def vec2_str(v: Vec2) str do
+  var s: str = "Vec2("
+  s += "x: " + str(v.x) + ", "
+  s += "y: " + str(v.y)
+  s += ")"
+  ret s
+end
+
+var pos: Vec2 = Vec2(x: 10, y: 10)
+
+pos.x += 1
+pos.y += 10
+
+debug(vec2_str(pos))
+
+pset(pos.x, pos.y, #A020F0)
+
+rec Rect do
+  pos: Vec2
+  size: Vec2
+end
+
+var rect: Rect = Rect(pos: Vec2(x: 20, y: 20), size: Vec2(x: 50, y: 50))
+
+rect.size.y = 30
+
+debug(str(rect))

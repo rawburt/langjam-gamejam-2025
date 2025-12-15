@@ -24,6 +24,7 @@ let rec compile_var = function
   | VSub (var, expr, _) ->
       let estr = compile_expr expr in
       Printf.sprintf "%s[%s]" (compile_var var) estr
+  | VField (var, name, _) -> Printf.sprintf "%s.%s" (compile_var var) name
 
 and compile_expr = function
   | EBool b -> string_of_bool b
@@ -53,6 +54,10 @@ and compile_expr = function
   | EList (exprs, _) ->
       let items = List.map compile_expr exprs |> String.concat ", " in
       Printf.sprintf "[%s]" items
+  | ERec (_, fields, _) ->
+      let compile_field (n, e) = Printf.sprintf "%s:%s" n (compile_expr e) in
+      let f = List.map compile_field fields |> String.concat ", " in
+      Printf.sprintf "{%s}" f
 
 let rec compile_stmt = function
   | SVar (name, _, expr, _) ->
@@ -83,6 +88,7 @@ let compile_toplevel = function
       let params = List.map fst def.params |> String.concat ", " in
       Printf.sprintf "function %s(%s) {\n%s\n}" def.name params
         (compile_block def.body)
+  | TLRec _ -> ""
 
 let add_empty_def name toplevels =
   let compare = function TLDef def -> def.name = name | _ -> false in
