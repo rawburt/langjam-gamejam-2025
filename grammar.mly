@@ -1,5 +1,8 @@
 %{
 open Syntax
+
+let mkloc (startpos : Lexing.position) = Loc startpos.pos_lnum
+
 %}
 
 %token <string> IDENT
@@ -24,7 +27,7 @@ toplevel:
 | def { TLDef $1 }
 
 def:
-| DEF name=IDENT LPAREN params=param_list RPAREN DO body=block END { {name; params; body} }
+| DEF name=IDENT LPAREN params=param_list RPAREN DO body=block END { {name; params; body; loc=mkloc $startpos} }
 
 param_list: separated_list(COMMA, param) { $1 }
 
@@ -37,24 +40,28 @@ typing:
 | LBRACK typing RBRACK { TList $2 }
 
 stmt:
-| VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6) }
-| IDENT EQ expr { SMutate ($1, $3) }
-| IF expr DO block ELSE block END { SIfElse ($2, $4, $6) }
-| FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8) }
-| expr { SExpr $1 }
+| VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6, mkloc $startpos) }
+| IDENT EQ expr { SMutate ($1, $3, mkloc $startpos) }
+| IF expr DO block ELSE block END { SIfElse ($2, $4, $6, mkloc $startpos) }
+| FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8, mkloc $startpos) }
+| call { SExpr ($1, mkloc $startpos) }
+
+call:
+| var LPAREN separated_list(COMMA, expr) RPAREN { ECall ($1, $3, mkloc $startpos) }
 
 expr:
 | constant { $1 }
-| var LPAREN separated_list(COMMA, expr) RPAREN { ECall ($1, $3) }
+| call { $1 }
 | var { EVar $1 }
-| expr bop expr { EBinary ($2, $1, $3) }
-| LBRACK separated_list(COMMA, expr) RBRACK { EList $2 }
+| expr bop expr { EBinary ($2, $1, $3, mkloc $startpos) }
+| LBRACK separated_list(COMMA, expr) RBRACK { EList ($2, mkloc $startpos) }
 
 %inline bop:
 | PLUS { Add }
 
 var:
-| IDENT { VName $1 }
+| IDENT { VName ($1, mkloc $startpos) }
+| var LBRACK expr RBRACK { VSub ($1, $3, mkloc $startpos) }
 
 constant:
 | TRUE { EBool true }

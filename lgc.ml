@@ -41,8 +41,8 @@ let compile file =
       let chan = open_out !output_file in
       Printf.fprintf chan "%s\n" game;
       close_out chan)
-  with Typecheck.TypeError msg ->
-    Printf.eprintf "type error: %s\n" msg;
+  with Typecheck.TypeError (msg, Loc l) ->
+    Printf.eprintf "[line %d] type error: %s\n" l msg;
     exit 1
 
 let () =
