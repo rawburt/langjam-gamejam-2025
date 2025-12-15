@@ -27,10 +27,10 @@ let mkcompound var bop expr loc =
 %left PLUS MINUS
 %left TIMES
 
-%start <program> program
+%start <library> library
 %%
 
-program: list(toplevel) EOF { Program $1 }
+library: list(toplevel) EOF { Library $1 }
 
 toplevel:
 | stmt { TLStmt $1 }

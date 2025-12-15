@@ -276,7 +276,7 @@ let check_toplevel env = function
         let t = TyRec fields' in
         { env with tenv = (record.name, t) :: env.tenv }
 
-let check (Program toplevels) =
+let check (Library toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in
   let _ = List.fold_left check_toplevel base_env toplevels in
   ()

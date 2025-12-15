@@ -101,7 +101,7 @@ let add_empty_def name toplevels =
 let ensure_engine_defs toplevels =
   add_empty_def "update" toplevels |> add_empty_def "draw"
 
-let compile (Program toplevels) =
+let compile (Library toplevels) =
   let toplevels' = ensure_engine_defs toplevels in
   let body = String.concat "\n" (List.map compile_toplevel toplevels') in
   Printf.sprintf

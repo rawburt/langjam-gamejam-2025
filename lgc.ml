@@ -16,7 +16,7 @@ let parse_file file =
   let chan = open_in file in
   let lexbuf = Lexing.from_channel chan in
   try
-    let program = Grammar.program Lexer.token lexbuf in
+    let program = Grammar.library Lexer.token lexbuf in
     close_in chan;
     program
   with
@@ -33,7 +33,7 @@ let parse_file file =
 
 let compile file =
   let program = parse_file file in
-  if !debug then print_endline (Syntax.show_program program);
+  if !debug then print_endline (Syntax.show_library program);
   try
     Typecheck.check program;
     if not !check then (
