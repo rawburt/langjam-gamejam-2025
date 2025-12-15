@@ -46,6 +46,7 @@ rule token = parse
   | "def" { DEF }
   | "ret" { RET }
   | "rec" { REC }
+  | "use" { USE }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }
   | ident as i { IDENT i }

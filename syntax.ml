@@ -1,4 +1,7 @@
-type loc = Loc of int [@@deriving show]
+type loc = Loc of string * int [@@deriving show]
+
+let mkloc (s : Lexing.position) = Loc (s.pos_fname, s.pos_lnum)
+
 type typing = TName of string | TList of typing [@@deriving show]
 type bop = Add | Sub | Mul | Lt | Gt | Eq | Or | And [@@deriving show]
 
@@ -46,4 +49,7 @@ type record = { name : string; fields : (string * typing) list; loc : loc }
 type toplevel = TLStmt of stmt | TLDef of def | TLRec of record
 [@@deriving show]
 
-type library = Library of { top : toplevel list } [@@deriving show]
+type library = Library of { top : toplevel list; imports : string list }
+[@@deriving show]
+
+type program = Program of toplevel list [@@deriving show]

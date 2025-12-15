@@ -32,7 +32,7 @@ and compile_expr = function
   | EColor color -> Printf.sprintf "\"%s\"" color
   | EStr str -> Printf.sprintf "\"%s\"" str
   | EVar var -> compile_var var
-  | ECall (var, exprs, Loc line) -> (
+  | ECall (var, exprs, Loc (file, line)) -> (
       let name =
         match var with
         | VName (n, _) -> n
@@ -42,7 +42,7 @@ and compile_expr = function
       match name with
       | "len" -> Printf.sprintf "(%s).length" compiled_exprs
       | "debug" ->
-          Printf.sprintf "%s('[line %d]: ' + %s)" (compile_name name) line
+          Printf.sprintf "%s('[%s:%d]: ' + %s)" (compile_name name) file line
             compiled_exprs
       | "str" -> compiled_exprs
       | _ -> Printf.sprintf "%s(%s)" (compile_name name) compiled_exprs)
@@ -95,14 +95,14 @@ let add_empty_def name toplevels =
   match List.find_opt compare toplevels with
   | Some _ -> toplevels
   | None ->
-      TLDef { name; params = []; body = Block []; loc = Loc 0; ret = None }
+      TLDef { name; params = []; body = Block []; loc = Loc ("",0); ret = None }
       :: toplevels
 
 let ensure_engine_defs toplevels =
   add_empty_def "update" toplevels |> add_empty_def "draw"
 
-let compile (Library lib) =
-  let toplevels' = ensure_engine_defs lib.top in
+let compile (Program toplevels) =
+  let toplevels' = ensure_engine_defs toplevels in
   let body = String.concat "\n" (List.map compile_toplevel toplevels') in
   Printf.sprintf
     "function game(engine) {\n%s\nreturn {update:update,draw:draw};\n}" body

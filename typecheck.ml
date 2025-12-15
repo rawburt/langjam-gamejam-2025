@@ -68,7 +68,7 @@ let rec unify loc t1 t2 =
   | TyList l1, TyList l2 -> unify loc l1 l2
   | _ ->
       error loc
-        (Printf.sprintf "unifcation failed.\nt1' = %s\nt2' = %s\n" (show_ty t1')
+        (Printf.sprintf "unifcation failed.\ntype 1 = %s\ntype 2 = %s\n" (show_ty t1')
            (show_ty t2'))
 
 let has_duplicates fields =
@@ -276,7 +276,7 @@ let check_toplevel env = function
         let t = TyRec fields' in
         { env with tenv = (record.name, t) :: env.tenv }
 
-let check (Library lib) =
+let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in
-  let _ = List.fold_left check_toplevel base_env lib.top in
+  let _ = List.fold_left check_toplevel base_env toplevels in
   ()

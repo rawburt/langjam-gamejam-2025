@@ -1,8 +1,6 @@
 %{
 open Syntax
 
-let mkloc (startpos : Lexing.position) = Loc startpos.pos_lnum
-
 let mkcompound var bop expr loc =
   let expr' = EBinary (bop, (EVar var), expr, loc) in
   SMutate (var, expr', loc)
@@ -17,7 +15,7 @@ let mkcompound var bop expr loc =
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET REC
+%token VAR IF DO ELSE END FOR TO DEF RET REC USE
 %token PLUS MINUS EQEQ TIMES LT GT OR AND
 %token EOF
 
@@ -30,7 +28,14 @@ let mkcompound var bop expr loc =
 %start <library> library
 %%
 
-library: list(toplevel) EOF { Library { top = $1 } }
+library: imports=list(import) top=list(toplevel) EOF { Library { top; imports; } }
+
+import:
+| USE import_name { $2 }
+
+import_name:
+| IDENT { $1 }
+| TIDENT { $1 }
 
 toplevel:
 | stmt { TLStmt $1 }
