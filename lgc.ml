@@ -25,9 +25,9 @@ let parse_file file =
         lexbuf.lex_curr_p.pos_lnum (Lexing.lexeme lexbuf);
       close_in chan;
       exit 1
-  | Lexer.SyntaxError ->
-      Printf.eprintf "[line %d] lex error at token: %s\n"
-        lexbuf.lex_curr_p.pos_lnum (Lexing.lexeme lexbuf);
+  | Lexer.SyntaxError msg ->
+      Printf.eprintf "[line %d] lex error: %s: %s\n" lexbuf.lex_curr_p.pos_lnum
+        msg (Lexing.lexeme lexbuf);
       close_in chan;
       exit 1
 

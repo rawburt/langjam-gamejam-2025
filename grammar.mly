@@ -12,14 +12,17 @@ let mkcompound var bop expr loc =
 %token <string> IDENT
 %token <string> COLOR
 %token <int> INTEGER
+%token <string> STRING
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA COLON EQ
 %token VAR IF DO ELSE END FOR TO DEF RET
-%token PLUS MINUS EQEQ TIMES LT GT
+%token PLUS MINUS EQEQ TIMES LT GT OR AND
 %token EOF
 
-%nonassoc EQEQ
+%left OR
+%left AND
+%nonassoc EQEQ LT GT
 %left PLUS MINUS
 %left TIMES
 
@@ -79,6 +82,8 @@ expr:
 | TIMES { Mul }
 | LT { Lt }
 | GT { Gt }
+| OR { Or }
+| AND { And }
 | EQEQ { Eq }
 
 var:
@@ -90,3 +95,4 @@ constant:
 | FALSE { EBool false }
 | COLOR { EColor $1 }
 | INTEGER { EInt $1 }
+| STRING { EStr $1 }

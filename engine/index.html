@@ -1,6 +1,9 @@
 <html>
 <header>
   <title>Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
       background: #fff;
@@ -17,7 +20,15 @@
   <script src="./engine.js"></script>
   <script src="./game.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => { new Engine(game).run(); });
+    document.addEventListener('DOMContentLoaded', () => {
+      const myFont = new FontFace('GameFont', 'url(PressStart2P-Regular.ttf)');
+      document.fonts.add(myFont);
+      myFont.load().then(function () {
+        new Engine(game).run();
+      }).catch(function (error) {
+        console.error('Font loading failed:', error);
+      });
+    });
   </script>
 </body>
 

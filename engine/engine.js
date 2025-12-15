@@ -4,6 +4,7 @@ class Engine {
   constructor(gameBuilder) {
     this.canvas = document.getElementById("canvas");
     this.ctx = canvas.getContext("2d");
+    this.setupCtx();
     const game = gameBuilder(this);
     this.updateFn = game.update;
     this.drawFn = game.draw;
@@ -62,5 +63,24 @@ class Engine {
 
   clear() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  text(str, x, y, size, color) {
+    this.ctx.strokeStyle = undefined;
+    this.ctx.fillStyle = color;
+    this.ctx.font = (size * PSIZE) + 'px GameFont';
+    this.ctx.fillText(str, x * PSIZE, y * PSIZE);
+  }
+
+  debug(s) {
+    console.log(s);
+  }
+
+  setupCtx() {
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.mozImageSmoothingEnabled = false;
+    this.ctx.webkitImageSmoothingEnabled = false;
+    this.ctx.msImageSmoothingEnabled = false;
+    this.ctx.textBaseline = 'top';
   }
 }

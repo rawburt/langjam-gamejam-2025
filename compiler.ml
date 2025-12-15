@@ -5,6 +5,8 @@ let compile_name = function
   | "button" -> "engine.button"
   | "buttonp" -> "engine.buttonp"
   | "clear" -> "engine.clear"
+  | "text" -> "engine.text"
+  | "debug" -> "engine.debug"
   | n -> n
 
 let compile_bop = function
@@ -13,6 +15,8 @@ let compile_bop = function
   | Mul -> "*"
   | Lt -> "<"
   | Gt -> ">"
+  | Or -> "||"
+  | And -> "&&"
   | Eq -> "==="
 
 let rec compile_var = function
@@ -25,8 +29,9 @@ and compile_expr = function
   | EBool b -> string_of_bool b
   | EInt i -> string_of_int i
   | EColor color -> Printf.sprintf "\"%s\"" color
+  | EStr str -> Printf.sprintf "\"%s\"" str
   | EVar var -> compile_var var
-  | ECall (var, exprs, _) -> (
+  | ECall (var, exprs, Loc line) -> (
       let name =
         match var with
         | VName (n, _) -> n
@@ -35,6 +40,10 @@ and compile_expr = function
       let compiled_exprs = String.concat "," (List.map compile_expr exprs) in
       match name with
       | "len" -> Printf.sprintf "(%s).length" compiled_exprs
+      | "debug" ->
+          Printf.sprintf "%s('[line %d]: ' + %s)" (compile_name name) line
+            compiled_exprs
+      | "str" -> compiled_exprs
       | _ -> Printf.sprintf "%s(%s)" (compile_name name) compiled_exprs)
   | EBinary (bop, e1, e2, _) ->
       let c1 = compile_expr e1 in

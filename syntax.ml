@@ -1,6 +1,6 @@
 type loc = Loc of int [@@deriving show]
 type typing = TName of string | TList of typing [@@deriving show]
-type bop = Add | Sub | Mul | Lt | Gt | Eq [@@deriving show]
+type bop = Add | Sub | Mul | Lt | Gt | Eq | Or | And [@@deriving show]
 
 type var = VName of string * loc | VSub of var * expr * loc [@@deriving show]
 
@@ -8,6 +8,7 @@ and expr =
   | EBool of bool
   | EInt of int
   | EColor of string
+  | EStr of string
   | EVar of var
   | ECall of var * expr list * loc
   | EBinary of bop * expr * expr * loc

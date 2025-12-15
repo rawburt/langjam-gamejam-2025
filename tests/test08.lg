@@ -1,0 +1,30 @@
+var c: color = #00ff00
+var s: int = 3
+
+var topleft: [int] = [10, 10]
+
+var msg: str = "HELLO!"
+
+pset(10, 10, c)
+
+text(msg, topleft[0], topleft[1], s, c)
+
+def liney(x: int, y: int, l: int) do
+  for z=0 to l do
+    pset(x+z, y, c)
+  end
+end
+
+def linex(x: int, y: int, l: int) do
+  for z=0 to l do
+    pset(x, y+z, c)
+  end
+end
+
+liney(8, 8, 20)
+liney(8, 14, 20)
+linex(8, 8, 6)
+linex(28, 8, 7)
+
+--- testing debugging
+debug("debug info: " + str(100))

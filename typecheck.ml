@@ -5,6 +5,7 @@ type ty =
   | TyBool
   | TyInt
   | TyColor
+  | TyStr
   | TyFun of ty list * ty
   | TyList of ty
   | TyVar of ty option ref
@@ -20,7 +21,8 @@ type env = {
   ret : ty option;
 }
 
-let base_tenv = [ ("int", TyInt); ("bool", TyBool); ("color", TyColor) ]
+let base_tenv =
+  [ ("int", TyInt); ("bool", TyBool); ("color", TyColor); ("str", TyStr) ]
 
 let base_venv =
   [
@@ -28,7 +30,12 @@ let base_venv =
     ("button", TyFun ([ TyInt ], TyBool));
     ("buttonp", TyFun ([ TyInt ], TyBool));
     ("clear", TyFun ([], TyUnit));
-    (* `len` is here for name lookup but type checking is handled as a special case for fake parametric polymorphism *)
+    ("text", TyFun ([ TyStr; TyInt; TyInt; TyInt; TyColor ], TyUnit));
+    ("debug", TyFun ([ TyStr ], TyUnit));
+    (* special forms that are here for name lookup but handled different in type checking *)
+    (* forall a: a -> str *)
+    ("str", TyFun ([ TyVar (ref None) ], TyStr));
+    (* forall a: list[a] -> int *)
     ("len", TyFun ([ TyList (TyVar (ref None)) ], TyInt));
   ]
 
@@ -84,6 +91,7 @@ and check_expr env expr =
     | EBool _ -> TyBool
     | EInt _ -> TyInt
     | EColor _ -> TyColor
+    | EStr _ -> TyStr
     | EVar var -> check_var env var
     | ECall (var, exprs, loc) -> (
         let name =
@@ -92,10 +100,16 @@ and check_expr env expr =
           | _ -> error loc "not a valid function name"
         in
         let expr_tys = List.map check exprs in
+        (* a very janky parametric polymorphism :) *)
         match name with
         | "len" ->
-            List.iter2 (unify loc) [ TyList (TyVar (ref None)) ] expr_tys;
-            TyInt
+            if expr_tys = [ TyStr ] then TyInt
+            else (
+              List.iter2 (unify loc) [ TyList (TyVar (ref None)) ] expr_tys;
+              TyInt)
+        | "str" ->
+            List.iter2 (unify loc) [ TyVar (ref None) ] expr_tys;
+            TyStr
         | _ -> (
             match lookup loc name env.venv with
             | TyFun (param_tys, return_ty) ->
@@ -107,9 +121,15 @@ and check_expr env expr =
         let t2 = check expr2 in
         match bop with
         | Add ->
-            unify loc TyInt t1;
-            unify loc TyInt t2;
-            TyInt
+            (* a very janky function overloading :) *)
+            if t1 = TyStr then (
+              unify loc TyStr t1;
+              unify loc TyStr t2;
+              TyStr)
+            else (
+              unify loc TyInt t1;
+              unify loc TyInt t2;
+              TyInt)
         | Sub ->
             unify loc TyInt t1;
             unify loc TyInt t2;
@@ -128,6 +148,14 @@ and check_expr env expr =
             TyBool
         | Eq ->
             unify loc t1 t2;
+            TyBool
+        | Or ->
+            unify loc TyBool t1;
+            unify loc TyBool t2;
+            TyBool
+        | And ->
+            unify loc TyBool t1;
+            unify loc TyBool t2;
             TyBool)
     | EList (exprs, loc) -> (
         let tys = List.map check exprs in
