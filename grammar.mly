@@ -41,7 +41,7 @@ typing:
 
 stmt:
 | VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6, mkloc $startpos) }
-| IDENT EQ expr { SMutate ($1, $3, mkloc $startpos) }
+| var EQ expr { SMutate ($1, $3, mkloc $startpos) }
 | IF expr DO block ELSE block END { SIfElse ($2, $4, $6, mkloc $startpos) }
 | FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8, mkloc $startpos) }
 | call { SExpr ($1, mkloc $startpos) }

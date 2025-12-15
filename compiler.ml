@@ -38,8 +38,8 @@ and compile_expr = function
 let rec compile_stmt = function
   | SVar (name, _, expr, _) ->
       Printf.sprintf "let %s = %s;" name (compile_expr expr)
-  | SMutate (name, expr, _) ->
-      Printf.sprintf "%s = %s;" name (compile_expr expr)
+  | SMutate (var, expr, _) ->
+      Printf.sprintf "%s = %s;" (compile_var var) (compile_expr expr)
   | SExpr (expr, _) -> compile_expr expr
   | SIfElse (expr, block1, block2, _) ->
       let e = compile_expr expr in

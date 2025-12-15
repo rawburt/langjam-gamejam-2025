@@ -16,7 +16,7 @@ and expr =
 
 type stmt =
   | SVar of string * typing * expr * loc
-  | SMutate of string * expr * loc
+  | SMutate of var * expr * loc
   | SExpr of expr * loc
   | SIfElse of expr * block * block * loc
   | SFor of string * expr * expr * block * loc

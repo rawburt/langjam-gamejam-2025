@@ -118,13 +118,11 @@ let rec check_stmt env stmt =
         let expr_ty = check_expr env expr in
         unify loc ty expr_ty;
         { env with venv = (name, ty) :: env.venv }
-  | SMutate (name, expr, loc) ->
-      if mem name env.venv then (
-        let ty = lookup loc name env.venv in
-        let expr_ty = check_expr env expr in
-        unify loc ty expr_ty;
-        env)
-      else error loc ("symbol not declared: " ^ name)
+  | SMutate (var, expr, loc) ->
+      let ty = check_var env var in
+      let expr_ty = check_expr env expr in
+      unify loc ty expr_ty;
+      env
   | SExpr (expr, _) ->
       let _ = check_expr env expr in
       env

@@ -7,3 +7,6 @@ var nested3: [[bool]] = [[],[],[false]]
 var i: int = items[0]
 var b: bool = nested2[0][0][0]
 var e: color = empty[0]
+
+items[0] = 67
+nested2[0] = [[false]]
