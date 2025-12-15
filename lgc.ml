@@ -1,4 +1,4 @@
-let usage = "lgc [-debug] [-o <output>] <file1>"
+let usage = "lgc [options] [-o <output>] <file1>"
 let debug = ref false
 let check = ref false
 let output_file = ref "game.js"
