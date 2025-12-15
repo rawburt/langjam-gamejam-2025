@@ -1,0 +1,47 @@
+var offset: [int] = [4,4]
+var tile_size: int = 4
+var player: [int] = [6,6]
+var map: [[int]] = [
+  [1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1]
+]
+
+def draw_map() do
+  for y = 0 to 8 do
+    for x = 0 to 8 do
+      pset(x + offset[0], y + offset[1], #ffffff)
+    end
+  end
+end
+
+def draw_player() do
+  pset(player[0] + offset[0], player[1] + offset[1], #990000)
+end
+
+def update() do
+  if buttonp(0) do
+    player[0] -= 1
+  end
+  if buttonp(1) do
+    player[0] += 1
+  end
+  if buttonp(2) do
+    player[1] -= 1
+  end
+  if buttonp(3) do
+    player[1] += 1
+  end
+end
+
+def draw() do
+  clear()
+  draw_map()
+  draw_player()
+end

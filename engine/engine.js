@@ -17,26 +17,32 @@ class Engine {
   setupInput() {
     this.clearInput();
     window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") this.input[0] = true;
-      if (e.key === "ArrowRight") this.input[1] = true;
-      if (e.key === "ArrowUp") this.input[2] = true;
-      if (e.key === "ArrowDown") this.input[3] = true;
+      if (e.key === "ArrowLeft") this.input[0] = { state: true, repeat: e.repeat };
+      if (e.key === "ArrowRight") this.input[1] = { state: true, repeat: e.repeat };
+      if (e.key === "ArrowUp") this.input[2] = { state: true, repeat: e.repeat };
+      if (e.key === "ArrowDown") this.input[3] = { state: true, repeat: e.repeat };
     });
     window.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft") this.input[0] = false;
-      if (e.key === "ArrowRight") this.input[1] = false;
-      if (e.key === "ArrowUp") this.input[2] = false;
-      if (e.key === "ArrowDown") this.input[3] = false;
+      if (e.key === "ArrowLeft") this.input[0] = { state: false, repeat: false };
+      if (e.key === "ArrowRight") this.input[1] = { state: false, repeat: false };
+      if (e.key === "ArrowUp") this.input[2] = { state: false, repeat: false };
+      if (e.key === "ArrowDown") this.input[3] = { state: false, repeat: false };
     })
   }
 
   clearInput() {
-    this.input = [false, false, false, false];
+    this.input = [
+      { state: false, repeat: false },
+      { state: false, repeat: false },
+      { state: false, repeat: false },
+      { state: false, repeat: false }
+    ];
   }
 
   tick(timestamp) {
     this.updateFn();
     this.drawFn();
+    this.clearInput();
     requestAnimationFrame(() => this.tick());
   }
 
@@ -47,6 +53,14 @@ class Engine {
   }
 
   button(id) {
-    return this.input[id];
+    return this.input[id].state;
+  }
+
+  buttonp(id) {
+    return this.input[id].state && !this.input[id].repeat;
+  }
+
+  clear() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }

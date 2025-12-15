@@ -10,3 +10,12 @@ var e: color = empty[0]
 
 items[0] = 67
 nested2[0] = [[false]]
+
+--- checking parametric polymorphism inference
+var l: int = len(items)
+var l_: int = len(empty)
+
+var map: [[int]] = [[]]
+
+var l1: int = len(map)
+var l2: int = len(map[0])

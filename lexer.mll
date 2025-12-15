@@ -13,6 +13,7 @@ let ws = [' ' '\t' '\r']+
 
 rule token = parse
   | ws { token lexbuf }
+  | "---" { comment lexbuf }
   | '\n' { new_line lexbuf; token lexbuf }
   | '(' { LPAREN }
   | ')' { RPAREN }
@@ -22,6 +23,9 @@ rule token = parse
   | ':' { COLON }
   | '=' { EQ }
   | '+' { PLUS }
+  | '-' { MINUS }
+  | '*' { TIMES }
+  | "==" { EQEQ }
   | "var" { VAR }
   | "true" { TRUE }
   | "false" { FALSE }
@@ -37,3 +41,7 @@ rule token = parse
   | ident as i { IDENT i }
   | eof { EOF }
   | _  { raise SyntaxError }
+and comment = parse
+  | '\n' { new_line lexbuf; token lexbuf }
+  | _ { comment lexbuf }
+  | eof { EOF }

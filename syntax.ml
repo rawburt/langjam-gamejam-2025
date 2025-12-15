@@ -1,6 +1,6 @@
 type loc = Loc of int [@@deriving show]
 type typing = TName of string | TList of typing [@@deriving show]
-type bop = Add [@@deriving show]
+type bop = Add | Sub | Mul | Eq [@@deriving show]
 
 type var = VName of string * loc | VSub of var * expr * loc [@@deriving show]
 
@@ -18,7 +18,7 @@ type stmt =
   | SVar of string * typing * expr * loc
   | SMutate of var * expr * loc
   | SExpr of expr * loc
-  | SIfElse of expr * block * block * loc
+  | SIfElse of expr * block * block option * loc
   | SFor of string * expr * expr * block * loc
 [@@deriving show]
 

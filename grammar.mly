@@ -3,6 +3,10 @@ open Syntax
 
 let mkloc (startpos : Lexing.position) = Loc startpos.pos_lnum
 
+let mkcompound var bop expr loc =
+  let expr' = EBinary (bop, (EVar var), expr, loc) in
+  SMutate (var, expr', loc)
+
 %}
 
 %token <string> IDENT
@@ -12,10 +16,12 @@ let mkloc (startpos : Lexing.position) = Loc startpos.pos_lnum
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA COLON EQ
 %token VAR IF DO ELSE END FOR TO DEF
-%token PLUS
+%token PLUS MINUS EQEQ TIMES
 %token EOF
 
-%left PLUS
+%nonassoc EQEQ
+%left PLUS MINUS
+%left TIMES
 
 %start <program> program
 %%
@@ -41,10 +47,16 @@ typing:
 
 stmt:
 | VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6, mkloc $startpos) }
-| var EQ expr { SMutate ($1, $3, mkloc $startpos) }
-| IF expr DO block ELSE block END { SIfElse ($2, $4, $6, mkloc $startpos) }
+| mutate { $1 }
+| IF expr DO block ELSE block END { SIfElse ($2, $4, Some $6, mkloc $startpos) }
+| IF expr DO block END { SIfElse ($2, $4, None, mkloc $startpos) }
 | FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8, mkloc $startpos) }
 | call { SExpr ($1, mkloc $startpos) }
+
+mutate:
+| var EQ expr { SMutate ($1, $3, mkloc $startpos) }
+| var PLUS EQ expr { mkcompound $1 Add $4 (mkloc $startpos) }
+| var MINUS EQ expr { mkcompound $1 Sub $4 (mkloc $startpos) }
 
 call:
 | var LPAREN separated_list(COMMA, expr) RPAREN { ECall ($1, $3, mkloc $startpos) }
@@ -58,6 +70,9 @@ expr:
 
 %inline bop:
 | PLUS { Add }
+| MINUS { Sub }
+| TIMES { Mul }
+| EQEQ { Eq }
 
 var:
 | IDENT { VName ($1, mkloc $startpos) }

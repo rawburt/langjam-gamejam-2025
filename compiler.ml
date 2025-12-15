@@ -3,9 +3,11 @@ open Syntax
 let compile_name = function
   | "pset" -> "engine.pset"
   | "button" -> "engine.button"
+  | "buttonp" -> "engine.buttonp"
+  | "clear" -> "engine.clear"
   | n -> n
 
-let compile_bop = function Add -> "+"
+let compile_bop = function Add -> "+" | Sub -> "-" | Mul -> "*" | Eq -> "==="
 
 let rec compile_var = function
   | VName (name, _) -> name
@@ -18,14 +20,16 @@ and compile_expr = function
   | EInt i -> string_of_int i
   | EColor color -> Printf.sprintf "\"%s\"" color
   | EVar var -> compile_var var
-  | ECall (var, exprs, _) ->
+  | ECall (var, exprs, _) -> (
       let name =
         match var with
         | VName (n, _) -> n
         | _ -> failwith "compile_expr: ECall: not a VName"
       in
       let compiled_exprs = String.concat "," (List.map compile_expr exprs) in
-      Printf.sprintf "%s(%s);" (compile_name name) compiled_exprs
+      match name with
+      | "len" -> Printf.sprintf "(%s).length" compiled_exprs
+      | _ -> Printf.sprintf "%s(%s)" (compile_name name) compiled_exprs)
   | EBinary (bop, e1, e2, _) ->
       let c1 = compile_expr e1 in
       let c2 = compile_expr e2 in
@@ -44,8 +48,11 @@ let rec compile_stmt = function
   | SIfElse (expr, block1, block2, _) ->
       let e = compile_expr expr in
       let b1 = compile_block block1 in
-      let b2 = compile_block block2 in
-      Printf.sprintf "if (%s) {\n%s\n} else {\n%s\n}" e b1 b2
+      let b2 = Option.map compile_block block2 in
+      let b2_else =
+        match b2 with Some b -> Printf.sprintf "else {\n%s\n}" b | None -> ""
+      in
+      Printf.sprintf "if (%s) {\n%s\n} %s" e b1 b2_else
   | SFor (name, expr1, expr2, block, _) ->
       Printf.sprintf "for (let %s = %s; %s < %s; %s += 1) {\n%s\n}" name
         (compile_expr expr1) name (compile_expr expr2) name

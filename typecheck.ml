@@ -22,6 +22,10 @@ let base_venv =
   [
     ("pset", TyFun ([ TyInt; TyInt; TyColor ], TyUnit));
     ("button", TyFun ([ TyInt ], TyBool));
+    ("buttonp", TyFun ([ TyInt ], TyBool));
+    ("clear", TyFun ([ ], TyUnit));
+    (* `len` is here for name lookup but type checking is handled as a special case for fake parametric polymorphism *)
+    ("len", TyFun ([ TyList (TyVar (ref None)) ], TyInt));
   ]
 
 let lookup loc k e =
@@ -84,11 +88,16 @@ and check_expr env expr =
           | _ -> error loc "not a valid function name"
         in
         let expr_tys = List.map check exprs in
-        match lookup loc name env.venv with
-        | TyFun (param_tys, return_ty) ->
-            List.iter2 (unify loc) param_tys expr_tys;
-            return_ty
-        | _ -> error loc "not a function")
+        match name with
+        | "len" ->
+            List.iter2 (unify loc) [ TyList (TyVar (ref None)) ] expr_tys;
+            TyInt
+        | _ -> (
+            match lookup loc name env.venv with
+            | TyFun (param_tys, return_ty) ->
+                List.iter2 (unify loc) param_tys expr_tys;
+                return_ty
+            | _ -> error loc "not a function"))
     | EBinary (bop, expr1, expr2, loc) -> (
         let t1 = check expr1 in
         let t2 = check expr2 in
@@ -96,7 +105,18 @@ and check_expr env expr =
         | Add ->
             unify loc TyInt t1;
             unify loc TyInt t2;
-            TyInt)
+            TyInt
+        | Sub ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyInt
+        | Mul ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyInt
+        | Eq ->
+            unify loc t1 t2;
+            TyBool)
     | EList (exprs, loc) -> (
         let tys = List.map check exprs in
         match tys with
@@ -130,7 +150,7 @@ let rec check_stmt env stmt =
       let expr_ty = check_expr env expr in
       unify loc TyBool expr_ty;
       let _ = check_block env block1 in
-      let _ = check_block env block2 in
+      let _ = Option.map (check_block env) block2 in
       env
   | SFor (name, expr1, expr2, block, loc) ->
       if mem name env.venv then
