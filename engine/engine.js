@@ -1,4 +1,4 @@
-const PSIZE = 5;
+const PSIZE = 4;
 
 class Engine {
   constructor(gameBuilder) {

@@ -91,15 +91,15 @@ end
 
 def update() do
   if buttonp(0) do
-    player.pos.x = clamp(player.pos.x - 1, 1, 6)
+    player.pos.x = clamp(player.pos.x - 1, 0, 15)
   end
   if buttonp(1) do
-    player.pos.x = clamp(player.pos.x + 1, 1, 6)
+    player.pos.x = clamp(player.pos.x + 1, 0, 15)
   end
   if buttonp(2) do
-    player.pos.y = clamp(player.pos.y - 1, 1, 6)
+    player.pos.y = clamp(player.pos.y - 1, 0, 15)
   end
   if buttonp(3) do
-    player.pos.y = clamp(player.pos.y + 1, 1, 6)
+    player.pos.y = clamp(player.pos.y + 1, 0, 15)
   end
 end
