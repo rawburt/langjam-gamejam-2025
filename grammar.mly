@@ -34,8 +34,8 @@ import:
 | USE import_name { $2 }
 
 import_name:
-| IDENT { $1 }
-| TIDENT { $1 }
+| IDENT { ($1, mkloc $startpos) }
+| TIDENT { ($1, mkloc $startpos) }
 
 toplevel:
 | stmt { TLStmt $1 }

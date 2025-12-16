@@ -49,7 +49,7 @@ type record = { name : string; fields : (string * typing) list; loc : loc }
 type toplevel = TLStmt of stmt | TLDef of def | TLRec of record
 [@@deriving show]
 
-type library = Library of { top : toplevel list; imports : string list }
+type library = Library of { top : toplevel list; imports : (string * loc) list }
 [@@deriving show]
 
 type program = Program of toplevel list [@@deriving show]

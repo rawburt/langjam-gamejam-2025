@@ -1,0 +1,11 @@
+rec Vec2 do
+  x: int
+  y: int
+end
+
+rec Rect2 do
+  x: int
+  y: int
+  w: int
+  h: int
+end

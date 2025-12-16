@@ -1,5 +1,6 @@
 let usage = "lgc [options] [-o <output>] <file1>"
 let check = ref false
+let ast = ref false
 let output_file = ref "game.js"
 let files = ref []
 let anon_fun f = files := f :: !files
@@ -8,17 +9,17 @@ let speclist =
   [
     ("-debug", Arg.Set Common.debug, "Compile in debug mode");
     ("-check", Arg.Set check, "Run only the type checker");
+    ("-ast", Arg.Set ast, "Show AST before compiling");
     ("-o", Arg.Set_string output_file, "Set output file name (default: game.js)");
   ]
 
 let compile file =
-  let library = Registry.load file in
-  if !Common.debug then print_endline (Syntax.show_library library);
+  let program = Registry.make_program file in
+  Common.trace ("compiling: " ^ file);
   try
-    let (Syntax.Library lib) = library in
-    let program = Syntax.Program lib.top in
     Typecheck.check program;
     if not !check then (
+      if !ast then print_endline ("======= AST:\n" ^ Syntax.show_program program);
       let game = Compiler.compile program in
       let chan = open_out !output_file in
       Printf.fprintf chan "%s\n" game;

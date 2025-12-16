@@ -1,4 +1,6 @@
 let debug = ref false
+let lib_dir = ref "lib"
+let trace msg = if !debug then Printf.printf "%s\n" msg
 
 let error ?loc ?kind msg =
   let location =
