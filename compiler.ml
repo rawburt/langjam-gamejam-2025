@@ -7,6 +7,7 @@ let compile_name = function
   | "clear" -> "engine.clear"
   | "text" -> "engine.text"
   | "debug" -> "engine.debug"
+  | "render" -> "engine.render"
   | n -> n
 
 let compile_bop = function
@@ -89,13 +90,16 @@ let compile_toplevel = function
       Printf.sprintf "function %s(%s) {\n%s\n}" def.name params
         (compile_block def.body)
   | TLRec _ -> ""
+  | TLLoad (name, src, _) ->
+      Printf.sprintf "const %s = engine.preload('%s');" name src
 
 let add_empty_def name toplevels =
   let compare = function TLDef def -> def.name = name | _ -> false in
   match List.find_opt compare toplevels with
   | Some _ -> toplevels
   | None ->
-      TLDef { name; params = []; body = Block []; loc = Loc ("",0); ret = None }
+      TLDef
+        { name; params = []; body = Block []; loc = Loc ("", 0); ret = None }
       :: toplevels
 
 let ensure_engine_defs toplevels =

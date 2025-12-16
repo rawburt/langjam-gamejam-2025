@@ -1,18 +1,52 @@
 const PSIZE = 4;
 
+async function loadAndDecodeImages(images) {
+  const promises = images.map(image => {
+    return new Promise((resolve, reject) => {
+      image.onload = () => {
+        image.decode()
+          .then(() => resolve(image))
+          .catch(error => reject(new Error(`failed to decode image: ${error}`)));
+      }
+      image.onerror = () => {
+        reject(new Error(`failed to load image: ${image.src}`))
+      }
+    });
+  });
+  await Promise.all(promises);
+  return images;
+}
+
 class Engine {
-  constructor(gameBuilder) {
+  constructor() {
+    this.images = [];
     this.canvas = document.getElementById("canvas");
     this.ctx = canvas.getContext("2d");
     this.setupCtx();
+    this.setupInput();
+  }
+
+  async init(gameBuilder) {
     const game = gameBuilder(this);
     this.updateFn = game.update;
     this.drawFn = game.draw;
-    this.setupInput();
+    await this.loadImages();
   }
 
   run() {
     requestAnimationFrame(() => this.tick());
+  }
+
+  preload(src) {
+    const id = this.images.length;
+    const image = new Image();
+    image.src = src;
+    this.images.push(image);
+    return id;
+  }
+
+  async loadImages() {
+    this.images = await loadAndDecodeImages(this.images);
   }
 
   setupInput() {
@@ -70,6 +104,15 @@ class Engine {
     this.ctx.fillStyle = color;
     this.ctx.font = (size * PSIZE) + 'px GameFont';
     this.ctx.fillText(str, x * PSIZE, y * PSIZE);
+  }
+
+  render(id, sx, sy, sw, sh, dx, dy, dw, dh) {
+    const image = this.images[id];
+    if (!image) {
+      console.error("image not found: id=", id);
+    } else {
+      this.ctx.drawImage(image, sx, sy, sw, sh, dx * PSIZE, dy * PSIZE, dw * PSIZE, dh * PSIZE);
+    }
   }
 
   debug(s) {

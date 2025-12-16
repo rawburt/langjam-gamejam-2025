@@ -7,6 +7,7 @@ type ty =
   | TyInt
   | TyColor
   | TyStr
+  | TyImage
   | TyFun of ty list * ty
   | TyList of ty
   | TyVar of ty option ref
@@ -24,7 +25,13 @@ type env = {
 }
 
 let base_tenv =
-  [ ("int", TyInt); ("bool", TyBool); ("color", TyColor); ("str", TyStr) ]
+  [
+    ("int", TyInt);
+    ("bool", TyBool);
+    ("color", TyColor);
+    ("str", TyStr);
+    ("image", TyImage);
+  ]
 
 let base_venv =
   [
@@ -34,6 +41,10 @@ let base_venv =
     ("clear", TyFun ([], TyUnit));
     ("text", TyFun ([ TyStr; TyInt; TyInt; TyInt; TyColor ], TyUnit));
     ("debug", TyFun ([ TyStr ], TyUnit));
+    ( "render",
+      TyFun
+        ( [ TyImage; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt ],
+          TyUnit ) );
     (* special forms that are here for name lookup but handled different in type checking *)
     (* forall a: a -> str *)
     ("str", TyFun ([ TyVar (ref None) ], TyStr));
@@ -68,8 +79,8 @@ let rec unify loc t1 t2 =
   | TyList l1, TyList l2 -> unify loc l1 l2
   | _ ->
       error loc
-        (Printf.sprintf "unifcation failed.\ntype 1 = %s\ntype 2 = %s\n" (show_ty t1')
-           (show_ty t2'))
+        (Printf.sprintf "unifcation failed.\ntype 1 = %s\ntype 2 = %s\n"
+           (show_ty t1') (show_ty t2'))
 
 let has_duplicates fields =
   let n1 = List.length fields in
@@ -275,6 +286,10 @@ let check_toplevel env = function
         let fields' = List.map type_field record.fields |> List.sort compare in
         let t = TyRec fields' in
         { env with tenv = (record.name, t) :: env.tenv }
+  | TLLoad (name, _value, loc) ->
+      if mem name env.venv then
+        error loc ("duplicate symbol definition: " ^ name)
+      else { env with venv = (name, TyImage) :: env.venv }
 
 let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in

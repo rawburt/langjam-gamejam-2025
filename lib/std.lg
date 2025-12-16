@@ -47,13 +47,9 @@ def line(start: Vec2, finish: Vec2, c: color) do
 end
 
 def rectline(r: Rect2, c: color) do
-  --- top
   line(Vec2(x: r.x, y: r.y), Vec2(x: r.x + r.w, y: r.y + 1), c)
-  --- left
   line(Vec2(x: r.x, y: r.y), Vec2(x: r.x + 1, y: r.y + r.h), c)
-  --- bottom
   line(Vec2(x: r.x, y: r.y + r.h), Vec2(x: r.x + r.w, y: r.y + r.h + 1), c)
-  --- right
   line(Vec2(x: r.x + r.w, y: r.y), Vec2(x: r.x + r.w + 1, y: r.y + r.h + 1), c)
 end
 
@@ -65,4 +61,29 @@ def rectfill(r: Rect2, c: color) do
       pset(x, y, c)
     end
   end
+end
+
+rec Texture do
+  src: image
+  w: int
+  h: int
+end
+
+rec Blit do
+  texture: Texture
+  rect: Rect2
+end
+
+def render_blit(blit: Blit, x: int, y: int) do
+  render(
+    blit.texture.src,
+    blit.rect.x,
+    blit.rect.y,
+    blit.rect.w,
+    blit.rect.h,
+    x,
+    y,
+    blit.rect.w,
+    blit.rect.h
+  )
 end

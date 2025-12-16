@@ -46,10 +46,15 @@ type def = {
 type record = { name : string; fields : (string * typing) list; loc : loc }
 [@@deriving show]
 
-type toplevel = TLStmt of stmt | TLDef of def | TLRec of record
+type toplevel =
+  | TLStmt of stmt
+  | TLDef of def
+  | TLRec of record
+  | TLLoad of string * string * loc
 [@@deriving show]
 
-type library = Library of { top : toplevel list; imports : (string * loc) list }
+type library =
+  | Library of { top : toplevel list; imports : (string * loc) list }
 [@@deriving show]
 
 type program = Program of toplevel list [@@deriving show]

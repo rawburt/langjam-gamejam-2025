@@ -1,0 +1,27 @@
+use std
+
+load "assets/classicrogue1.png" as tile_image
+
+var tiles: Texture = Texture(
+  src: tile_image,
+  w: 224,
+  h: 64
+)
+
+var water: Blit = Blit(
+  texture: tiles,
+  rect: Rect2(x: 0, y: 8, w: 8, h: 8)
+)
+
+var player: Blit = Blit(
+  texture: tiles,
+  rect: Rect2(x: 8, y: 40, w: 8, h: 8)
+)
+
+def draw() do
+  render_blit(water, 8, 8)
+  render_blit(water, 8, 16)
+  render_blit(water, 16, 8)
+  render_blit(water, 16, 16)
+  render_blit(player, 24, 64)
+end

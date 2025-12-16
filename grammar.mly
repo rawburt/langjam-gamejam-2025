@@ -15,7 +15,7 @@ let mkcompound var bop expr loc =
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET REC USE
+%token VAR IF DO ELSE END FOR TO DEF RET REC USE LOAD AS
 %token PLUS MINUS EQEQ TIMES LT GT OR AND
 %token EOF
 
@@ -41,6 +41,7 @@ toplevel:
 | stmt { TLStmt $1 }
 | def { TLDef $1 }
 | record { TLRec $1 }
+| LOAD STRING AS IDENT { TLLoad ($4, $2, mkloc $startpos) }
 
 def:
 | DEF name=IDENT LPAREN params=param_list RPAREN ret=def_ret DO body=block END { {name; params; body; ret; loc=mkloc $startpos} }
