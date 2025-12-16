@@ -1,3 +1,6 @@
 use std
 
-var v: Vec2 = Vec2(x:1, y:2)
+var r: Rect2 = Rect2(x: 10, y: 10, w: 100, h: 100)
+
+rectfill(r, #009999)
+rectline(r, #990099)

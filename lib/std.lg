@@ -9,3 +9,50 @@ rec Rect2 do
   w: int
   h: int
 end
+
+def min(x: int, y: int) int do
+  if x < y do
+    ret x
+  end
+  ret y
+end
+
+def max(x: int, y: int) int do
+  if x > y do
+    ret x
+  end
+  ret y
+end
+
+def line(start: Vec2, finish: Vec2, c: color) do
+  var x1: int = min(start.x, finish.x)
+  var y1: int = min(start.y, finish.y)
+  var x2: int = max(start.x, finish.x)
+  var y2: int = max(start.y, finish.y)
+  for y = y1 to y2 do
+    for x = x1 to x2 do
+      pset(x, y, c)
+    end
+  end
+end
+
+def rectline(r: Rect2, c: color) do
+  --- top
+  line(Vec2(x: r.x, y: r.y), Vec2(x: r.x + r.w, y: r.y + 1), c)
+  --- left
+  line(Vec2(x: r.x, y: r.y), Vec2(x: r.x + 1, y: r.y + r.h), c)
+  --- bottom
+  line(Vec2(x: r.x, y: r.y + r.h), Vec2(x: r.x + r.w, y: r.y + r.h + 1), c)
+  --- right
+  line(Vec2(x: r.x + r.w, y: r.y), Vec2(x: r.x + r.w + 1, y: r.y + r.h + 1), c)
+end
+
+def rectfill(r: Rect2, c: color) do
+  var y2: int = r.y + r.h + 1
+  var x2: int = r.x + r.w + 1
+  for y = r.y to y2 do
+    for x = r.x to x2 do
+      pset(x, y, c)
+    end
+  end
+end
