@@ -1,6 +1,6 @@
 const PSIZE = 4;
 
-const Key = {Left: 0, Right: 1, Up: 2, Down: 3}
+const Key = {Left: 0, Right: 1, Up: 2, Down: 3, Z: 4, X: 5}
 
 function len(e) {
   return e.length;
@@ -70,17 +70,23 @@ class Engine {
       if (e.key === "ArrowRight") this.input[1] = { state: true, repeat: e.repeat };
       if (e.key === "ArrowUp") this.input[2] = { state: true, repeat: e.repeat };
       if (e.key === "ArrowDown") this.input[3] = { state: true, repeat: e.repeat };
+      if (e.key === "z") this.input[4] = { state: true, repeat: e.repeat };
+      if (e.key === "x") this.input[5] = { state: true, repeat: e.repeat };
     });
     window.addEventListener("keyup", (e) => {
       if (e.key === "ArrowLeft") this.input[0] = { state: false, repeat: false };
       if (e.key === "ArrowRight") this.input[1] = { state: false, repeat: false };
       if (e.key === "ArrowUp") this.input[2] = { state: false, repeat: false };
       if (e.key === "ArrowDown") this.input[3] = { state: false, repeat: false };
+      if (e.key === "z") this.input[4] = { state: false, repeat: false };
+      if (e.key === "x") this.input[5] = { state: false, repeat: false };
     })
   }
 
   clearInput() {
     this.input = [
+      { state: false, repeat: false },
+      { state: false, repeat: false },
       { state: false, repeat: false },
       { state: false, repeat: false },
       { state: false, repeat: false },

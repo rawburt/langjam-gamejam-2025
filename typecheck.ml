@@ -45,7 +45,7 @@ type env = {
   ret : ty option;
 }
 
-let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down" ])
+let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down"; "Z"; "X" ])
 
 let base_tenv =
   [

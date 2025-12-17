@@ -2,6 +2,13 @@ use std
 
 asset SPRITE_IMAGE = "assets/classicrogue1.png"
 
+enum Scene do
+  Main
+  Inventory
+end
+
+var scene: Scene = Scene.Main
+
 const MAX_POS: int = 15
 const TILE_SIZE: int = 8
 
@@ -30,7 +37,7 @@ def render_tile(sprite: Sprite, x: int, y: int) do
   render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
 end
 
-def update() do
+def update_player() do
   if buttonp(Key.Left) do
     player.pos.x = clamp(player.pos.x - 1, 0, MAX_POS)
   end
@@ -43,9 +50,40 @@ def update() do
   if buttonp(Key.Down) do
     player.pos.y = clamp(player.pos.y + 1, 0, MAX_POS)
   end
+  if buttonp(Key.X) do
+    scene = Scene.Inventory
+  end
+end
+
+def draw_player() do
+  render_tile(player.sprite, player.pos.x, player.pos.y)
+end
+
+def update_inventory() do
+  if buttonp(Key.Z) do
+    scene = Scene.Main
+  end
+end
+
+def draw_inventory() do
+  pset(30, 30, #999900)
+end
+
+def update() do
+  if scene == Scene.Main do
+    update_player()
+  end
+  if scene == Scene.Inventory do
+    update_inventory()
+  end
 end
 
 def draw() do
   clear()
-  render_tile(player.sprite, player.pos.x, player.pos.y)
+  if scene == Scene.Main do
+    draw_player()
+  end
+  if scene == Scene.Inventory do
+    draw_inventory()
+  end
 end
