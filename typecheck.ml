@@ -18,9 +18,11 @@ exception TypeError of string * loc
 
 let error loc msg = raise (TypeError (msg, loc))
 
+type ventry = { ty : ty; const : bool }
+
 type env = {
   tenv : (string * ty) list;
-  venv : (string * ty) list;
+  venv : (string * ventry) list;
   ret : ty option;
 }
 
@@ -35,21 +37,29 @@ let base_tenv =
 
 let base_venv =
   [
-    ("pset", TyFun ([ TyInt; TyInt; TyColor ], TyUnit));
-    ("button", TyFun ([ TyInt ], TyBool));
-    ("buttonp", TyFun ([ TyInt ], TyBool));
-    ("clear", TyFun ([], TyUnit));
-    ("text", TyFun ([ TyStr; TyInt; TyInt; TyInt; TyColor ], TyUnit));
-    ("debug", TyFun ([ TyStr ], TyUnit));
+    ("pset", { ty = TyFun ([ TyInt; TyInt; TyColor ], TyUnit); const = true });
+    ("button", { ty = TyFun ([ TyInt ], TyBool); const = true });
+    ("buttonp", { ty = TyFun ([ TyInt ], TyBool); const = true });
+    ("clear", { ty = TyFun ([], TyUnit); const = true });
+    ( "text",
+      {
+        ty = TyFun ([ TyStr; TyInt; TyInt; TyInt; TyColor ], TyUnit);
+        const = true;
+      } );
+    ("debug", { ty = TyFun ([ TyStr ], TyUnit); const = true });
     ( "render",
-      TyFun
-        ( [ TyImage; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt ],
-          TyUnit ) );
+      {
+        ty =
+          TyFun
+            ( [ TyImage; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt ],
+              TyUnit );
+        const = true;
+      } );
     (* special forms that are here for name lookup but handled different in type checking *)
     (* forall a: a -> str *)
-    ("str", TyFun ([ TyVar (ref None) ], TyStr));
+    ("str", { ty = TyFun ([ TyVar (ref None) ], TyStr); const = true });
     (* forall a: list[a] -> int *)
-    ("len", TyFun ([ TyList (TyVar (ref None)) ], TyInt));
+    ("len", { ty = TyFun ([ TyList (TyVar (ref None)) ], TyInt); const = true });
   ]
 
 let lookup loc k e =
@@ -102,17 +112,19 @@ let rec check_var env var =
   let rec check = function
     | VName (name, loc) -> lookup loc name env.venv
     | VSub (v, expr, loc) -> (
-        match check v with
+        let sub_entry = check v in
+        match sub_entry.ty with
         | TyList t -> (
             match check_expr env expr with
-            | TyInt -> t
+            | TyInt -> { ty = t; const = sub_entry.const }
             | _ -> error loc "subscript expression must be an integer")
         | _ -> error loc "not a list")
     | VField (v, name, loc) -> (
-        match check v with
+        let field_entry = check v in
+        match field_entry.ty with
         | TyRec fields -> (
             match List.assoc_opt name fields with
-            | Some t -> t
+            | Some t -> { ty = t; const = field_entry.const }
             | None -> error loc ("record does not have field name: " ^ name))
         | _ -> error loc "not a record")
   in
@@ -124,7 +136,9 @@ and check_expr env expr =
     | EInt _ -> TyInt
     | EColor _ -> TyColor
     | EStr _ -> TyStr
-    | EVar var -> check_var env var
+    | EVar var ->
+        let entry = check_var env var in
+        entry.ty
     | ECall (var, exprs, loc) -> (
         let name =
           match var with
@@ -143,7 +157,8 @@ and check_expr env expr =
             List.iter2 (unify loc) [ TyVar (ref None) ] expr_tys;
             TyStr
         | _ -> (
-            match lookup loc name env.venv with
+            let entry = lookup loc name env.venv in
+            match entry.ty with
             | TyFun (param_tys, return_ty) ->
                 List.iter2 (unify loc) param_tys expr_tys;
                 return_ty
@@ -211,22 +226,25 @@ and check_expr env expr =
   in
   check expr
 
-let check_var_decl env name typing expr loc =
+let check_var_decl ?(const = false) env name typing expr loc =
   if mem name env.venv then error loc ("duplicate symbol definition: " ^ name)
   else
     let ty = lookup_typing loc env typing in
     let expr_ty = check_expr env expr in
     unify loc ty expr_ty;
-    { env with venv = (name, ty) :: env.venv }
+    let entry = { ty; const } in
+    { env with venv = (name, entry) :: env.venv }
 
 let rec check_stmt env stmt =
   match stmt with
   | SVar (name, typing, expr, loc) -> check_var_decl env name typing expr loc
   | SMutate (var, expr, loc) ->
-      let ty = check_var env var in
-      let expr_ty = check_expr env expr in
-      unify loc ty expr_ty;
-      env
+      let entry = check_var env var in
+      if entry.const then error loc "can't mutate const"
+      else
+        let expr_ty = check_expr env expr in
+        unify loc entry.ty expr_ty;
+        env
   | SExpr (expr, _) ->
       let _ = check_expr env expr in
       env
@@ -242,7 +260,8 @@ let rec check_stmt env stmt =
       else (
         unify loc TyInt (check_expr env expr1);
         unify loc TyInt (check_expr env expr2);
-        let env' = { env with venv = (name, TyInt) :: env.venv } in
+        let entry = { ty = TyInt; const = false } in
+        let env' = { env with venv = (name, entry) :: env.venv } in
         let _ = check_block env' block in
         env)
   | SRet (expr, loc) -> (
@@ -262,21 +281,21 @@ let check_toplevel env = function
       if mem def.name env.venv then
         error def.loc ("duplicate symbol definition: " ^ def.name)
       else
-        let params =
-          List.map
-            (fun (name, typing) -> (name, lookup_typing def.loc env typing))
-            def.params
+        let format_param (name, typing) =
+          let entry =
+            { ty = lookup_typing def.loc env typing; const = false }
+          in
+          (name, entry)
         in
+        let params = List.map format_param def.params in
         let ret = Option.map (lookup_typing def.loc env) def.ret in
         let env' = { env with venv = params @ env.venv; ret } in
         let _ = check_block env' def.body in
-        let tys = List.map snd params in
-        {
-          env with
-          venv =
-            (def.name, TyFun (tys, Option.value ret ~default:TyUnit))
-            :: env.venv;
-        }
+        let tys = List.map (fun p -> (snd p).ty) params in
+        let entry =
+          { ty = TyFun (tys, Option.value ret ~default:TyUnit); const = true }
+        in
+        { env with venv = (def.name, entry) :: env.venv }
   | TLRec record ->
       if mem record.name env.venv then
         error record.loc ("duplicate symbol definition: " ^ record.name)
@@ -290,8 +309,11 @@ let check_toplevel env = function
   | TLLoad (name, _value, loc) ->
       if mem name env.venv then
         error loc ("duplicate symbol definition: " ^ name)
-      else { env with venv = (name, TyImage) :: env.venv }
-  | TLConst (name, typing, expr, loc) -> check_var_decl env name typing expr loc
+      else
+        let entry = { ty = TyImage; const = true } in
+        { env with venv = (name, entry) :: env.venv }
+  | TLConst (name, typing, expr, loc) ->
+      check_var_decl ~const:true env name typing expr loc
 
 let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in

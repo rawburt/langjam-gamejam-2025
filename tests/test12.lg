@@ -6,4 +6,3 @@ const KEY_DOWN: int = 3
 buttonp(KEY_LEFT)
 
 const T: int = 1
-T = 2
