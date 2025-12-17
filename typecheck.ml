@@ -113,6 +113,7 @@ let rec unify loc t1 t2 =
   | TyVar r1, _ -> r1 := Some t2'
   | _, TyVar r2 -> r2 := Some t1'
   | TyList l1, TyList l2 -> unify loc l1 l2
+  | TyEnum (n1, _), TyEnum (n2, _) when n1 = n2 -> ()
   | _ ->
       error loc
         (Printf.sprintf
@@ -292,8 +293,9 @@ and check_expr env expr =
         | _ -> error loc ("not a record: " ^ name))
     | EEnum (name, member, loc) -> (
         match lookup loc name env.tenv with
-        | TyEnum (_, members) as t ->
-            if List.mem member members then t
+        | TyEnum (_, members) ->
+            (* return a member of enum so we can do exhaustiveness check on a match *)
+            if List.mem member members then TyEnum (name, [ member ])
             else
               error loc
                 (Printf.sprintf "%s is not a member of the enum %s" member name)
@@ -349,15 +351,18 @@ let rec check_stmt env stmt =
           error loc "ret not allowed when function has no defined return value")
   | SMatch (expr, when_exprs, loc) -> (
       match check_expr env expr with
-      | TyEnum (_, _) as t ->
+      | TyEnum (name, members) as t ->
           let check_when (expr, block) =
             let expr_ty = check_expr env expr in
             unify loc t expr_ty;
             let _ = check_block env block in
-            ()
+            match expr_ty with
+            | TyEnum (_, [ member ]) -> member
+            | _ -> failwith "oops something is very wrong"
           in
-          List.iter check_when when_exprs;
-          env
+          let when_members = List.map check_when when_exprs in
+          if members = when_members then env
+          else error loc ("match is not exhaustive for enum " ^ name)
       | _ -> error loc "can only match on enums")
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
