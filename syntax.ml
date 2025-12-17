@@ -1,5 +1,6 @@
 type loc = Loc of string * int [@@deriving show]
 
+let loc_get_file (Loc (f, _)) = f
 let mkloc (s : Lexing.position) = Loc (s.pos_fname, s.pos_lnum)
 
 type typing = TName of string | TList of typing [@@deriving show]

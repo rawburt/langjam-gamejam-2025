@@ -381,12 +381,17 @@ let check_toplevel env = function
         let fields' = List.map type_field record.fields |> List.sort compare in
         let t = TyRec fields' in
         { env with tenv = (record.name, t) :: env.tenv }
-  | TLLoad (name, _value, loc) ->
+  | TLLoad (name, value, loc) ->
       if mem name env.venv then
         error loc ("duplicate symbol definition: " ^ name)
       else
-        let entry = { ty = TyImage; const = true } in
-        { env with venv = (name, entry) :: env.venv }
+        let filepath =
+          Filename.concat (Filename.dirname (loc_get_file loc)) value
+        in
+        if Sys.file_exists filepath then
+          let entry = { ty = TyImage; const = true } in
+          { env with venv = (name, entry) :: env.venv }
+        else error loc ("can't load asset: " ^ filepath)
   | TLConst (name, typing, expr, loc) ->
       check_var_decl ~const:true env name typing expr loc
   | TLEnum (name, members, loc) ->
