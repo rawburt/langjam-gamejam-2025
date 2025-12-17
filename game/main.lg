@@ -1,6 +1,6 @@
 use std
 
-load "assets/classicrogue1.png" as SPRITE_IMAGE
+asset SPRITE_IMAGE = "assets/classicrogue1.png"
 
 const MAX_POS: int = 15
 const TILE_SIZE: int = 8

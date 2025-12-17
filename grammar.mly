@@ -16,7 +16,7 @@ let mkcompound var bop expr loc =
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET REC USE LOAD AS CONST ENUM
+%token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM
 %token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE
 %token EOF
 
@@ -43,7 +43,7 @@ toplevel:
 | stmt { TLStmt $1 }
 | def { TLDef $1 }
 | record { TLRec $1 }
-| LOAD STRING AS CIDENT { TLLoad ($4, $2, mkloc $startpos) }
+| ASSET name=CIDENT EQ src=STRING { TLLoad (name, src, mkloc $startpos) }
 | CONST CIDENT COLON typing EQ expr { TLConst ($2, $4, $6, mkloc $startpos)}
 | ENUM name=TIDENT DO members=list(TIDENT) END { TLEnum (name, members, mkloc $startpos) }
 

@@ -54,8 +54,7 @@ rule token = parse
   | "rec" { REC }
   | "enum" { ENUM }
   | "use" { USE }
-  | "load" { LOAD }
-  | "as" { AS }
+  | "asset" { ASSET }
   | "const" { CONST }
   | cident as c { CIDENT c }
   | integer as i { INTEGER (int_of_string i) }
