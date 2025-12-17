@@ -90,6 +90,15 @@ let rec compile_stmt = function
         (compile_expr expr1) name (compile_expr expr2) name
         (compile_block block)
   | SRet (expr, _) -> Printf.sprintf "return %s;" (compile_expr expr)
+  | SMatch (expr, whens, _) ->
+      let compile_when (e, b) =
+        let ce = compile_expr e in
+        let be = compile_block b in
+        Printf.sprintf "case %s:\n%s\nbreak;\n" ce be
+      in
+      let e = compile_expr expr in
+      let ws = List.map compile_when whens |> String.concat "\n" in
+      Printf.sprintf "switch (%s) {\n%s\n}" e ws
 
 and compile_block (Block stmts) =
   String.concat "\n" (List.map compile_stmt stmts)

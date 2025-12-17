@@ -16,6 +16,8 @@ and stmt_always_returns = function
       block_always_returns b1 && block_always_returns b2
   | SIfElse (_, _, None, _) -> false
   | SFor _ -> false
+  | SMatch (_, whens, _) ->
+      List.for_all (fun (_, b) -> block_always_returns b) whens
   | _ -> false
 
 let check_all_paths_return def =

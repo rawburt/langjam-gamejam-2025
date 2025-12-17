@@ -12,3 +12,26 @@ debug(str(MyKey.Left))
 --- built in button enum
 
 debug(str(Key.Left))
+
+var key: MyKey = MyKey.A
+
+match key do
+  when MyKey.Left do
+    debug("LEFT")
+  end
+  when MyKey.Right do
+    debug("RIGHT")
+  end
+  when MyKey.Up do
+    debug("UP")
+  end
+  when MyKey.Down do
+    debug("DOWN")
+  end
+  when MyKey.A do
+    debug("A")
+  end
+  when MyKey.Z do
+    debug("Z")
+  end
+end

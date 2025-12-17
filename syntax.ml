@@ -37,6 +37,7 @@ type stmt =
   | SIfElse of expr * block * block option * loc
   | SFor of string * expr * expr * block * loc
   | SRet of expr * loc
+  | SMatch of expr * (expr * block) list * loc
 [@@deriving show]
 
 and block = Block of stmt list [@@deriving show]

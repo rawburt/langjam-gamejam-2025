@@ -347,6 +347,18 @@ let rec check_stmt env stmt =
           env
       | None ->
           error loc "ret not allowed when function has no defined return value")
+  | SMatch (expr, when_exprs, loc) -> (
+      match check_expr env expr with
+      | TyEnum (_, _) as t ->
+          let check_when (expr, block) =
+            let expr_ty = check_expr env expr in
+            unify loc t expr_ty;
+            let _ = check_block env block in
+            ()
+          in
+          List.iter check_when when_exprs;
+          env
+      | _ -> error loc "can only match on enums")
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 
