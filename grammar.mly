@@ -17,14 +17,15 @@ let mkcompound var bop expr loc =
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
 %token VAR IF DO ELSE END FOR TO DEF RET REC USE LOAD AS CONST
-%token PLUS MINUS EQEQ TIMES LT GT OR AND
+%token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE
 %token EOF
 
+%right NEGATE
 %left OR
 %left AND
-%nonassoc EQEQ LT GT
+%nonassoc EQEQ LT GT LTE GTE NEQ
 %left PLUS MINUS
-%left TIMES
+%left TIMES DIV
 
 %start <library> library
 %%
@@ -82,14 +83,19 @@ mutate:
 | var EQ expr { SMutate ($1, $3, mkloc $startpos) }
 | var PLUS EQ expr { mkcompound $1 Add $4 (mkloc $startpos) }
 | var MINUS EQ expr { mkcompound $1 Sub $4 (mkloc $startpos) }
+| var TIMES EQ expr { mkcompound $1 Mul $4 (mkloc $startpos) }
+| var DIV EQ expr { mkcompound $1 Div $4 (mkloc $startpos) }
 
 call:
 | var LPAREN separated_list(COMMA, expr) RPAREN { ECall ($1, $3, mkloc $startpos) }
 
 expr:
+| LPAREN expr RPAREN { $2 }
 | constant { $1 }
 | call { $1 }
 | var { EVar $1 }
+| MINUS expr { EUnary (Minus, $2, mkloc $startpos) }
+| NEGATE expr { EUnary (Negate, $2, mkloc $startpos) }
 | expr bop expr { EBinary ($2, $1, $3, mkloc $startpos) }
 | LBRACK separated_list(COMMA, expr) RBRACK { EList ($2, mkloc $startpos) }
 | record_expr { $1 }
@@ -104,11 +110,15 @@ field_expr:
 | PLUS { Add }
 | MINUS { Sub }
 | TIMES { Mul }
+| DIV { Div }
 | LT { Lt }
 | GT { Gt }
 | OR { Or }
 | AND { And }
 | EQEQ { Eq }
+| LTE { Lte }
+| GTE { Gte }
+| NEQ { Neq }
 
 var:
 | CIDENT { VName ($1, mkloc $startpos) }

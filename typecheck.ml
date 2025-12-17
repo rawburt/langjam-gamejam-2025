@@ -185,6 +185,10 @@ and check_expr env expr =
             unify loc TyInt t1;
             unify loc TyInt t2;
             TyInt
+        | Div ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyInt
         | Lt ->
             unify loc TyInt t1;
             unify loc TyInt t2;
@@ -193,7 +197,18 @@ and check_expr env expr =
             unify loc TyInt t1;
             unify loc TyInt t2;
             TyBool
+        | Lte ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyBool
+        | Gte ->
+            unify loc TyInt t1;
+            unify loc TyInt t2;
+            TyBool
         | Eq ->
+            unify loc t1 t2;
+            TyBool
+        | Neq ->
             unify loc t1 t2;
             TyBool
         | Or ->
@@ -203,6 +218,15 @@ and check_expr env expr =
         | And ->
             unify loc TyBool t1;
             unify loc TyBool t2;
+            TyBool)
+    | EUnary (uop, expr, loc) -> (
+        let t = check expr in
+        match uop with
+        | Minus ->
+            unify loc TyInt t;
+            TyInt
+        | Negate ->
+            unify loc TyBool t;
             TyBool)
     | EList (exprs, loc) -> (
         let tys = List.map check exprs in

@@ -30,9 +30,14 @@ rule token = parse
   | '+' { PLUS }
   | '-' { MINUS }
   | '*' { TIMES }
+  | '/' { DIV }
   | '<' { LT }
   | '>' { GT }
+  | '!' { NEGATE }
   | "==" { EQEQ }
+  | "!=" { NEQ }
+  | "<=" { LTE }
+  | ">=" { GTE }
   | "||" { OR }
   | "&&" { AND }
   | "var" { VAR }

@@ -14,11 +14,17 @@ let compile_bop = function
   | Add -> "+"
   | Sub -> "-"
   | Mul -> "*"
+  | Div -> "/"
   | Lt -> "<"
   | Gt -> ">"
+  | Lte -> "<="
+  | Gte -> ">="
   | Or -> "||"
   | And -> "&&"
   | Eq -> "==="
+  | Neq -> "!=="
+
+let compile_uop = function Minus -> "-" | Negate -> "!"
 
 let rec compile_var = function
   | VName (name, _) -> name
@@ -51,7 +57,12 @@ and compile_expr = function
       let c1 = compile_expr e1 in
       let c2 = compile_expr e2 in
       let op = compile_bop bop in
-      Printf.sprintf "%s %s %s" c1 op c2
+      let f = match bop with Div -> "Math.floor" | _ -> "" in
+      Printf.sprintf "%s(%s %s %s)" f c1 op c2
+  | EUnary (uop, e, _) ->
+      let c1 = compile_expr e in
+      let op = compile_uop uop in
+      Printf.sprintf "(%s %s)" op c1
   | EList (exprs, _) ->
       let items = List.map compile_expr exprs |> String.concat ", " in
       Printf.sprintf "[%s]" items

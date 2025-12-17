@@ -3,7 +3,11 @@ type loc = Loc of string * int [@@deriving show]
 let mkloc (s : Lexing.position) = Loc (s.pos_fname, s.pos_lnum)
 
 type typing = TName of string | TList of typing [@@deriving show]
-type bop = Add | Sub | Mul | Lt | Gt | Eq | Or | And [@@deriving show]
+
+type bop = Add | Sub | Mul | Div | Lt | Gt | Eq | Neq | Lte | Gte | Or | And
+[@@deriving show]
+
+type uop = Minus | Negate [@@deriving show]
 
 type var =
   | VName of string * loc
@@ -19,6 +23,7 @@ and expr =
   | EVar of var
   | ECall of var * expr list * loc
   | EBinary of bop * expr * expr * loc
+  | EUnary of uop * expr * loc
   | EList of expr list * loc
   | ERec of string * (string * expr) list * loc
 [@@deriving show]
