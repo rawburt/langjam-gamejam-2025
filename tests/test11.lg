@@ -1,9 +1,9 @@
 use std
 
-load "assets/classicrogue1.png" as tile_image
+load "assets/classicrogue1.png" as TILE_IMAGE
 
 var tiles: Texture = Texture(
-  src: tile_image,
+  src: TILE_IMAGE,
   w: 224,
   h: 64
 )

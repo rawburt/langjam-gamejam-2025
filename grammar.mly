@@ -9,13 +9,14 @@ let mkcompound var bop expr loc =
 
 %token <string> IDENT
 %token <string> TIDENT
+%token <string> CIDENT
 %token <string> COLOR
 %token <int> INTEGER
 %token <string> STRING
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET REC USE LOAD AS
+%token VAR IF DO ELSE END FOR TO DEF RET REC USE LOAD AS CONST
 %token PLUS MINUS EQEQ TIMES LT GT OR AND
 %token EOF
 
@@ -41,7 +42,8 @@ toplevel:
 | stmt { TLStmt $1 }
 | def { TLDef $1 }
 | record { TLRec $1 }
-| LOAD STRING AS IDENT { TLLoad ($4, $2, mkloc $startpos) }
+| LOAD STRING AS CIDENT { TLLoad ($4, $2, mkloc $startpos) }
+| CONST CIDENT COLON typing EQ expr { TLConst ($2, $4, $6, mkloc $startpos)}
 
 def:
 | DEF name=IDENT LPAREN params=param_list RPAREN ret=def_ret DO body=block END { {name; params; body; ret; loc=mkloc $startpos} }
@@ -109,6 +111,7 @@ field_expr:
 | EQEQ { Eq }
 
 var:
+| CIDENT { VName ($1, mkloc $startpos) }
 | IDENT { VName ($1, mkloc $startpos) }
 | var LBRACK expr RBRACK { VSub ($1, $3, mkloc $startpos) }
 | var DOT IDENT { VField ($1, $3, mkloc $startpos) }

@@ -51,6 +51,7 @@ type toplevel =
   | TLDef of def
   | TLRec of record
   | TLLoad of string * string * loc
+  | TLConst of string * typing * expr * loc
 [@@deriving show]
 
 type library =

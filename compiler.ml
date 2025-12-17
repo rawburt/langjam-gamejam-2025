@@ -92,6 +92,8 @@ let compile_toplevel = function
   | TLRec _ -> ""
   | TLLoad (name, src, _) ->
       Printf.sprintf "const %s = engine.preload('%s');" name src
+  | TLConst (name, _, expr, _) ->
+      Printf.sprintf "const %s = %s;" name (compile_expr expr)
 
 let add_empty_def name toplevels =
   let compare = function TLDef def -> def.name = name | _ -> false in

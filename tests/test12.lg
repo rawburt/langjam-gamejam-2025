@@ -1,0 +1,6 @@
+const KEY_LEFT: int = 0
+const KEY_RIGHT: int = 1
+const KEY_UP: int = 2
+const KEY_DOWN: int = 3
+
+buttonp(KEY_LEFT)

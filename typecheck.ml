@@ -211,16 +211,17 @@ and check_expr env expr =
   in
   check expr
 
+let check_var_decl env name typing expr loc =
+  if mem name env.venv then error loc ("duplicate symbol definition: " ^ name)
+  else
+    let ty = lookup_typing loc env typing in
+    let expr_ty = check_expr env expr in
+    unify loc ty expr_ty;
+    { env with venv = (name, ty) :: env.venv }
+
 let rec check_stmt env stmt =
   match stmt with
-  | SVar (name, typing, expr, loc) ->
-      if mem name env.venv then
-        error loc ("duplicate symbol definition: " ^ name)
-      else
-        let ty = lookup_typing loc env typing in
-        let expr_ty = check_expr env expr in
-        unify loc ty expr_ty;
-        { env with venv = (name, ty) :: env.venv }
+  | SVar (name, typing, expr, loc) -> check_var_decl env name typing expr loc
   | SMutate (var, expr, loc) ->
       let ty = check_var env var in
       let expr_ty = check_expr env expr in
@@ -290,6 +291,7 @@ let check_toplevel env = function
       if mem name env.venv then
         error loc ("duplicate symbol definition: " ^ name)
       else { env with venv = (name, TyImage) :: env.venv }
+  | TLConst (name, typing, expr, loc) -> check_var_decl env name typing expr loc
 
 let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in
