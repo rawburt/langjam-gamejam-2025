@@ -38,6 +38,7 @@ import:
 import_name:
 | IDENT { ($1, mkloc $startpos) }
 | TIDENT { ($1, mkloc $startpos) }
+| import_name DIV import_name { (fst $1  ^ "/" ^ fst $3, mkloc $startpos) }
 
 toplevel:
 | stmt { TLStmt $1 }

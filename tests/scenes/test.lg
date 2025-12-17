@@ -1,0 +1,3 @@
+def test_scene() int do
+  ret 10
+end

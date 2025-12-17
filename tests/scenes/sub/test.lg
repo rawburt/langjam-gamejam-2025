@@ -1,0 +1,3 @@
+def test_sub_scene() bool do
+  ret true
+end
