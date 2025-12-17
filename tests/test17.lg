@@ -1,5 +1,9 @@
 use scenes/test
 use scenes/sub/test
+--- test caching
+use scenes/sub/test
+use scenes/sub/test
+use scenes/test
 
 debug("10 = " + str(test_scene()))
 debug("true = " + str(test_sub_scene()))

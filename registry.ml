@@ -40,11 +40,15 @@ let find_imports file imports =
 
 (* given a path, parse file, resolve imports, return program ast *)
 let rec load file : Syntax.toplevel list =
-  Common.trace ("loading: " ^ file);
-  add_import file;
-  let library = parse_file file in
-  let (Library lib) = library in
-  let imports = find_imports file lib.imports |> List.map load in
-  imports @ [ lib.top ] |> List.concat
+  if not (needs_import file) then (
+    Common.trace ("cached: " ^ file);
+    [])
+  else (
+    Common.trace ("loading: " ^ file);
+    add_import file;
+    let library = parse_file file in
+    let (Library lib) = library in
+    let imports = find_imports file lib.imports |> List.map load in
+    imports @ [ lib.top ] |> List.concat)
 
 let make_program file = Syntax.Program (load file)
