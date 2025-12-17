@@ -12,7 +12,24 @@ type ty =
   | TyList of ty
   | TyVar of ty option ref
   | TyRec of (string * ty) list
-[@@deriving show]
+
+let rec show_ty = function
+  | TyUnit -> "unit"
+  | TyBool -> "bool"
+  | TyInt -> "int"
+  | TyColor -> "color"
+  | TyStr -> "str"
+  | TyImage -> "image"
+  | TyFun (tys, ty) ->
+      let inner = List.map show_ty tys |> String.concat ", " in
+      Printf.sprintf "((%s) -> %s)" inner (show_ty ty)
+  | TyList ty -> "[" ^ show_ty ty ^ "]"
+  | TyVar tyoptref -> (
+      match !tyoptref with Some t -> show_ty t | None -> "?")
+  | TyRec fields ->
+      let field_ty (name, ty) = Printf.sprintf "%s: %s" name (show_ty ty) in
+      let inner = List.map field_ty fields |> String.concat ", " in
+      Printf.sprintf "rec(%s)" inner
 
 exception TypeError of string * loc
 
@@ -60,6 +77,10 @@ let base_venv =
     ("str", { ty = TyFun ([ TyVar (ref None) ], TyStr); const = true });
     (* forall a: list[a] -> int *)
     ("len", { ty = TyFun ([ TyList (TyVar (ref None)) ], TyInt); const = true });
+    (* forall a: a -> list[a] -> int *)
+    ("push", { ty = TyFun ([], TyUnit); const = true });
+    (* forall a: list[a] -> a *)
+    ("pop", { ty = TyFun ([], TyUnit); const = true });
   ]
 
 let lookup loc k e =
@@ -89,8 +110,15 @@ let rec unify loc t1 t2 =
   | TyList l1, TyList l2 -> unify loc l1 l2
   | _ ->
       error loc
-        (Printf.sprintf "unifcation failed.\ntype 1 = %s\ntype 2 = %s\n"
-           (show_ty t1') (show_ty t2'))
+        (Printf.sprintf
+           "unifcation failed.\n\n\
+            while trying to unify the following types:\n\
+            type a = %s\n\
+            type b = %s\n\n\
+            unification failed at this step:\n\
+            type c = %s\n\
+            type d = %s"
+           (show_ty t1) (show_ty t2) (show_ty t1') (show_ty t2'))
 
 let has_duplicates fields =
   let n1 = List.length fields in
@@ -156,6 +184,16 @@ and check_expr env expr =
         | "str" ->
             List.iter2 (unify loc) [ TyVar (ref None) ] expr_tys;
             TyStr
+        | "push" ->
+            let a = TyVar (ref None) in
+            let f = [ a; TyList a ] in
+            List.iter2 (unify loc) f expr_tys;
+            TyInt
+        | "pop" ->
+            let a = TyVar (ref None) in
+            let f = [ TyList a ] in
+            List.iter2 (unify loc) f expr_tys;
+            a
         | _ -> (
             let entry = lookup loc name env.venv in
             match entry.ty with

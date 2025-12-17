@@ -1,0 +1,60 @@
+var items: [int] = []
+push(4, items)
+push(3, items)
+push(2, items)
+push(1, items)
+
+if len(items) == 4 do
+  debug("OK")
+else
+  debug("FAIL: " + str(len(items)))
+end
+
+var a: int = pop(items)
+if a == 1 do
+  debug("OK")
+else
+  debug("FAIL")
+end
+
+var b: int = pop(items)
+if b == 2 do
+  debug("OK")
+else
+  debug("FAIL")
+end
+
+var c: int = pop(items)
+if c == 3 do
+  debug("OK")
+else
+  debug("FAIL")
+end
+
+if len(items) == 1 do
+  debug("OK")
+else
+  debug("FAIL")
+end
+
+--- polymorphic
+rec Item do
+  value: bool
+end
+
+var poly: [[Item]] = []
+push([Item(value: true)], poly)
+push([Item(value: false), Item(value: true)], poly)
+
+var p1: Item = pop(poly[1])
+if p1.value do
+  debug("OK")
+else
+  debug("FAIL")
+end
+
+if len(poly[0]) == len(poly[1]) && len(poly) == 2 do
+  debug("OK")
+else
+  debug("FAIL")
+end

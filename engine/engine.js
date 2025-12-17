@@ -1,5 +1,17 @@
 const PSIZE = 4;
 
+function len(e) {
+  return e.length;
+}
+
+function push(x, xs) {
+  return xs.push(x);
+}
+
+function pop(xs) {
+  return xs.pop();
+}
+
 async function loadAndDecodeImages(images) {
   const promises = images.map(image => {
     return new Promise((resolve, reject) => {

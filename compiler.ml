@@ -47,7 +47,6 @@ and compile_expr = function
       in
       let compiled_exprs = String.concat "," (List.map compile_expr exprs) in
       match name with
-      | "len" -> Printf.sprintf "(%s).length" compiled_exprs
       | "debug" ->
           Printf.sprintf "%s('[%s:%d]: ' + %s)" (compile_name name) file line
             compiled_exprs
