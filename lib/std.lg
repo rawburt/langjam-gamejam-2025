@@ -74,21 +74,21 @@ rec Texture do
   h: int
 end
 
-rec Blit do
+rec Sprite do
   texture: Texture
   rect: Rect2
 end
 
-def render_blit(blit: Blit, x: int, y: int) do
+def render_sprite(sprite: Sprite, x: int, y: int) do
   render(
-    blit.texture.src,
-    blit.rect.x,
-    blit.rect.y,
-    blit.rect.w,
-    blit.rect.h,
+    sprite.texture.src,
+    sprite.rect.x,
+    sprite.rect.y,
+    sprite.rect.w,
+    sprite.rect.h,
     x,
     y,
-    blit.rect.w,
-    blit.rect.h
+    sprite.rect.w,
+    sprite.rect.h
   )
 end

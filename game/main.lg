@@ -1,1 +1,51 @@
-use map
+use std
+
+load "assets/classicrogue1.png" as SPRITE_IMAGE
+
+const MAX_POS: int = 15
+const TILE_SIZE: int = 8
+
+const TILE_TEXTURE: Texture = Texture(
+  src: SPRITE_IMAGE,
+  w: 224,
+  h: 64
+)
+
+const PLAYER_SPRITE: Sprite = Sprite(
+  texture: TILE_TEXTURE,
+  rect: Rect2(x: 8, y: 40, w: 8, h: 8)
+)
+
+rec Player do
+  sprite: Sprite
+  pos: Vec2
+end
+
+var player: Player = Player(
+  sprite: PLAYER_SPRITE,
+  pos: Vec2(x: 10, y: 10)
+)
+
+def render_tile(sprite: Sprite, x: int, y: int) do
+  render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
+end
+
+def update() do
+  if buttonp(KEY_LEFT) do
+    player.pos.x = clamp(player.pos.x - 1, 0, MAX_POS)
+  end
+  if buttonp(KEY_RIGHT) do
+    player.pos.x = clamp(player.pos.x + 1, 0, MAX_POS)
+  end
+  if buttonp(KEY_UP) do
+    player.pos.y = clamp(player.pos.y - 1, 0, MAX_POS)
+  end
+  if buttonp(KEY_DOWN) do
+    player.pos.y = clamp(player.pos.y + 1, 0, MAX_POS)
+  end
+end
+
+def draw() do
+  clear()
+  render_tile(player.sprite, player.pos.x, player.pos.y)
+end
