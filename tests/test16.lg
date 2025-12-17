@@ -1,0 +1,9 @@
+def bad_return(i: int) int do
+  if i > 10 do
+    ret 10
+  end
+  --- comment out the below ret to check function return analysis
+  ret 4
+end
+
+bad_return(4)
