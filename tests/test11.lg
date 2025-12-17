@@ -8,20 +8,20 @@ var tiles: Texture = Texture(
   h: 64
 )
 
-var water: Blit = Blit(
+var water: Sprite = Sprite(
   texture: tiles,
   rect: Rect2(x: 0, y: 8, w: 8, h: 8)
 )
 
-var player: Blit = Blit(
+var player: Sprite = Sprite(
   texture: tiles,
   rect: Rect2(x: 8, y: 40, w: 8, h: 8)
 )
 
 def draw() do
-  render_blit(water, 8, 8)
-  render_blit(water, 8, 16)
-  render_blit(water, 16, 8)
-  render_blit(water, 16, 16)
-  render_blit(player, 24, 64)
+  render_sprite(water, 8, 8)
+  render_sprite(water, 8, 16)
+  render_sprite(water, 16, 8)
+  render_sprite(water, 16, 16)
+  render_sprite(player, 24, 64)
 end
