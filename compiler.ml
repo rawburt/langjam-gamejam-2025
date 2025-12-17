@@ -69,6 +69,7 @@ and compile_expr = function
       let compile_field (n, e) = Printf.sprintf "%s:%s" n (compile_expr e) in
       let f = List.map compile_field fields |> String.concat ", " in
       Printf.sprintf "{%s}" f
+  | EEnum (name, member, _) -> Printf.sprintf "%s.%s" name member
 
 let rec compile_stmt = function
   | SVar (name, _, expr, _) ->
@@ -104,6 +105,10 @@ let compile_toplevel = function
       Printf.sprintf "const %s = engine.preload('%s');" name src
   | TLConst (name, _, expr, _) ->
       Printf.sprintf "const %s = %s;" name (compile_expr expr)
+  | TLEnum (name, members, _) ->
+      let member_as_field m = Printf.sprintf "%s:'%s'" m m in
+      let members' = List.map member_as_field members in
+      Printf.sprintf "const %s = {%s};" name (String.concat ", " members')
 
 let add_empty_def name toplevels =
   let compare = function TLDef def -> def.name = name | _ -> false in

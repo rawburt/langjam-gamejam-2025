@@ -39,16 +39,16 @@ def draw_player() do
 end
 
 def update() do
-  if buttonp(0) do
+  if buttonp(Key.Left) do
     player[0] = clamp(player[0] - 1, 1, 6)
   end
-  if buttonp(1) do
+  if buttonp(Key.Right) do
     player[0] = clamp(player[0] + 1, 1, 6)
   end
-  if buttonp(2) do
+  if buttonp(Key.Up) do
     player[1] = clamp(player[1] - 1, 1, 6)
   end
-  if buttonp(3) do
+  if buttonp(Key.Down) do
     player[1] = clamp(player[1] + 1, 1, 6)
   end
 end

@@ -1,5 +1,7 @@
 const PSIZE = 4;
 
+const Key = {Left: 0, Right: 1, Up: 2, Down: 3}
+
 function len(e) {
   return e.length;
 }

@@ -9,7 +9,7 @@ let error msg = raise (SyntaxError msg)
 
 let ident = ['a'-'z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*
 let tident = ['A'-'Z']['a'-'z' 'A'-'Z' '_' '0'-'9']*
-let cident = ['A'-'Z'][ 'A'-'Z' '_' '0'-'9']*
+let cident = ['A'-'Z'][ 'A'-'Z' '_' '0'-'9']+
 let integer = ['0'-'9']+
 let hex = ['0'-'9' 'a'-'f' 'A'-'F']
 let color = '#' hex hex hex hex hex hex
@@ -52,6 +52,7 @@ rule token = parse
   | "def" { DEF }
   | "ret" { RET }
   | "rec" { REC }
+  | "enum" { ENUM }
   | "use" { USE }
   | "load" { LOAD }
   | "as" { AS }

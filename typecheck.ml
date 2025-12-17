@@ -12,6 +12,7 @@ type ty =
   | TyList of ty
   | TyVar of ty option ref
   | TyRec of (string * ty) list
+  | TyEnum of string * string list
 
 let rec show_ty = function
   | TyUnit -> "unit"
@@ -30,6 +31,7 @@ let rec show_ty = function
       let field_ty (name, ty) = Printf.sprintf "%s: %s" name (show_ty ty) in
       let inner = List.map field_ty fields |> String.concat ", " in
       Printf.sprintf "rec(%s)" inner
+  | TyEnum (name, _) -> Printf.sprintf "enum(%s)" name
 
 exception TypeError of string * loc
 
@@ -43,6 +45,8 @@ type env = {
   ret : ty option;
 }
 
+let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down" ])
+
 let base_tenv =
   [
     ("int", TyInt);
@@ -50,13 +54,14 @@ let base_tenv =
     ("color", TyColor);
     ("str", TyStr);
     ("image", TyImage);
+    ("Key", key_enum);
   ]
 
 let base_venv =
   [
     ("pset", { ty = TyFun ([ TyInt; TyInt; TyColor ], TyUnit); const = true });
-    ("button", { ty = TyFun ([ TyInt ], TyBool); const = true });
-    ("buttonp", { ty = TyFun ([ TyInt ], TyBool); const = true });
+    ("button", { ty = TyFun ([ key_enum ], TyBool); const = true });
+    ("buttonp", { ty = TyFun ([ key_enum ], TyBool); const = true });
     ("clear", { ty = TyFun ([], TyUnit); const = true });
     ( "text",
       {
@@ -285,6 +290,14 @@ and check_expr env expr =
               TyRec ts)
             else error loc "missing record fields"
         | _ -> error loc ("not a record: " ^ name))
+    | EEnum (name, member, loc) -> (
+        match lookup loc name env.tenv with
+        | TyEnum (_, members) as t ->
+            if List.mem member members then t
+            else
+              error loc
+                (Printf.sprintf "%s is not a member of the enum %s" member name)
+        | _ -> error loc (Printf.sprintf "%s is not an enum" name))
   in
   check expr
 
@@ -362,7 +375,7 @@ let check_toplevel env = function
       if mem record.name env.venv then
         error record.loc ("duplicate symbol definition: " ^ record.name)
       else if has_duplicates (List.map fst record.fields) then
-        error record.loc "duplicate field definitions: "
+        error record.loc "duplicate field definitions"
       else
         let type_field (n, t) = (n, lookup_typing record.loc env t) in
         let fields' = List.map type_field record.fields |> List.sort compare in
@@ -376,6 +389,14 @@ let check_toplevel env = function
         { env with venv = (name, entry) :: env.venv }
   | TLConst (name, typing, expr, loc) ->
       check_var_decl ~const:true env name typing expr loc
+  | TLEnum (name, members, loc) ->
+      if mem name env.tenv then
+        error loc ("duplicate symbol definition: " ^ name)
+      else if has_duplicates members then error loc "duplicate enum members"
+      else
+        let t = TyEnum (name, members) in
+        let tenv' = (name, t) :: env.tenv in
+        { env with tenv = tenv' }
 
 let check (Program toplevels) =
   let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in

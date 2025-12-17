@@ -1,0 +1,14 @@
+enum MyKey do
+  Left
+  Right
+  Up
+  Down
+  A
+  Z
+end
+
+debug(str(MyKey.Left))
+
+--- built in button enum
+
+debug(str(Key.Left))

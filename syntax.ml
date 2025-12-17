@@ -26,6 +26,7 @@ and expr =
   | EUnary of uop * expr * loc
   | EList of expr list * loc
   | ERec of string * (string * expr) list * loc
+  | EEnum of string * string * loc
 [@@deriving show]
 
 type stmt =
@@ -57,6 +58,7 @@ type toplevel =
   | TLRec of record
   | TLLoad of string * string * loc
   | TLConst of string * typing * expr * loc
+  | TLEnum of string * string list * loc
 [@@deriving show]
 
 type library =

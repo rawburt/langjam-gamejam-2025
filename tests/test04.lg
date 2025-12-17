@@ -1,7 +1,7 @@
 var pressed: bool = false
 
 def update() do
-  pressed = button(0)
+  pressed = button(Key.Left)
 end
 
 def draw() do

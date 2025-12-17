@@ -31,16 +31,16 @@ def render_tile(sprite: Sprite, x: int, y: int) do
 end
 
 def update() do
-  if buttonp(KEY_LEFT) do
+  if buttonp(Key.Left) do
     player.pos.x = clamp(player.pos.x - 1, 0, MAX_POS)
   end
-  if buttonp(KEY_RIGHT) do
+  if buttonp(Key.Right) do
     player.pos.x = clamp(player.pos.x + 1, 0, MAX_POS)
   end
-  if buttonp(KEY_UP) do
+  if buttonp(Key.Up) do
     player.pos.y = clamp(player.pos.y - 1, 0, MAX_POS)
   end
-  if buttonp(KEY_DOWN) do
+  if buttonp(Key.Down) do
     player.pos.y = clamp(player.pos.y + 1, 0, MAX_POS)
   end
 end
