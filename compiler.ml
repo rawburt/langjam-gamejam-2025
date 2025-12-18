@@ -22,6 +22,7 @@ let compile_bop = function
   | Gte -> ">="
   | Or -> "||"
   | And -> "&&"
+  (* *)
   | Eq -> "==="
   | Neq -> "!=="
 
@@ -53,12 +54,16 @@ and compile_expr = function
             compiled_exprs
       | "str" -> compiled_exprs
       | _ -> Printf.sprintf "%s(%s)" (compile_name name) compiled_exprs)
-  | EBinary (bop, e1, e2, _) ->
+  | EBinary (bop, e1, e2, _) -> (
+      let f = match bop with Div -> "Math.floor" | _ -> "" in
+      let basic_binary o l r = Printf.sprintf "%s(%s %s %s)" f l o r in
       let c1 = compile_expr e1 in
       let c2 = compile_expr e2 in
       let op = compile_bop bop in
-      let f = match bop with Div -> "Math.floor" | _ -> "" in
-      Printf.sprintf "%s(%s %s %s)" f c1 op c2
+      match bop with
+      | Eq -> Printf.sprintf "_.isEqual(%s, %s)" c1 c2
+      | Neq -> Printf.sprintf "! _.isEqual(%s, %s)" c1 c2
+      | _ -> basic_binary op c1 c2)
   | EUnary (uop, e, _) ->
       let c1 = compile_expr e in
       let op = compile_uop uop in

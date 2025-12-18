@@ -167,7 +167,7 @@ def update_player() do
   --- pick up items
   for i = 0 to len(items) do
     if !items[0].picked_up do
-      if items[0].pos.x == player.pos.x && items[0].pos.y == player.pos.y do
+      if items[0].pos == player.pos do
         push(items[0], player.inventory)
         items[0].picked_up = true
       end
