@@ -58,6 +58,7 @@ rule token = parse
   | "const" { CONST }
   | "match" { MATCH }
   | "when" { WHEN }
+  | "break" { BREAK }
   | cident as c { CIDENT c }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }

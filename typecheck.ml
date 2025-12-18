@@ -43,6 +43,7 @@ type env = {
   tenv : (string * ty) list;
   venv : (string * ventry) list;
   ret : ty option;
+  looping : bool;
 }
 
 let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down"; "Z"; "X" ])
@@ -339,7 +340,9 @@ let rec check_stmt env stmt =
         unify loc TyInt (check_expr env expr1);
         unify loc TyInt (check_expr env expr2);
         let entry = { ty = TyInt; const = false } in
-        let env' = { env with venv = (name, entry) :: env.venv } in
+        let env' =
+          { env with venv = (name, entry) :: env.venv; looping = true }
+        in
         let _ = check_block env' block in
         env)
   | SRet (expr, loc) -> (
@@ -365,6 +368,8 @@ let rec check_stmt env stmt =
           if members = when_members then env
           else error loc ("match is not exhaustive for enum " ^ name)
       | _ -> error loc "can only match on enums")
+  | SBreak loc ->
+      if env.looping then env else error loc "break must be inside a loop"
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 
@@ -422,6 +427,8 @@ let check_toplevel env = function
         { env with tenv = tenv' }
 
 let check (Program toplevels) =
-  let base_env = { tenv = base_tenv; venv = base_venv; ret = None } in
+  let base_env =
+    { tenv = base_tenv; venv = base_venv; ret = None; looping = false }
+  in
   let _ = List.fold_left check_toplevel base_env toplevels in
   ()

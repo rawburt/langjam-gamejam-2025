@@ -29,6 +29,7 @@ def char_index(char: str) int do
   for i = 0 to len(CHARS) do
     if CHARS[i] == char do
       index = i
+      break
     end
   end
   ret index

@@ -16,7 +16,7 @@ let mkcompound var bop expr loc =
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM MATCH WHEN
+%token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM MATCH WHEN BREAK
 %token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE
 %token EOF
 
@@ -81,6 +81,7 @@ stmt:
 | call { SExpr ($1, mkloc $startpos) }
 | RET expr { SRet ($2, mkloc $startpos) }
 | match_ { $1 }
+| BREAK { SBreak (mkloc $startpos) }
 
 match_:
 | MATCH expr DO list(when_) END { SMatch ($2, $4, mkloc $startpos) }

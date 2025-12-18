@@ -38,6 +38,7 @@ type stmt =
   | SFor of string * expr * expr * block * loc
   | SRet of expr * loc
   | SMatch of expr * (expr * block) list * loc
+  | SBreak of loc
 [@@deriving show]
 
 and block = Block of stmt list [@@deriving show]
