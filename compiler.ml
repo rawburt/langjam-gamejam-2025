@@ -8,6 +8,7 @@ let compile_name = function
   | "text" -> "engine.text"
   | "debug" -> "engine.debug"
   | "render" -> "engine.render"
+  | "render_overlay" -> "engine.renderOverlay"
   | n -> n
 
 let compile_bop = function
@@ -22,7 +23,6 @@ let compile_bop = function
   | Gte -> ">="
   | Or -> "||"
   | And -> "&&"
-  (* *)
   | Eq -> "==="
   | Neq -> "!=="
 

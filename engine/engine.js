@@ -139,6 +139,14 @@ class Engine {
     }
   }
 
+  renderOverlay(color, x, y, w, h) {
+    this.ctx.fillStyle = color;
+    this.ctx.globalCompositeOperation = 'source-atop';
+    this.ctx.fillStyle = color;
+    this.ctx.fillRect(x * PSIZE, y * PSIZE, w * PSIZE, h * PSIZE);
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+
   debug(s) {
     console.log(s);
   }

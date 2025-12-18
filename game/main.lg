@@ -79,6 +79,8 @@ end
 
 ------------------------------ [ map ]
 
+const TREE_COLOR: color = #1e4a31
+
 def render_tile(sprite: Sprite, x: int, y: int) do
   render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
 end
@@ -86,6 +88,9 @@ end
 def render_map_tile(tile: int, x: int, y: int) do
   var sprite: Sprite = map_sprite(tile)
   render_tile(sprite, x, y)
+  if tile == TREE_TILE do
+    render_overlay(TREE_COLOR, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+  end
 end
 
 var camera: Vec2 = Vec2(x: 0, y: 0)
