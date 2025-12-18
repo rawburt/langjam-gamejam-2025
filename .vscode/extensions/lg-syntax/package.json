@@ -1,0 +1,31 @@
+{
+  "name": "lg-syntax",
+  "displayName": ".lg Language Syntax",
+  "description": "Syntax highlighting for the .lg language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "lg",
+        "aliases": [
+          "LG",
+          "lg"
+        ],
+        "extensions": [
+          ".lg"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lg",
+        "scopeName": "source.lg",
+        "path": "./syntaxes/lg.tmLanguage.json"
+      }
+    ]
+  }
+}
