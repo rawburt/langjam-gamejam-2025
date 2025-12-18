@@ -3,7 +3,7 @@ rec Vec2 do
   y: int
 end
 
-rec Rect2 do
+rec Rect do
   x: int
   y: int
   w: int
@@ -46,14 +46,14 @@ def line(start: Vec2, finish: Vec2, c: color) do
   end
 end
 
-def rectline(r: Rect2, c: color) do
+def rectline(r: Rect, c: color) do
   line(Vec2(x: r.x, y: r.y), Vec2(x: r.x + r.w, y: r.y + 1), c)
   line(Vec2(x: r.x, y: r.y), Vec2(x: r.x + 1, y: r.y + r.h), c)
   line(Vec2(x: r.x, y: r.y + r.h), Vec2(x: r.x + r.w, y: r.y + r.h + 1), c)
   line(Vec2(x: r.x + r.w, y: r.y), Vec2(x: r.x + r.w + 1, y: r.y + r.h + 1), c)
 end
 
-def rectfill(r: Rect2, c: color) do
+def rectfill(r: Rect, c: color) do
   var y2: int = r.y + r.h + 1
   var x2: int = r.x + r.w + 1
   for y = r.y to y2 do
@@ -71,7 +71,7 @@ end
 
 rec Sprite do
   texture: Texture
-  rect: Rect2
+  rect: Rect
 end
 
 def render_sprite(sprite: Sprite, x: int, y: int) do

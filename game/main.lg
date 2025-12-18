@@ -11,7 +11,7 @@ const TILE_TEXTURE: Texture = Texture(
 const TILE_SIZE: int = 8
 
 def make_sprite(x: int, y: int) Sprite do
-  ret Sprite(texture: TILE_TEXTURE, rect: Rect2(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE))
+  ret Sprite(texture: TILE_TEXTURE, rect: Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE))
 end
 
 ------------------------------ [ make sprites for rendering text ]
@@ -74,7 +74,7 @@ var scene: Scene = Scene.Main
 
 const PLAYER_SPRITE: Sprite = Sprite(
   texture: TILE_TEXTURE,
-  rect: Rect2(x: 8, y: 40, w: 8, h: 8)
+  rect: Rect(x: 8, y: 40, w: 8, h: 8)
 )
 
 rec Player do
