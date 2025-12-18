@@ -322,6 +322,23 @@ let rec check_stmt env stmt =
         in
         let _ = check_block env' block in
         env)
+  | SForIn (name, expr, block, loc) ->
+      if mem name env.venv then
+        error loc ("duplicate symbol definition: " ^ name)
+      else
+        let expr_ty = check_expr env expr in
+        let t =
+          match expr_ty with
+          | TyList ty -> ty
+          | TyStr -> TyStr
+          | _ -> error loc "list or str required"
+        in
+        let entry = { ty = t; const = false } in
+        let env' =
+          { env with venv = (name, entry) :: env.venv; looping = true }
+        in
+        let _ = check_block env' block in
+        env
   | SRet (expr, loc) -> (
       let ty = check_expr env expr in
       match env.ret with

@@ -49,6 +49,7 @@ type stmt =
   | SExpr of expr * loc
   | SIfElse of expr * block * block option * loc
   | SFor of string * expr * expr * block * loc
+  | SForIn of string * expr * block * loc
   | SRet of expr * loc
   | SMatch of expr * (expr * block) list * loc
   | SBreak of loc

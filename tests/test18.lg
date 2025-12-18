@@ -1,0 +1,11 @@
+var list: [int] = [1,2,3,4]
+
+for item in list do
+  debug(str(item))
+end
+
+var empty: [bool] = []
+
+for b in empty do
+  debug(str(b))
+end

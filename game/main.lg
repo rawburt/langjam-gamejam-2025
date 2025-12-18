@@ -43,8 +43,9 @@ push(make_sprite(0, 40), char_sprites)
 
 def render_text(text: str, x: int, y: int) do
   for i = 0 to len(text) do
-    if text[i] != " " do
-      var sprite_index: int = char_index(text[i])
+    var char: str = text[i]
+    if char != " " do
+      var sprite_index: int = char_index(char)
       var sprite: Sprite = char_sprites[sprite_index]
       render_sprite(sprite, x + i * TILE_SIZE, y * TILE_SIZE)
     end
@@ -67,8 +68,8 @@ var player: Player = Player(
 
 def inventory_has(item_kind: ItemKind) bool do
   var has_item: bool = false
-  for i = 0 to len(player.inventory) do
-    if player.inventory[i].kind == item_kind do
+  for item in player.inventory do
+    if item.kind == item_kind do
       has_item = true
       break
     end
@@ -111,8 +112,8 @@ def can_walk(x: int, y: int) bool do
     ret true
   end
   var walk: bool = false
-  for i = 0 to len(WALKABLE_TILES) do
-    if WALKABLE_TILES[i] == tile do
+  for tile_type in WALKABLE_TILES do
+    if tile_type == tile do
       walk = true
       break
     end
@@ -125,12 +126,12 @@ end
 var items: [Item] = [ITEM_KEY]
 
 def draw_items() do
-  for i = 0 to len(items) do
-    if !items[0].picked_up do
-      var item_x: int = items[i].pos.x - camera.x
-      var item_y: int = items[i].pos.y - camera.y
+  for item in items do
+    if !item.picked_up do
+      var item_x: int = item.pos.x - camera.x
+      var item_y: int = item.pos.y - camera.y
       if item_x >= 0 && item_y >= 0 && item_x < 16 && item_y < 16 do
-        render_tile(items[i].sprite, item_x, item_y)
+        render_tile(item.sprite, item_x, item_y)
       end
     end
   end
@@ -165,11 +166,11 @@ def update_player() do
   end
 
   --- pick up items
-  for i = 0 to len(items) do
-    if !items[0].picked_up do
-      if items[0].pos == player.pos do
-        push(items[0], player.inventory)
-        items[0].picked_up = true
+  for item in items do
+    if !item.picked_up do
+      if item.pos == player.pos do
+        push(item, player.inventory)
+        item.picked_up = true
       end
     end
   end
@@ -197,8 +198,9 @@ def draw_inventory() do
     render_text("EMPTY", 5, 0)
   else
     for i = 0 to len(player.inventory) do
-      render_sprite(player.inventory[i].sprite, 0, i)
-      render_text(player.inventory[i].detail, 16, i)
+      var item: Item = player.inventory[i]
+      render_sprite(item.sprite, 0, i)
+      render_text(item.detail, 16, i)
     end
   end
 end

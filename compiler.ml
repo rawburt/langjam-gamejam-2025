@@ -95,6 +95,9 @@ let rec compile_stmt = function
       Printf.sprintf "for (let %s = %s; %s < %s; %s += 1) {\n%s\n}" name
         (compile_expr expr1) name (compile_expr expr2) name
         (compile_block block)
+  | SForIn (name, exp, block, _) ->
+      Printf.sprintf "for (const %s of %s) {\n%s\n}" name (compile_expr exp)
+        (compile_block block)
   | SRet (expr, _) -> Printf.sprintf "return %s;" (compile_expr expr)
   | SMatch (expr, whens, _) ->
       let compile_when (e, b) =
