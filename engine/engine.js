@@ -14,6 +14,10 @@ function pop(xs) {
   return xs.pop();
 }
 
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 async function loadAndDecodeImages(images) {
   const promises = images.map(image => {
     return new Promise((resolve, reject) => {

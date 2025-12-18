@@ -78,6 +78,7 @@ let base_venv =
               TyUnit );
         const = true;
       } );
+    ("rand", { ty = TyFun ([ TyInt; TyInt ], TyInt); const = true });
     (* special forms that are here for name lookup but handled different in type checking *)
     (* forall a: a -> str *)
     ("str", { ty = TyFun ([ TyVar (ref None) ], TyStr); const = true });
