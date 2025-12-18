@@ -123,8 +123,6 @@ end
 
 ------------------------------ [ item draw ]
 
-var items: [Item] = [ITEM_KEY]
-
 def draw_items() do
   for item in items do
     if !item.picked_up do
@@ -199,7 +197,7 @@ def draw_inventory() do
   else
     for i = 0 to len(player.inventory) do
       var item: Item = player.inventory[i]
-      render_sprite(item.sprite, 0, i)
+      render_sprite(item.sprite, 0, i * TILE_SIZE)
       render_text(item.detail, 16, i)
     end
   end

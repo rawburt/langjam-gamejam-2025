@@ -3,6 +3,7 @@ use tiles
 
 enum ItemKind do
   Key
+  Potion
 end
 
 rec Item do
@@ -20,3 +21,13 @@ const ITEM_KEY: Item = Item(
   detail: "KEY",
   picked_up: false
 )
+
+const ITEM_POTION: Item = Item(
+  kind: ItemKind.Potion,
+  sprite: make_sprite(8, 32),
+  pos: Vec2(x: 7, y: 23),
+  detail: "POTION",
+  picked_up: false
+)
+
+var items: [Item] = [ITEM_KEY, ITEM_POTION]
