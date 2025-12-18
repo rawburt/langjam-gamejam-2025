@@ -1,6 +1,7 @@
 use std
 use tiles
 use map
+use items
 
 ------------------------------ [ make sprites for rendering text ]
 
@@ -34,7 +35,7 @@ push(make_sprite(104, 40), char_sprites)
 --- ","
 push(make_sprite(112, 40), char_sprites)
 --- ":"
-push(make_sprite(112, 40), char_sprites)
+push(make_sprite(120, 40), char_sprites)
 --- "?"
 push(make_sprite(160, 40), char_sprites)
 --- "!"
@@ -55,11 +56,13 @@ end
 rec Player do
   sprite: Sprite
   pos: Vec2
+  inventory: [Item]
 end
 
 var player: Player = Player(
   sprite: make_sprite(8, 40),
-  pos: Vec2(x: 8, y: 12)
+  pos: Vec2(x: 8, y: 12),
+  inventory: []
 )
 
 ------------------------------ [ map ]
@@ -95,6 +98,22 @@ def can_walk(x: int, y: int) bool do
   ret MAP[y * MAP_WIDTH + x] == 0
 end
 
+------------------------------ [ item draw ]
+
+var items: [Item] = [ITEM_KEY]
+
+def draw_items() do
+  for i = 0 to len(items) do
+    if !items[0].picked_up do
+      var item_x: int = items[i].pos.x - camera.x
+      var item_y: int = items[i].pos.y - camera.y
+      if item_x >= 0 && item_y >= 0 && item_x < 16 && item_y < 16 do
+        render_tile(items[i].sprite, item_x, item_y)
+      end
+    end
+  end
+end
+
 ------------------------------ [ other stuff ... ]
 
 enum Scene do
@@ -122,6 +141,16 @@ def update_player() do
   if buttonp(Key.X) do
     scene = Scene.Inventory
   end
+
+  --- pick up items
+  for i = 0 to len(items) do
+    if !items[0].picked_up do
+      if items[0].pos.x == player.pos.x && items[0].pos.y == player.pos.y do
+        push(items[0], player.inventory)
+        items[0].picked_up = true
+      end
+    end
+  end
 end
 
 def update_camera() do
@@ -142,7 +171,14 @@ def update_inventory() do
 end
 
 def draw_inventory() do
-  render_text("INVENTORY!", 0, 0)
+  if len(player.inventory) == 0 do
+    render_text("EMPTY", 5, 0)
+  else
+    for i = 0 to len(player.inventory) do
+      render_sprite(player.inventory[i].sprite, 0, i)
+      render_text(player.inventory[i].detail, 16, i)
+    end
+  end
 end
 
 def update() do
@@ -160,6 +196,7 @@ def draw() do
   if scene == Scene.Main do
     draw_map()
     draw_player()
+    draw_items()
   end
   if scene == Scene.Inventory do
     draw_inventory()

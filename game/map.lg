@@ -49,6 +49,8 @@ const WATER2: Sprite = make_sprite(8, 8)
 const GRASS: Sprite = make_sprite(16, 0)
 const DOOR: Sprite = make_sprite(104,16)
 
+const DOOR_TILE: int = 70
+
 --- this sprite is empty
 const DEFAULT: Sprite = make_sprite(96, 0)
 
@@ -83,7 +85,7 @@ def map_sprite(tile: int) Sprite do
   if tile == 3 do
     ret GRASS
   end
-  if tile == 70 do
+  if tile == DOOR_TILE do
     ret DOOR
   end
   ret DEFAULT
