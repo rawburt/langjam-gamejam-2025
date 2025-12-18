@@ -4,7 +4,9 @@
   "scopeName": "source.lg",
   "patterns": [
     { "include": "#comments" },
+    { "include": "#useStatement" },
     { "include": "#keywords" },
+    { "include": "#fieldDefinition" },
     { "include": "#strings" },
     { "include": "#numbers" },
     { "include": "#colors" },
@@ -14,6 +16,18 @@
     { "include": "#functions" }
   ],
   "repository": {
+    "useStatement": {
+      "patterns": [
+        {
+          "name": "meta.import.lg",
+          "match": "\\b(use)\\s+([a-z_][a-z0-9_/]*)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.lg" },
+            "2": { "name": "string.unquoted.import.lg" }
+          }
+        }
+      ]
+    },
     "comments": {
       "patterns": [
         {
@@ -88,8 +102,20 @@
     "types": {
       "patterns": [
         {
+          "name": "keyword.type.primitive.lg",
+          "match": "\\b(int|bool|str|image)\\b(?!\\()"
+        },
+        {
           "name": "entity.name.type.lg",
           "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    },
+    "fieldDefinition": {
+      "patterns": [
+        {
+          "name": "variable.other.field.lg",
+          "match": "\\b[a-z_][a-z0-9_]*(?=\\s*:)"
         }
       ]
     },
