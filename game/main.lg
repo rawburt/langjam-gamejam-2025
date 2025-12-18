@@ -1,18 +1,6 @@
 use std
-
-asset SPRITE_IMAGE = "assets/classicrogue1.png"
-
-const TILE_TEXTURE: Texture = Texture(
-  src: SPRITE_IMAGE,
-  w: 224,
-  h: 64
-)
-
-const TILE_SIZE: int = 8
-
-def make_sprite(x: int, y: int) Sprite do
-  ret Sprite(texture: TILE_TEXTURE, rect: Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE))
-end
+use tiles
+use map
 
 ------------------------------ [ make sprites for rendering text ]
 
@@ -57,71 +45,54 @@ def render_text(text: str, x: int, y: int) do
     if text[i] != " " do
       var sprite_index: int = char_index(text[i])
       var sprite: Sprite = char_sprites[sprite_index]
-      debug(str(sprite.rect))
       render_sprite(sprite, x + i * TILE_SIZE, y * TILE_SIZE)
     end
   end
 end
 
------------------------------- [ map and camera ]
+------------------------------ [ player ]
 
-var start_pos: Vec2 = Vec2(x: 1, y: 1)
+rec Player do
+  sprite: Sprite
+  pos: Vec2
+end
 
---- 0 = ground
---- 1 = wall
---- 2 = water
+var player: Player = Player(
+  sprite: make_sprite(8, 40),
+  pos: Vec2(x: 8, y: 12)
+)
 
-const MAP: [[int]] = [
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,2,2,2,2,0,0,0,0,0,1],
-  [1,0,0,0,0,2,2,2,2,2,0,0,0,0,0,1],
-  [1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,2,2,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,2,2,2,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,2,2,2,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,2,2,2,0,0,0,0,1],
-  [1,0,0,0,0,0,2,2,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,2,2,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,1],
-  [1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1]
-]
-
-var camera: Rect = Rect(x: 0, y: 0, w: 16, h: 16)
-
-const TILES: [Sprite] = [
-  --- wall
-  make_sprite(0,16),
-  --- water
-  make_sprite(0, 8)
-]
+------------------------------ [ map ]
 
 def render_tile(sprite: Sprite, x: int, y: int) do
   render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
 end
 
---- tile is already remapped to be `tile-1` to avoid account for ground tiles
 def render_map_tile(tile: int, x: int, y: int) do
-  render_tile(TILES[tile], x, y)
+  var sprite: Sprite = map_sprite(tile)
+  render_tile(sprite, x, y)
 end
+
+var camera: Vec2 = Vec2(x: 0, y: 0)
 
 def draw_map() do
   for y = 0 to 16 do
     for x = 0 to 16 do
-      var tile: int = MAP[y][x]
-      if tile != 0 do
-        render_map_tile(tile - 1, x, y)
+      --- check map array boundaries
+      var map_x: int = x + camera.x
+      var map_y: int = y + camera.y
+      if map_x >= 0 && map_y >= 0 && map_x < MAP_WIDTH && map_y < MAP_HEIGHT do
+        var tile: int = MAP[map_y * MAP_WIDTH + map_x]
+        if tile != 0 do
+          render_map_tile(tile, x, y)
+        end
       end
     end
   end
 end
 
 def can_walk(x: int, y: int) bool do
-  ret MAP[y][x] == 0
+  ret MAP[y * MAP_WIDTH + x] == 0
 end
 
 ------------------------------ [ other stuff ... ]
@@ -132,18 +103,6 @@ enum Scene do
 end
 
 var scene: Scene = Scene.Main
-
-rec Player do
-  sprite: Sprite
-  pos: Vec2
-end
-
-var player: Player = Player(
-  sprite: make_sprite(8, 40),
-  pos: start_pos
-)
-
-const MAX_POS: int = 15
 
 def update_player() do
   --- player movement
@@ -165,8 +124,15 @@ def update_player() do
   end
 end
 
+def update_camera() do
+  camera.x = player.pos.x - 8
+  camera.y = player.pos.y - 8
+end
+--- update camera before game starts
+update_camera()
+
 def draw_player() do
-  render_tile(player.sprite, player.pos.x, player.pos.y)
+  render_tile(player.sprite, 8, 8)
 end
 
 def update_inventory() do
@@ -182,6 +148,7 @@ end
 def update() do
   if scene == Scene.Main do
     update_player()
+    update_camera()
   end
   if scene == Scene.Inventory do
     update_inventory()

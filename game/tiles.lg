@@ -1,0 +1,15 @@
+use std
+
+asset SPRITE_IMAGE = "assets/classicrogue1.png"
+
+const TILE_TEXTURE: Texture = Texture(
+  src: SPRITE_IMAGE,
+  w: 224,
+  h: 64
+)
+
+const TILE_SIZE: int = 8
+
+def make_sprite(x: int, y: int) Sprite do
+  ret Sprite(texture: TILE_TEXTURE, rect: Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE))
+end
