@@ -37,56 +37,70 @@ const MAP: [int] = [
 const MAP_HEIGHT: int = 32
 const MAP_WIDTH: int = 32
 
-const SWIRL: Sprite = make_sprite(16, 16)
-const WALL1: Sprite = make_sprite(0,16)
-const WALL2: Sprite = make_sprite(8, 16)
-const GROUND_TILE1: Sprite = make_sprite(64, 16)
-const GROUND_TILE2: Sprite = make_sprite(74, 16)
-const GROUND_TILE3: Sprite = make_sprite(80, 16)
-const GROUND_TILE4: Sprite = make_sprite(88, 16)
-const WATER1: Sprite = make_sprite(0, 8)
-const WATER2: Sprite = make_sprite(8, 8)
-const GRASS: Sprite = make_sprite(16, 0)
-const DOOR: Sprite = make_sprite(104,16)
 
+const SWIRL_SPRITE: Sprite = make_sprite(16, 16)
+const WALL1_SPRITE: Sprite = make_sprite(0,16)
+const WALL2_SPRITE: Sprite = make_sprite(8, 16)
+const GROUND1_SPRITE: Sprite = make_sprite(64, 16)
+const GROUND2_SPRITE: Sprite = make_sprite(74, 16)
+const GROUND3_SPRITE: Sprite = make_sprite(80, 16)
+const GROUND4_SPRITE: Sprite = make_sprite(88, 16)
+const WATER1_SPRITE: Sprite = make_sprite(0, 8)
+const WATER2_SPRITE: Sprite = make_sprite(8, 8)
+const GRASS_SPRITE: Sprite = make_sprite(16, 0)
+const DOOR_SPRITE: Sprite = make_sprite(104,16)
+
+const EMPTY_TILE: int = 0
 const DOOR_TILE: int = 70
+const GROUND1_TILE: int = 65
+const GROUND2_TILE: int = 67
+const GROUND3_TILE: int = 68
+const GROUND4_TILE: int = 69
+
+const WALKABLE_TILES: [int] = [
+  EMPTY_TILE,
+  GROUND1_TILE,
+  GROUND2_TILE,
+  GROUND3_TILE,
+  GROUND4_TILE
+]
 
 --- this sprite is empty
-const DEFAULT: Sprite = make_sprite(96, 0)
+const DEFAULT_SPRITE: Sprite = make_sprite(96, 0)
 
 def map_sprite(tile: int) Sprite do
   if tile == 59 do
-    ret SWIRL
+    ret SWIRL_SPRITE
   end
   if tile == 57 do
-    ret WALL1
+    ret WALL1_SPRITE
   end
   if tile == 58 do
-    ret WALL2
+    ret WALL2_SPRITE
   end
   if tile == 65 do
-    ret GROUND_TILE1
+    ret GROUND1_SPRITE
   end
   if tile == 67 do
-    ret GROUND_TILE2
+    ret GROUND2_SPRITE
   end
   if tile == 68 do
-    ret GROUND_TILE3
+    ret GROUND3_SPRITE
   end
   if tile == 69 do
-    ret GROUND_TILE4
+    ret GROUND4_SPRITE
   end
   if tile == 30 do
-    ret WATER2
+    ret WATER2_SPRITE
   end
   if tile == 29 do
-    ret WATER1
+    ret WATER1_SPRITE
   end
   if tile == 3 do
-    ret GRASS
+    ret GRASS_SPRITE
   end
   if tile == DOOR_TILE do
-    ret DOOR
+    ret DOOR_SPRITE
   end
-  ret DEFAULT
+  ret DEFAULT_SPRITE
 end

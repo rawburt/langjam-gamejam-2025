@@ -65,6 +65,17 @@ var player: Player = Player(
   inventory: []
 )
 
+def inventory_has(item_kind: ItemKind) bool do
+  var has_item: bool = false
+  for i = 0 to len(player.inventory) do
+    if player.inventory[i].kind == item_kind do
+      has_item = true
+      break
+    end
+  end
+  ret has_item
+end
+
 ------------------------------ [ map ]
 
 def render_tile(sprite: Sprite, x: int, y: int) do
@@ -95,7 +106,18 @@ def draw_map() do
 end
 
 def can_walk(x: int, y: int) bool do
-  ret MAP[y * MAP_WIDTH + x] == 0
+  var tile: int = MAP[y * MAP_WIDTH + x]
+  if tile == DOOR_TILE && inventory_has(ItemKind.Key) do
+    ret true
+  end
+  var walk: bool = false
+  for i = 0 to len(WALKABLE_TILES) do
+    if WALKABLE_TILES[i] == tile do
+      walk = true
+      break
+    end
+  end
+  ret walk
 end
 
 ------------------------------ [ item draw ]
