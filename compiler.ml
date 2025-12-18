@@ -15,6 +15,7 @@ let compile_bop = function
   | Sub -> "-"
   | Mul -> "*"
   | Div -> "/"
+  | Mod -> "%"
   | Lt -> "<"
   | Gt -> ">"
   | Lte -> "<="

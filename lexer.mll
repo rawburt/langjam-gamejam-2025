@@ -30,6 +30,7 @@ rule token = parse
   | '+' { PLUS }
   | '-' { MINUS }
   | '*' { TIMES }
+  | '%' { MODULO }
   | '/' { DIV }
   | '<' { LT }
   | '>' { GT }

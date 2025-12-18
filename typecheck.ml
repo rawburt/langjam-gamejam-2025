@@ -223,31 +223,11 @@ and check_expr env expr =
               unify loc TyInt t1;
               unify loc TyInt t2;
               TyInt)
-        | Sub ->
+        | Sub | Mul | Div | Mod ->
             unify loc TyInt t1;
             unify loc TyInt t2;
             TyInt
-        | Mul ->
-            unify loc TyInt t1;
-            unify loc TyInt t2;
-            TyInt
-        | Div ->
-            unify loc TyInt t1;
-            unify loc TyInt t2;
-            TyInt
-        | Lt ->
-            unify loc TyInt t1;
-            unify loc TyInt t2;
-            TyBool
-        | Gt ->
-            unify loc TyInt t1;
-            unify loc TyInt t2;
-            TyBool
-        | Lte ->
-            unify loc TyInt t1;
-            unify loc TyInt t2;
-            TyBool
-        | Gte ->
+        | Lt | Gt | Lte | Gte ->
             unify loc TyInt t1;
             unify loc TyInt t2;
             TyBool
@@ -257,11 +237,7 @@ and check_expr env expr =
         | Neq ->
             unify loc t1 t2;
             TyBool
-        | Or ->
-            unify loc TyBool t1;
-            unify loc TyBool t2;
-            TyBool
-        | And ->
+        | Or | And ->
             unify loc TyBool t1;
             unify loc TyBool t2;
             TyBool)

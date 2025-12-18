@@ -5,7 +5,20 @@ let mkloc (s : Lexing.position) = Loc (s.pos_fname, s.pos_lnum)
 
 type typing = TName of string | TList of typing [@@deriving show]
 
-type bop = Add | Sub | Mul | Div | Lt | Gt | Eq | Neq | Lte | Gte | Or | And
+type bop =
+  | Add
+  | Sub
+  | Mul
+  | Div
+  | Mod
+  | Lt
+  | Gt
+  | Eq
+  | Neq
+  | Lte
+  | Gte
+  | Or
+  | And
 [@@deriving show]
 
 type uop = Minus | Negate [@@deriving show]

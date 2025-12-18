@@ -17,7 +17,7 @@ let mkcompound var bop expr loc =
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ
 %token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM MATCH WHEN BREAK
-%token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE
+%token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE MODULO
 %token EOF
 
 %right NEGATE
@@ -25,7 +25,7 @@ let mkcompound var bop expr loc =
 %left AND
 %nonassoc EQEQ LT GT LTE GTE NEQ
 %left PLUS MINUS
-%left TIMES DIV
+%left TIMES DIV MODULO
 
 %start <library> library
 %%
@@ -122,6 +122,7 @@ field_expr:
 | MINUS { Sub }
 | TIMES { Mul }
 | DIV { Div }
+| MODULO { Mod }
 | LT { Lt }
 | GT { Gt }
 | OR { Or }
