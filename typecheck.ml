@@ -146,13 +146,14 @@ let rec check_var env var =
   let rec check = function
     | VName (name, loc) -> lookup loc name env.venv
     | VSub (v, expr, loc) -> (
-        let sub_entry = check v in
-        match sub_entry.ty with
-        | TyList t -> (
-            match check_expr env expr with
-            | TyInt -> { ty = t; const = sub_entry.const }
-            | _ -> error loc "subscript expression must be an integer")
-        | _ -> error loc "not a list")
+        match check_expr env expr with
+        | TyInt -> (
+            let sub_entry = check v in
+            match sub_entry.ty with
+            | TyList t -> { ty = t; const = sub_entry.const }
+            | TyStr -> { ty = TyStr; const = sub_entry.const }
+            | _ -> error loc "not a list or a str")
+        | _ -> error loc "subscript expression must be an integer")
     | VField (v, name, loc) -> (
         let field_entry = check v in
         match field_entry.ty with
