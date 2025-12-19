@@ -1,0 +1,25 @@
+use std
+use items
+
+rec Player do
+  sprite: Sprite
+  pos: Vec2
+  inventory: [Item]
+end
+
+var player: Player = Player(
+  sprite: make_sprite(8, 40),
+  pos: Vec2(x: 22, y: 20),
+  inventory: []
+)
+
+def inventory_has(item_kind: ItemKind) bool do
+  var has_item: bool = false
+  for item in player.inventory do
+    if item.kind == item_kind do
+      has_item = true
+      break
+    end
+  end
+  ret has_item
+end

@@ -31,3 +31,15 @@ const ITEM_FIRE_POTION: Item = Item(
 )
 
 var items: [Item] = [ITEM_FIRE_POTION]
+
+def draw_items() do
+  for item in items do
+    if !item.picked_up do
+      var item_x: int = item.pos.x - camera.x
+      var item_y: int = item.pos.y - camera.y
+      if item_x >= 0 && item_y >= 0 && item_x < 16 && item_y < 16 do
+        render_tile(item.sprite, item_x, item_y)
+      end
+    end
+  end
+end
