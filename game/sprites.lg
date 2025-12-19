@@ -1,0 +1,125 @@
+use std
+use textures
+
+def sprite_rect(x: int, y: int) Rect do
+  ret Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE)
+end
+
+def make_sprite(x: int, y: int) Sprite do
+  var sprite: Sprite = Sprite(
+    texture: TILE_TEXTURE,
+    rect: sprite_rect(x, y),
+    overlay: false,
+    overlay_color: #ffffff
+  )
+  ret sprite
+end
+
+def make_sprite_with_overlay(x: int, y: int, c: color) Sprite do
+  var sprite: Sprite = Sprite(
+    texture: TILE_TEXTURE,
+    rect: sprite_rect(x, y),
+    overlay: true,
+    overlay_color: c
+  )
+  ret sprite
+end
+
+--- this sprite is empty
+const DEFAULT_SPRITE: Sprite = make_sprite(96, 0)
+
+var map_sprites: [Sprite] = []
+
+for i = 0 to 79 do
+  push(DEFAULT_SPRITE, map_sprites)
+end
+
+const LEAF_SPRITE: Sprite = make_sprite_with_overlay(0, 0, #596426)
+map_sprites[1] = LEAF_SPRITE
+
+const DIRT_SPRITE: Sprite = make_sprite_with_overlay(8, 0, #614b42)
+map_sprites[2] = DIRT_SPRITE
+
+const GRASS_SPRITE: Sprite = make_sprite(16, 0)
+map_sprites[3] = GRASS_SPRITE
+
+const TREE1_SPRITE: Sprite = make_sprite_with_overlay(32, 0, #1c482f)
+map_sprites[5] = TREE1_SPRITE
+
+const TREE2_SPRITE: Sprite = make_sprite_with_overlay(40, 0, #1c482f)
+map_sprites[6] = TREE2_SPRITE
+
+const TREE3_SPRITE: Sprite = make_sprite_with_overlay(48, 0, #274132)
+map_sprites[7] = TREE3_SPRITE
+
+const MOUNTAIN_SPRITE: Sprite = make_sprite_with_overlay(56, 0, #694a37)
+map_sprites[8] = MOUNTAIN_SPRITE
+
+const WATER1_SPRITE: Sprite = make_sprite(0, 8)
+map_sprites[29] = WATER1_SPRITE
+
+const WATER2_SPRITE: Sprite = make_sprite(8, 8)
+map_sprites[30] = WATER2_SPRITE
+
+const FIRE_SPRITE: Sprite = make_sprite(40, 8)
+map_sprites[34] = FIRE_SPRITE
+
+const BLOOD_SPRITE: Sprite = make_sprite(48, 8)
+map_sprites[35] = BLOOD_SPRITE
+
+const WALL1_SPRITE: Sprite = make_sprite(0,16)
+map_sprites[57] = WALL1_SPRITE
+
+const WALL2_SPRITE: Sprite = make_sprite(8, 16)
+map_sprites[58] = WALL2_SPRITE
+
+const SWIRL_SPRITE1: Sprite = make_sprite(16, 16)
+map_sprites[59] = SWIRL_SPRITE1
+
+const SWIRL_SPRITE2: Sprite = make_sprite(24, 16)
+map_sprites[60] = SWIRL_SPRITE2
+
+const GROUND1_SPRITE: Sprite = make_sprite(64, 16)
+map_sprites[65] = GROUND1_SPRITE
+
+const GROUND2_SPRITE: Sprite = make_sprite(72, 16)
+map_sprites[66] = GROUND2_SPRITE
+
+const GROUND3_SPRITE: Sprite = make_sprite(80, 16)
+map_sprites[67] = GROUND3_SPRITE
+
+const GROUND4_SPRITE: Sprite = make_sprite(88, 16)
+map_sprites[68] = GROUND4_SPRITE
+
+const GROUND5_SPRITE: Sprite = make_sprite(96, 16)
+map_sprites[69] = GROUND5_SPRITE
+
+const DOOR_OPEN_SPRITE: Sprite = make_sprite(112, 16)
+map_sprites[71] = DOOR_OPEN_SPRITE
+
+const EMPTY_TILE: int = 0
+const LEAF_TILE: int = 1
+const DIRT_TILE: int = 2
+const GRASS_TILE: int = 3
+const DOOR_OPEN_TILE: int = 71
+const GROUND1_TILE: int = 65
+const GROUND2_TILE: int = 66
+const GROUND3_TILE: int = 67
+const GROUND4_TILE: int = 68
+const GROUND5_TILE: int = 69
+
+const WALKABLE_TILES: [int] = [
+  EMPTY_TILE,
+  LEAF_TILE,
+  DIRT_TILE,
+  GROUND1_TILE,
+  GROUND2_TILE,
+  GROUND3_TILE,
+  GROUND4_TILE,
+  GROUND5_TILE,
+  DOOR_OPEN_TILE
+]
+
+def map_sprite(tile: int) Sprite do
+  ret map_sprites[tile]
+end

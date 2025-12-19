@@ -1,0 +1,11 @@
+use std
+
+asset SPRITE_IMAGE = "assets/classicrogue1.png"
+
+const TILE_TEXTURE: Texture = Texture(
+  src: SPRITE_IMAGE,
+  w: 224,
+  h: 64
+)
+
+const TILE_SIZE: int = 8

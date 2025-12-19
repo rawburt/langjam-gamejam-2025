@@ -1,56 +1,8 @@
 use std
-use tiles
+use sprites
+use text
 use map
 use items
-
------------------------------- [ make sprites for rendering text ]
-
-const CHARS: [str] = [
-  "A", "B", "C", "D", "E", "F", "G", "H",
-  "I", "J", "K", "L", "M", "N", "O", "P",
-  "Q", "R", "S", "T", "U", "V", "W", "X",
-  "Y", "Z",
-  ".", ",", ":", "?", "!"
-]
-
-def char_index(char: str) int do
-  var index: int = 0
-  for i = 0 to len(CHARS) do
-    if CHARS[i] == char do
-      index = i
-      break
-    end
-  end
-  ret index
-end
-
-var char_sprites: [Sprite] = []
-
---- "A" - "Z"
-for x = 0 to 26 do
-  push(make_text_sprite(x * TILE_SIZE, 48), char_sprites)
-end
---- "."
-push(make_text_sprite(104, 40), char_sprites)
---- ","
-push(make_text_sprite(112, 40), char_sprites)
---- ":"
-push(make_text_sprite(120, 40), char_sprites)
---- "?"
-push(make_text_sprite(160, 40), char_sprites)
---- "!"
-push(make_text_sprite(0, 40), char_sprites)
-
-def render_text(text: str, x: int, y: int) do
-  for i = 0 to len(text) do
-    var char: str = text[i]
-    if char != " " do
-      var sprite_index: int = char_index(char)
-      var sprite: Sprite = char_sprites[sprite_index]
-      render_sprite(sprite, (x * TEXT_SIZE) + i * TEXT_SIZE, y * TEXT_SIZE)
-    end
-  end
-end
 
 ------------------------------ [ player ]
 
@@ -75,55 +27,6 @@ def inventory_has(item_kind: ItemKind) bool do
     end
   end
   ret has_item
-end
-
------------------------------- [ map ]
-
-const TREE_COLOR: color = #1e4a31
-
-def render_tile(sprite: Sprite, x: int, y: int) do
-  render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
-end
-
-def render_map_tile(tile: int, x: int, y: int) do
-  var sprite: Sprite = map_sprite(tile)
-  render_tile(sprite, x, y)
-  --- if tile == TREE_TILE do
-  ---   render_overlay(TREE_COLOR, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-  --- end
-end
-
-var camera: Vec2 = Vec2(x: 0, y: 0)
-
-def draw_map() do
-  for y = 0 to 16 do
-    for x = 0 to 16 do
-      --- check map array boundaries
-      var map_x: int = x + camera.x
-      var map_y: int = y + camera.y
-      if map_x >= 0 && map_y >= 0 && map_x < MAP_WIDTH && map_y < MAP_HEIGHT do
-        var tile: int = MAP[map_y * MAP_WIDTH + map_x]
-        if tile != 0 do
-          render_map_tile(tile, x, y)
-        end
-      end
-    end
-  end
-end
-
-def can_walk(x: int, y: int) bool do
-  var tile: int = MAP[y * MAP_WIDTH + x]
-  --- if tile == DOOR_TILE && inventory_has(ItemKind.Key) do
-  ---   ret true
-  --- end
-  var walk: bool = false
-  for tile_type in WALKABLE_TILES do
-    if tile_type == tile do
-      walk = true
-      break
-    end
-  end
-  ret walk
 end
 
 ------------------------------ [ item draw ]
@@ -210,12 +113,14 @@ def draw_inventory() do
 end
 
 def update() do
-  if scene == Scene.Main do
-    update_player()
-    update_camera()
-  end
-  if scene == Scene.Inventory do
-    update_inventory()
+  match scene do
+    when Scene.Main do
+      update_player()
+      update_camera()
+    end
+    when Scene.Inventory do
+      update_inventory()
+    end
   end
 end
 

@@ -1,5 +1,5 @@
 use std
-use tiles
+use sprites
 
 enum ItemKind do
   Key
