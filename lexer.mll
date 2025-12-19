@@ -61,6 +61,7 @@ rule token = parse
   | "when" { WHEN }
   | "break" { BREAK }
   | "in" { IN }
+  | "cond" { COND }
   | cident as c { CIDENT c }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }

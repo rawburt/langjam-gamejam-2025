@@ -53,6 +53,7 @@ type stmt =
   | SRet of expr * loc
   | SMatch of expr * (expr * block) list * loc
   | SBreak of loc
+  | SCond of (expr * block) list * loc
 [@@deriving show]
 
 and block = Block of stmt list [@@deriving show]

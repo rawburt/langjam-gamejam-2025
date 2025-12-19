@@ -109,6 +109,13 @@ let rec compile_stmt = function
       let ws = List.map compile_when whens |> String.concat "\n" in
       Printf.sprintf "switch (%s) {\n%s\n}" e ws
   | SBreak _ -> "break;"
+  | SCond (whens, _) ->
+      let compile_when (e, b) =
+        let ce = compile_expr e in
+        let be = compile_block b in
+        Printf.sprintf "if (%s) {\n%s\n}\n" ce be
+      in
+      List.map compile_when whens |> String.concat " else "
 
 and compile_block (Block stmts) =
   String.concat "\n" (List.map compile_stmt stmts)

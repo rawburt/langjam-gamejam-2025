@@ -57,6 +57,21 @@ var scene: Scene = Scene.Game
 --------------------------------------------------------------[ SCENE: Game ]
 
 def game_update(world: World) do
+  cond do
+    when buttonp(Key.Left) do
+      try_move(world, Key.Left)
+    end
+    when buttonp(Key.Right) do
+      try_move(world, Key.Right)
+    end
+    when buttonp(Key.Up) do
+      try_move(world, Key.Up)
+    end
+    when buttonp(Key.Down) do
+      try_move(world, Key.Down)
+    end
+  end
+
   if buttonp(Key.X) do
     scene = Scene.Inventory
   end

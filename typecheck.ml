@@ -369,6 +369,14 @@ let rec check_stmt env stmt =
       | _ -> error loc "can only match on enums")
   | SBreak loc ->
       if env.looping then env else error loc "break must be inside a loop"
+  | SCond (whens, loc) ->
+      let check_when (expr, block) =
+        unify loc TyBool (check_expr env expr);
+        let _ = check_block env block in
+        ()
+      in
+      List.iter check_when whens;
+      env
 
 and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 

@@ -1,0 +1,42 @@
+var x: int = 10
+
+cond do
+  when x > 1 do
+    debug("OK")
+  end
+end
+
+def failing() bool do
+  ret false
+end
+
+def passing() bool do
+  ret true
+end
+
+cond do
+  when 10 < 4 do
+    debug("FAIL")
+  end
+  when failing() do
+    debug("FAIL")
+  end
+  when passing() do
+    debug("OK")
+  end
+end
+
+def fullcheck() bool do
+  cond do
+    when 10 == 9 do
+      ret true
+    end
+    when 4 < 5 do
+      ret false
+    end
+    when rand(4,10) == 6 do
+      ret true
+    end
+  end
+  ret false
+end

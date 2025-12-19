@@ -40,7 +40,7 @@
       "patterns": [
         {
           "name": "keyword.control.lg",
-          "match": "\\b(if|do|else|end|for|to|def|ret|rec|enum|match|when|break|use|in)\\b"
+          "match": "\\b(if|do|else|end|for|to|def|ret|rec|enum|match|when|break|use|in|cond)\\b"
         },
         {
           "name": "keyword.declaration.lg",
