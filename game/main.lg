@@ -28,18 +28,18 @@ var char_sprites: [Sprite] = []
 
 --- "A" - "Z"
 for x = 0 to 26 do
-  push(make_sprite(x * TILE_SIZE, 48), char_sprites)
+  push(make_text_sprite(x * TILE_SIZE, 48), char_sprites)
 end
 --- "."
-push(make_sprite(104, 40), char_sprites)
+push(make_text_sprite(104, 40), char_sprites)
 --- ","
-push(make_sprite(112, 40), char_sprites)
+push(make_text_sprite(112, 40), char_sprites)
 --- ":"
-push(make_sprite(120, 40), char_sprites)
+push(make_text_sprite(120, 40), char_sprites)
 --- "?"
-push(make_sprite(160, 40), char_sprites)
+push(make_text_sprite(160, 40), char_sprites)
 --- "!"
-push(make_sprite(0, 40), char_sprites)
+push(make_text_sprite(0, 40), char_sprites)
 
 def render_text(text: str, x: int, y: int) do
   for i = 0 to len(text) do
@@ -47,7 +47,7 @@ def render_text(text: str, x: int, y: int) do
     if char != " " do
       var sprite_index: int = char_index(char)
       var sprite: Sprite = char_sprites[sprite_index]
-      render_sprite(sprite, x + i * TILE_SIZE, y * TILE_SIZE)
+      render_sprite(sprite, x + i * TEXT_SIZE, y * TEXT_SIZE)
     end
   end
 end
