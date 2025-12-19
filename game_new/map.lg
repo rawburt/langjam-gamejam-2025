@@ -59,3 +59,19 @@ def map_draw(map: Map, camera: Camera) do
     end
   end
 end
+
+def map_get_tile(map: Map, x: int, y: int) int do
+  ret map.data[(y * map.w) + x]
+end
+
+def map_location_walkable(map: Map, pos: Vec2) bool do
+  var walkable: bool = false
+  var tile: int = map_get_tile(map, pos.x, pos.y)
+  for walkable_tile in WALKABLE_TILES do
+    if tile == walkable_tile do
+      walkable = true
+      break
+    end
+  end
+  ret walkable
+end

@@ -32,10 +32,11 @@ def world_init() World do
   player.pos = map.start
 
   var camera: Camera = Camera(pos: Vec2(x: 0, y: 0))
+  camera_update(camera, player)
 
   var world: World = World(
     player: player,
-    camera: camera_update(camera, player),
+    camera: camera,
     map: map,
     modal: Modal(lines: [], sprites: []),
     game_state: GameState.Play
@@ -47,17 +48,18 @@ end
 def try_move(world: World, move: Key) do
   var change: Vec2 = Vec2(x: 0, y: 0)
 
-  match move do
-    when Key.Left do
+  --- `cond` because we don't care about some Key's so `match` is not exhaustive
+  cond do
+    when move == Key.Left do
       change.x -= 1
     end
-    when Key.Right do
+    when move == Key.Right do
       change.x += 1
     end
-    when Key.Up do
+    when move == Key.Up do
       change.y -= 1
     end
-    when Key.Down do
+    when move == Key.Down do
       change.y += 1
     end
   end
@@ -70,6 +72,9 @@ def try_move(world: World, move: Key) do
   --- is there an obstacle to interact with
   --- is there an item to pick up
   --- is it a walkable map tile
+  if map_location_walkable(world.map, pos) do
+    world.player.pos = pos
+  end
 end
 
 --------------------------------------------------------------[ main state ]
@@ -102,12 +107,15 @@ def game_update(world: World) do
     end
   end
 
+  camera_update(world.camera, world.player)
+
   if buttonp(Key.X) do
     scene = Scene.Inventory
   end
 end
 
 def game_draw(world: World) do
+  clear()
   map_draw(world.map, world.camera)
   player_draw(world.player)
 end
