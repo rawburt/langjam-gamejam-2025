@@ -10,6 +10,26 @@ const TILE_TEXTURE: Texture = Texture(
 
 const TILE_SIZE: int = 8
 
+def sprite_rect(x: int, y: int) Rect do
+  ret Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE)
+end
+
 def make_sprite(x: int, y: int) Sprite do
-  ret Sprite(texture: TILE_TEXTURE, rect: Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE))
+  var sprite: Sprite = Sprite(
+    texture: TILE_TEXTURE,
+    rect: sprite_rect(x, y),
+    overlay: false,
+    overlay_color: #ffffff
+  )
+  ret sprite
+end
+
+def make_sprite_with_overlay(x: int, y: int, c: color) Sprite do
+  var sprite: Sprite = Sprite(
+    texture: TILE_TEXTURE,
+    rect: sprite_rect(x, y),
+    overlay: true,
+    overlay_color: c
+  )
+  ret sprite
 end

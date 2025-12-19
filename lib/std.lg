@@ -72,6 +72,8 @@ end
 rec Sprite do
   texture: Texture
   rect: Rect
+  overlay: bool
+  overlay_color: color
 end
 
 def render_sprite(sprite: Sprite, x: int, y: int) do
@@ -86,4 +88,7 @@ def render_sprite(sprite: Sprite, x: int, y: int) do
     sprite.rect.w,
     sprite.rect.h
   )
+  if sprite.overlay do
+    render_overlay(sprite.overlay_color, x, y, sprite.rect.w, sprite.rect.h)
+  end
 end

@@ -103,7 +103,7 @@
       "patterns": [
         {
           "name": "keyword.type.primitive.lg",
-          "match": "\\b(int|bool|str|image)\\b(?!\\()"
+          "match": "\\b(int|bool|str|image|color)\\b(?!\\()"
         },
         {
           "name": "entity.name.type.lg",
