@@ -3,7 +3,7 @@ use tiles
 
 enum ItemKind do
   Key
-  Potion
+  FirePotion
 end
 
 rec Item do
@@ -22,12 +22,12 @@ const ITEM_KEY: Item = Item(
   picked_up: false
 )
 
-const ITEM_POTION: Item = Item(
-  kind: ItemKind.Potion,
-  sprite: make_sprite(8, 32),
-  pos: Vec2(x: 7, y: 23),
-  detail: "POTION",
+const ITEM_FIRE_POTION: Item = Item(
+  kind: ItemKind.FirePotion,
+  sprite: make_sprite_with_overlay(8, 32, #f05c5c),
+  pos: Vec2(x: 55, y: 11),
+  detail: "FIRE POTION",
   picked_up: false
 )
 
-var items: [Item] = [ITEM_KEY, ITEM_POTION]
+var items: [Item] = [ITEM_FIRE_POTION]
