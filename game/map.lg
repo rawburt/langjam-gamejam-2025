@@ -14,7 +14,7 @@ var maps: [Map] = [
 
 var current_map: Map = maps[0]
 
-const TREE_COLOR: color = #1e4a31
+--- const TREE_COLOR: color = #1e4a31
 
 def render_tile(sprite: Sprite, x: int, y: int) do
   render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)

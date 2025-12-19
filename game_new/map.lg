@@ -1,0 +1,61 @@
+use std
+use sprites
+use items
+use obstacles
+use camera
+use maps/map1
+
+rec Map do
+  id: int
+  w: int
+  h: int
+  data: [int]
+  start: Vec2
+  items: [Item]
+  obstacles: [Obstacle]
+end
+
+var maps: [Map] = []
+
+def map1_init() Map do
+  var map: Map = Map(
+    id: 1,
+    w: MAP1_WIDTH,
+    h: MAP1_HEIGHT,
+    data: MAP1_DATA,
+    start: Vec2(x: 21, y: 21),
+    items: [],
+    obstacles: []
+  )
+  ret map
+end
+
+def maps_init() do
+  maps = []
+  push(map1_init(), maps)
+end
+
+def map_init() Map do
+  maps_init()
+  ret maps[0]
+end
+
+def render_map_tile(tile: int, x: int, y: int) do
+  var sprite: Sprite = map_sprite(tile)
+  render_tile(sprite, x, y)
+end
+
+def map_draw(map: Map, camera: Camera) do
+  for y = 0 to 16 do
+    for x = 0 to 16 do
+      var map_x: int = x + camera.pos.x
+      var map_y: int = y + camera.pos.y
+      if map_x >= 0 && map_y >= 0 && map_x < map.w && map_y < map.h do
+        var tile: int = map.data[map_y * map.w + map_x]
+        if tile != 0 do
+          render_map_tile(tile, x, y)
+        end
+      end
+    end
+  end
+end

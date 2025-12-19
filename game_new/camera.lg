@@ -1,0 +1,12 @@
+use std
+use player
+
+rec Camera do
+  pos: Vec2
+end
+
+def camera_update(camera: Camera, player: Player) Camera do
+  camera.pos.x = player.pos.x - 8
+  camera.pos.y = player.pos.y - 8
+  ret camera
+end

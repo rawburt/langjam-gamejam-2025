@@ -1,0 +1,13 @@
+use std
+
+enum ItemKind do
+  GoldKey
+  FirePotion
+end
+
+rec Item do
+  kind: ItemKind
+  sprite: Sprite
+  pos: Vec2
+  info: str
+end

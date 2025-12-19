@@ -1,6 +1,12 @@
 use std
 use textures
 
+const TILE_SIZE: int = 8
+
+def render_tile(sprite: Sprite, x: int, y: int) do
+  render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
+end
+
 def sprite_rect(x: int, y: int) Rect do
   ret Rect(x: x, y: y, w: TILE_SIZE, h: TILE_SIZE)
 end

@@ -7,5 +7,3 @@ const TILE_TEXTURE: Texture = Texture(
   w: 224,
   h: 64
 )
-
-const TILE_SIZE: int = 8

@@ -1,0 +1,23 @@
+use std
+use inventory
+use sprites
+
+rec Player do
+  sprite: Sprite
+  pos: Vec2
+  inventory: Inventory
+end
+
+def player_init() Player do
+  var player: Player = Player(
+    sprite: make_sprite(8, 40),
+    pos: Vec2(x: 0, y: 0),
+    inventory: Inventory(items: [])
+  )
+
+  ret player
+end
+
+def player_draw(player: Player) do
+  render_tile(player.sprite, 8, 8)
+end

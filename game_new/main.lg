@@ -1,39 +1,14 @@
+use std
+use textures
+use sprites
+use items
+use obstacles
+use camera
+use map
+
 rec Modal do
   lines: [str]
   sprites: [Sprite]
-end
-
-rec Item do
-  kind: ItemKind
-  sprite: Sprite
-  pos: Vec2
-  info: str
-end
-
-rec Obstacle do
-  sprite: Sprite
-  pos: Vec2
-  requires: [ItemKind]
-  info: [str]
-end
-
-rec Map do
-  id: int
-  w: int
-  h: int
-  data: [int]
-  items: [Item]
-  obstacles: [Obstacle]
-end
-
-rec Inventory do
-  items: [Item]
-end
-
-rec Player do
-  sprite: Sprite
-  pos: Vec2
-  inventory: Inventory
 end
 
 enum GameState do
@@ -44,10 +19,32 @@ end
 
 rec World do
   player: Player
+  camera: Camera
   map: Map
   modal: Modal
   game_state: GameState
 end
+
+def world_init() World do
+  var map: Map = map_init()
+
+  var player: Player = player_init()
+  player.pos = map.start
+
+  var camera: Camera = Camera(pos: Vec2(x: 0, y: 0))
+
+  var world: World = World(
+    player: player,
+    camera: camera_update(camera, player),
+    map: map,
+    modal: Modal(lines: [], sprites: []),
+    game_state: GameState.Play
+  )
+
+  ret world
+end
+
+var world: World = world_init()
 
 enum Scene do
   Game
@@ -55,30 +52,69 @@ enum Scene do
   Modal
 end
 
+var scene: Scene = Scene.Game
+
+--------------------------------------------------------------[ SCENE: Game ]
+
+def game_update(world: World) do
+  if buttonp(Key.X) do
+    scene = Scene.Inventory
+  end
+end
+
+def game_draw(world: World) do
+  map_draw(world.map, world.camera)
+  player_draw(world.player)
+end
+
+--------------------------------------------------------------[ SCENE: Inventory ]
+
+def inventory_update() do
+  if buttonp(Key.X) do
+    scene = Scene.Game
+  end
+end
+
+def inventory_draw(inventory: Inventory) do
+end
+
+--------------------------------------------------------------[ SCENE: Modal ]
+
+def modal_update() do
+  if buttonp(Key.X) do
+    scene = Scene.Game
+  end
+end
+
+def modal_draw(modal: Modal) do
+end
+
+--------------------------------------------------------------[ main game loop ]
+
 def update() do
-  match Scene do
+  match scene do
     when Scene.Game do
-      update_game(world)
+      game_update(world)
     end
     when Scene.Inventory do
-      update_inventory()
+      inventory_update()
     end
     when Scene.Modal do
-      update_modal()
+      modal_update()
     end
   end
 end
 
 def draw() do
-  match Scene do
+  match scene do
     when Scene.Game do
-      draw_game(world)
+      game_draw(world)
     end
     when Scene.Inventory do
-      draw_inventory(world.player)
+      inventory_draw(world.player.inventory)
     end
     when Scene.Modal do
-      draw_modal(world.modal)
+      modal_draw(world.modal)
     end
   end
 end

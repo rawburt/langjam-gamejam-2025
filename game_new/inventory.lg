@@ -1,0 +1,6 @@
+use std
+use items
+
+rec Inventory do
+  items: [Item]
+end
