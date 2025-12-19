@@ -36,10 +36,17 @@ rec Player do
   inventory: Inventory
 end
 
+enum GameState do
+  Play
+  Win
+  Dead
+end
+
 rec World do
   player: Player
   map: Map
   modal: Modal
+  game_state: GameState
 end
 
 enum Scene do
