@@ -46,6 +46,7 @@ end
 
 def try_move(world: World, move: Key) do
   var change: Vec2 = Vec2(x: 0, y: 0)
+
   match move do
     when Key.Left do
       change.x -= 1
@@ -60,9 +61,17 @@ def try_move(world: World, move: Key) do
       change.y += 1
     end
   end
-  --- is it a walkable map tile
-  --- is there an item to pick up
-  --- is there an obstacle to interact with
+
+  var pos: Vec2 = Vec2(
+    x: world.player.pos.x + change.x,
+    y: world.player.pos.y + change.y
+  )
+
+  cond do
+    --- is it a walkable map tile
+    --- is there an item to pick up
+    --- is there an obstacle to interact with
+  end
 end
 
 --------------------------------------------------------------[ main state ]
