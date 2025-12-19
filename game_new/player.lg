@@ -10,7 +10,8 @@ end
 
 def player_init() Player do
   var player: Player = Player(
-    sprite: make_sprite(8, 40),
+    --- sprite: make_sprite(8, 40),
+    sprite: make_sprite(0, 24),
     pos: Vec2(x: 0, y: 0),
     inventory: Inventory(items: [])
   )
