@@ -67,11 +67,9 @@ def try_move(world: World, move: Key) do
     y: world.player.pos.y + change.y
   )
 
-  cond do
-    --- is it a walkable map tile
-    --- is there an item to pick up
-    --- is there an obstacle to interact with
-  end
+  --- is there an obstacle to interact with
+  --- is there an item to pick up
+  --- is it a walkable map tile
 end
 
 --------------------------------------------------------------[ main state ]
