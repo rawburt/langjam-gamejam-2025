@@ -1,0 +1,77 @@
+rec Modal do
+  lines: [str]
+  sprites: [Sprite]
+end
+
+rec Item do
+  kind: ItemKind
+  sprite: Sprite
+  pos: Vec2
+  info: str
+end
+
+rec Obstacle do
+  sprite: Sprite
+  pos: Vec2
+  requires: [ItemKind]
+  info: [str]
+end
+
+rec Map do
+  id: int
+  w: int
+  h: int
+  data: [int]
+  items: [Item]
+  obstacles: [Obstacle]
+end
+
+rec Inventory do
+  items: [Item]
+end
+
+rec Player do
+  sprite: Sprite
+  pos: Vec2
+  inventory: Inventory
+end
+
+rec World do
+  player: Player
+  map: Map
+  modal: Modal
+end
+
+enum Scene do
+  Game
+  Inventory
+  Modal
+end
+
+def update() do
+  match Scene do
+    when Scene.Game do
+      update_game(world)
+    end
+    when Scene.Inventory do
+      update_inventory()
+    end
+    when Scene.Modal do
+      update_modal()
+    end
+  end
+end
+
+def draw() do
+  match Scene do
+    when Scene.Game do
+      draw_game(world)
+    end
+    when Scene.Inventory do
+      draw_inventory(world.player)
+    end
+    when Scene.Modal do
+      draw_modal(world.modal)
+    end
+  end
+end
