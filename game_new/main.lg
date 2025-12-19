@@ -44,6 +44,29 @@ def world_init() World do
   ret world
 end
 
+def try_move(world: World, move: Key) do
+  var change: Vec2 = Vec2(x: 0, y: 0)
+  match move do
+    when Key.Left do
+      change.x -= 1
+    end
+    when Key.Right do
+      change.x += 1
+    end
+    when Key.Up do
+      change.y -= 1
+    end
+    when Key.Down do
+      change.y += 1
+    end
+  end
+  --- is it a walkable map tile
+  --- is there an item to pick up
+  --- is there an obstacle to interact with
+end
+
+--------------------------------------------------------------[ main state ]
+
 var world: World = world_init()
 
 enum Scene do
