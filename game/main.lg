@@ -237,7 +237,7 @@ end
 
 --------------------------------------------------------------[ main game loop ]
 
-world.scene = Scene.MapChange
+--- world.scene = Scene.MapChange
 
 def update() do
   --- fancy event system
