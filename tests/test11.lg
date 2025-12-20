@@ -10,12 +10,16 @@ var tiles: Texture = Texture(
 
 var water: Sprite = Sprite(
   texture: tiles,
-  rect: Rect(x: 0, y: 8, w: 8, h: 8)
+  rect: Rect(x: 0, y: 8, w: 8, h: 8),
+  overlay: false,
+  overlay_color: #ffffff
 )
 
 var player: Sprite = Sprite(
   texture: tiles,
-  rect: Rect(x: 8, y: 40, w: 8, h: 8)
+  rect: Rect(x: 8, y: 40, w: 8, h: 8),
+  overlay: false,
+  overlay_color: #ffffff
 )
 
 def draw() do

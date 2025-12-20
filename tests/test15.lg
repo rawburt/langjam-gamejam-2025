@@ -31,4 +31,7 @@ match key do
   when MyKey.A do
     debug("A")
   end
+  when MyKey.Z do
+    debug("Z")
+  end
 end
