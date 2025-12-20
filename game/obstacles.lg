@@ -1,5 +1,6 @@
 use std
 use items
+use player
 
 rec ObstacleRequirement do
   item: ItemKind
@@ -13,4 +14,20 @@ rec Obstacle do
   info: [str]
   info_sprites: [Sprite]
   active: bool
+end
+
+def obstacle_requirements_met(obstacle: Obstacle, player: Player) bool do
+  var met: bool = false
+
+  for req in obstacle.requires do
+    var count: int = inventory_count(player.inventory, req.item)
+    if count >= req.amount do
+      met = true
+      for i = 0 to count do
+        inventory_remove_item(player.inventory, req.item)
+      end
+    end
+  end
+
+  ret met
 end

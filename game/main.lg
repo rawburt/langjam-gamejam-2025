@@ -85,11 +85,17 @@ def try_move(world: World, move: Key) do
   var can_move: bool = true
 
   --- is there an obstacle to interact with
-  for obstacle in world.map.obstacles do
+  for i = 0 to len(world.map.obstacles) do
+    var obstacle: Obstacle = world.map.obstacles[i]
+
     if obstacle.active && obstacle.pos == pos do
-      can_move = false
       --- does player meet requirements to solve obstacle
-      --- TODO
+      if obstacle_requirements_met(obstacle, world.player) do
+        delete(i, world.map.obstacles)
+      end
+
+      --- obstcle is in the way
+      can_move = false
 
       --- open obstacle modal
       var modal: Modal = Modal(

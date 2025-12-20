@@ -93,6 +93,8 @@ let base_venv =
     ("push", { ty = TyFun ([], TyUnit); const = true });
     (* forall a: list[a] -> a *)
     ("pop", { ty = TyFun ([], TyUnit); const = true });
+    (* forall a: int -> list[a] -> unit *)
+    ("delete", { ty = TyFun ([], TyUnit); const = true });
   ]
 
 let lookup loc k e =
@@ -208,6 +210,11 @@ and check_expr env expr =
             let f = [ TyList a ] in
             List.iter2 (unify loc) f expr_tys;
             a
+        | "delete" ->
+            let a = TyVar (ref None) in
+            let f = [ TyInt; TyList a ] in
+            List.iter2 (unify loc) f expr_tys;
+            TyUnit
         | _ -> (
             let entry = lookup loc name env.venv in
             match entry.ty with

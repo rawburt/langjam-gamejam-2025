@@ -1,6 +1,6 @@
 const PSIZE = 4;
 
-const Key = {Left: 0, Right: 1, Up: 2, Down: 3, Z: 4, X: 5}
+const Key = { Left: 0, Right: 1, Up: 2, Down: 3, Z: 4, X: 5 }
 
 function len(e) {
   return e.length;
@@ -12,6 +12,10 @@ function push(x, xs) {
 
 function pop(xs) {
   return xs.pop();
+}
+
+function list_delete(i, xs) {
+  xs.splice(i, 1)
 }
 
 function rand(min, max) {

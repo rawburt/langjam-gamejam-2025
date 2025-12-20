@@ -8,3 +8,26 @@ end
 def inventory_add(inventory: Inventory, item: Item) do
   push(item, inventory.items)
 end
+
+def inventory_count(inventory: Inventory, kind: ItemKind) int do
+  var count: int = 0
+  for item in inventory.items do
+    if item.kind == kind do
+      count += 1
+    end
+  end
+  ret count
+end
+
+def inventory_remove_item(inventory: Inventory, kind: ItemKind) do
+  var index: int = -1
+  for i = 0 to len(inventory.items) do
+    if inventory.items[0].kind == kind do
+      index = i
+      break
+    end
+  end
+  if index >= 0 do
+    delete(0, inventory.items)
+  end
+end

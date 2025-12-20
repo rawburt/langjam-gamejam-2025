@@ -9,6 +9,7 @@ let compile_name = function
   | "debug" -> "engine.debug"
   | "render" -> "engine.render"
   | "render_overlay" -> "engine.renderOverlay"
+  | "delete" -> "list_delete"
   | n -> n
 
 let compile_bop = function
