@@ -88,6 +88,15 @@ Statements have no return value and they manipulate the control flow of a progra
 ### If
 
 ```
+if true do
+  debug("HOORAY")
+end
+
+if false do
+  debug("OOPS")
+else
+  debug("OK")
+end
 ```
 
 ### Cond
@@ -164,6 +173,17 @@ end
 ```
 
 ## Functions
+
+```
+--- functions with no return do not have a return type hint
+def do_something() do
+  debug("i'm doing something")
+end
+
+def add_1(i: int) int do
+  ret i + 1
+end
+```
 
 ## Images
 
