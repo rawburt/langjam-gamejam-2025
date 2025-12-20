@@ -2,6 +2,8 @@
 
 The programming language is a statically typed programming language that compiles to JavaScript with specific knowledge of the JavaScript game engine it is compiling for.
 
+Details about the compiler architecture and features can be found at [./COMPILER.md](./COMPILER.md).
+
 ## Basic Types
 
 * `unit` (only used for function return types)
@@ -80,6 +82,8 @@ Constants can't be mutate and require all capital names:
 ```
 const HELLO: str = "HELLO"
 ```
+
+Constants can only be declared in the top level.
 
 ## Statements
 
@@ -189,4 +193,59 @@ Functions with returns must always return. The compiler checks that all flows re
 
 ## Images
 
+To allow the game engine to be aware of image assets, you must declare an image asset:
+
+```
+asset ASSET_NAME = "assets/file.png"
+```
+
+The type of the asset is `image`. The compiler will check that the file exists.
+
+Assets can only be declared in the top level.
+
+## Libraries
+
+Libraries and other source files can be defined as depdencies to any given file:
+
+```
+use std
+use other/helper
+```
+
+The compiler checks the directory of the source file for the included libraries. There compiler also checks a global `lib/` directory for source files.
+
+Libraries can only be included at the top of a source file.
+
 ## Built In Functions
+
+* `pset(x: int, y: int, c: color) unit`
+  * Set pixel at `(x, y)` to color `c`
+* `button(i: int) bool`
+  * Check if button is being pressed
+* `buttonp(i: int) bool`
+  * Check if button was just pressed for the first time this frame
+* `clear()`
+  * Clear the screen
+* `text(s: str, x: int, y: int, s: int, c: color) unit`
+  * Render text `s` at `(x, y)` in size `s` and color `c`.
+* `debug(s: str) unit`
+  * Log string `s` to the JavaScript console. Provides source location of the debug call.
+  * Example: `debug("hello")` will print `[file.lg:4] hello`.
+* `render(i: image, sx: int, sy: int, sw: int, sh: int, dx: int, dy: int, dw: int, dh: int)`
+  * Using image `i`, render source rectangle to destination rectangle.
+  * Source rectangle is `(sx, sy)` with dimensions `sw x sh`.
+  * Destination rectangle is `(dx, dy)` with dimensions `dw x dh`.
+* `render_overlay(c: color, x: int, y: int, w: int, h: int)`
+  * Blend color `c` on top of whatever is currently rendered at location `(x, y)` with dimension `w * h`.
+* `rand(min: int, max: int) int`
+  * Return a random number between `min` and `max` (inclusive).
+* `forall a: str(a) str`
+  * Turn any time `a` into `str`.
+* `forall a: len([a] | str) int`
+  * Return the length of a list or a string.
+* `forall a: push(i: a, l: list[a]) unit`
+  * Push and item to the back of a list.
+* `forall a: pop(l: list[a]) a`
+  * Remove the last item from a list and return it.
+* `forall a: delete(i: int, l: list[a]) unit`
+  * Delete an item at index `i` from list `l` (resizes list to remove item).
