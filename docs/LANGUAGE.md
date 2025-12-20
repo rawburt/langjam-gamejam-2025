@@ -185,6 +185,8 @@ def add_1(i: int) int do
 end
 ```
 
+Functions with returns must always return. The compiler checks that all flows return the required value type.
+
 ## Images
 
 ## Built In Functions
