@@ -1,4 +1,6 @@
 use obstacles
+use events
+use scenes
 
 const MAP1_HEIGHT: int = 64
 const MAP1_WIDTH: int = 64
@@ -74,6 +76,11 @@ const LESSER_VOID_SPRITE: Sprite = make_sprite(24, 16)
 const WATER_POTION_SPRITE: Sprite = make_sprite_with_overlay(8, 32, #46abe7)
 const FIRE_POTION_SPRITE: Sprite = make_sprite_with_overlay(8, 32, #f05c5c)
 
+const EVENT_NONE: Event = Event(
+  kind: EventKind.None,
+  scene: Scene.Game
+)
+
 def map1_obstacles_init() [Obstacle] do
   var void_shrine: Obstacle = Obstacle(
     sprite: make_sprite(152, 16),
@@ -81,9 +88,13 @@ def map1_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.LesserVoid, amount: 2)
     ],
-    info: ["VOID SHRINE","","NEEDS:","","2 LESSER VOIDS"],
+    info: ["","VOID SHRINE","","NEEDS:","","2 LESSER VOIDS"],
     info_sprites: [LESSER_VOID_SPRITE, LESSER_VOID_SPRITE],
-    active: true
+    active: true,
+    event: Event(
+      kind: EventKind.ChangeScene,
+      scene: Scene.MapChange
+    )
   )
 
   var magic_water: Obstacle = Obstacle(
@@ -92,9 +103,10 @@ def map1_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.WaterPotion, amount: 1)
     ],
-    info: ["MAGIC WATER","","NEEDS:","","WATER POTION"],
+    info: ["","MAGIC WATER","","NEEDS:","","WATER POTION"],
     info_sprites: [WATER_POTION_SPRITE],
-    active: true
+    active: true,
+    event: EVENT_NONE
   )
 
   var magic_fire: Obstacle = Obstacle(
@@ -103,9 +115,10 @@ def map1_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.FirePotion, amount: 1)
     ],
-    info: ["MAGIC FIRE","","NEEDS:","","FIRE POTION"],
+    info: ["","MAGIC FIRE","","NEEDS:","","FIRE POTION"],
     info_sprites: [FIRE_POTION_SPRITE],
-    active: true
+    active: true,
+    event: EVENT_NONE
   )
 
   ret [

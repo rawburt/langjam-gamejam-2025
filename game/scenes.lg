@@ -1,0 +1,6 @@
+enum Scene do
+  Game
+  Inventory
+  Modal
+  MapChange
+end

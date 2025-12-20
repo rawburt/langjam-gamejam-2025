@@ -6,6 +6,7 @@ use obstacles
 use camera
 use map
 use text
+use scenes
 
 rec Modal do
   lines: [str]
@@ -16,12 +17,6 @@ enum GameState do
   Play
   Win
   Dead
-end
-
-enum Scene do
-  Game
-  Inventory
-  Modal
 end
 
 rec World do
@@ -56,7 +51,7 @@ end
 
 var world: World = world_init()
 
---------------------------------------------------------------
+-------------------------------------------------------------- [ big important move logic ]
 
 def try_move(world: World, move: Key) do
   var change: Vec2 = Vec2(x: 0, y: 0)
@@ -92,6 +87,7 @@ def try_move(world: World, move: Key) do
       --- does player meet requirements to solve obstacle
       if obstacle_requirements_met(obstacle, world.player) do
         delete(i, world.map.obstacles)
+        break
       end
 
       --- obstacle is in the way
@@ -120,7 +116,7 @@ def try_move(world: World, move: Key) do
 
         --- tell the player about the item
         var modal: Modal = Modal(
-          lines: ["PICKED UP:", "", item.info],
+          lines: ["","PICKED UP:", "", item.info],
           sprites: [item.sprite]
         )
         world.modal = modal
@@ -213,9 +209,38 @@ def modal_draw(modal: Modal) do
   end
 end
 
+--------------------------------------------------------------[ SCENE: MapChange ]
+
+def map_change_draw(world: World) do
+  clear()
+  cond do
+    when world.map.id == 1 do
+      render_text_centered("VOID AWAKENS", 2)
+      render_text_centered("VOID PULLS YOU", 5)
+    end
+  end
+end
+
+def map_change_update(world: World) do
+end
+
 --------------------------------------------------------------[ main game loop ]
 
 def update() do
+  --- fancy event system
+  if events_exist() do
+    var event: Event = events_pop()
+    match event.kind do
+      when EventKind.None do
+        --- nothing
+      end
+      when EventKind.ChangeScene do
+        world.scene = event.scene
+      end
+    end
+  end
+
+  --- scene specific updates
   match world.scene do
     when Scene.Game do
       game_update(world)
@@ -226,10 +251,14 @@ def update() do
     when Scene.Modal do
       modal_update()
     end
+    when Scene.MapChange do
+      map_change_update(world)
+    end
   end
 end
 
 def draw() do
+  --- scene specific draws
   match world.scene do
     when Scene.Game do
       game_draw(world)
@@ -239,6 +268,9 @@ def draw() do
     end
     when Scene.Modal do
       modal_draw(world.modal)
+    end
+    when Scene.MapChange do
+      map_change_draw(world)
     end
   end
 end

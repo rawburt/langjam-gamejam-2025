@@ -1,6 +1,7 @@
 use std
 use items
 use player
+use events
 
 rec ObstacleRequirement do
   item: ItemKind
@@ -14,10 +15,13 @@ rec Obstacle do
   info: [str]
   info_sprites: [Sprite]
   active: bool
+  event: Event
 end
 
 def obstacle_requirements_met(obstacle: Obstacle, player: Player) bool do
   var met: bool = false
+
+  --- TODO: bug in here for water potion map1
 
   for req in obstacle.requires do
     var count: int = inventory_count(player.inventory, req.item)
@@ -27,6 +31,10 @@ def obstacle_requirements_met(obstacle: Obstacle, player: Player) bool do
         inventory_remove_item(player.inventory, req.item)
       end
     end
+  end
+
+  if met do
+    events_push(obstacle.event)
   end
 
   ret met

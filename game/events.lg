@@ -1,0 +1,38 @@
+use scenes
+
+enum EventKind do
+  None
+  ChangeScene
+end
+
+rec Event do
+  kind: EventKind
+  scene: Scene
+end
+
+var events: [Event] = []
+
+def events_clear() do
+  events = []
+end
+
+def events_push(event: Event) do
+  if event.kind != EventKind.None do
+    push(event, events)
+  end
+end
+
+def events_pop() Event do
+  ret pop(events)
+end
+
+def events_exist() bool do
+  ret len(events) > 0
+end
+
+def events_change_scene(scene: Scene) do
+  var event: Event = Event(
+    kind: EventKind.ChangeScene,
+    scene: scene
+  )
+end
