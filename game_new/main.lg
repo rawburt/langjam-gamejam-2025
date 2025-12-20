@@ -9,6 +9,7 @@ use text
 
 rec Modal do
   lines: [str]
+  sprites: [Sprite]
 end
 
 enum GameState do
@@ -45,7 +46,7 @@ def world_init() World do
     player: player,
     camera: camera,
     map: map,
-    modal: Modal(lines: []),
+    modal: Modal(lines: [], sprites: []),
     game_state: GameState.Play,
     scene: Scene.Game
   )
@@ -89,7 +90,7 @@ def try_move(world: World, move: Key) do
       can_move = false
       --- does player meet requirements to solve obstacle
       --- open obstacle modal
-      var modal: Modal = Modal(lines: obstacle.info)
+      var modal: Modal = Modal(lines: obstacle.info, sprites: obstacle.info_sprites)
       world.modal = modal
       world.scene = Scene.Modal
       break
@@ -169,8 +170,15 @@ end
 
 def modal_draw(modal: Modal) do
   clear()
-  for i = 0 to len(modal.lines) do
-    render_text_centered(modal.lines[i], i)
+  var i: int = 0
+  for l in modal.lines do
+    render_text_centered(l, i)
+    i += 1
+  end
+  var sprites_len: int = len(modal.sprites)
+  var start_x: int = (16 - sprites_len) / 2
+  for s = 0 to sprites_len do
+    render_sprite(modal.sprites[s], (start_x * TILE_SIZE) + (s * TILE_SIZE), (i + 1) * TILE_SIZE)
   end
 end
 

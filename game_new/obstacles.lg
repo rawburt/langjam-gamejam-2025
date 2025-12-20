@@ -11,5 +11,6 @@ rec Obstacle do
   pos: Vec2
   requires: [ObstacleRequirement]
   info: [str]
+  info_sprites: [Sprite]
   active: bool
 end

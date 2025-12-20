@@ -78,6 +78,7 @@ def map1_obstacles_init() [Obstacle] do
       ObstacleRequirement(item: ItemKind.LesserVoid, amount: 2)
     ],
     info: ["VOID SHRINE","","NEEDS:","","2 LESSER VOIDS"],
+    info_sprites: [make_sprite(24, 16), make_sprite(24, 16)],
     active: true
   )
   ret [void_shrine]
