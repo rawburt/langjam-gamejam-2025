@@ -4,3 +4,7 @@ use items
 rec Inventory do
   items: [Item]
 end
+
+def inventory_add(inventory: Inventory, item: Item) do
+  push(item, inventory.items)
+end

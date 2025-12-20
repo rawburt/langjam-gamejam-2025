@@ -2,6 +2,7 @@ use std
 
 enum ItemKind do
   GoldKey
+  WaterPotion
   FirePotion
   LesserVoid
 end

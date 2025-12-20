@@ -24,7 +24,7 @@ def map1_init() Map do
     h: MAP1_HEIGHT,
     data: MAP1_DATA,
     start: Vec2(x: 21, y: 21),
-    items: [],
+    items: map1_items_init(),
     obstacles: map1_obstacles_init()
   )
   ret map
@@ -65,6 +65,16 @@ def map_draw(map: Map, camera: Camera) do
         var screen_x: int = obstacle.pos.x - camera.pos.x
         var screen_y: int = obstacle.pos.y - camera.pos.y
         render_tile(obstacle.sprite, screen_x, screen_y)
+      end
+    end
+  end
+
+  for item in map.items do
+    if item.active do
+      if camera_in_view(camera, item.pos) do
+        var screen_x: int = item.pos.x - camera.pos.x
+        var screen_y: int = item.pos.y - camera.pos.y
+        render_tile(item.sprite, screen_x, screen_y)
       end
     end
   end
