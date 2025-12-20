@@ -87,6 +87,7 @@ def try_move(world: World, move: Key) do
   for obstacle in world.map.obstacles do
     if obstacle.pos == pos && obstacle.active do
       can_move = false
+      --- does player meet requirements to solve obstacle
       --- open obstacle modal
       var modal: Modal = Modal(lines: obstacle.info)
       world.modal = modal
