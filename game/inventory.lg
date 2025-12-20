@@ -22,12 +22,13 @@ end
 def inventory_remove_item(inventory: Inventory, kind: ItemKind) do
   var index: int = -1
   for i = 0 to len(inventory.items) do
-    if inventory.items[0].kind == kind do
+    if inventory.items[i].kind == kind do
       index = i
       break
     end
   end
+
   if index >= 0 do
-    delete(0, inventory.items)
+    delete(index, inventory.items)
   end
 end
