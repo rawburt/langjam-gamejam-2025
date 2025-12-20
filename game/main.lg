@@ -7,16 +7,11 @@ use camera
 use map
 use text
 use scenes
+use events
 
 rec Modal do
   lines: [str]
   sprites: [Sprite]
-end
-
-enum GameState do
-  Play
-  Win
-  Dead
 end
 
 rec World do
@@ -24,7 +19,6 @@ rec World do
   camera: Camera
   map: Map
   modal: Modal
-  game_state: GameState
   scene: Scene
 end
 
@@ -42,9 +36,10 @@ def world_init() World do
     camera: camera,
     map: map,
     modal: Modal(lines: [], sprites: []),
-    game_state: GameState.Play,
-    scene: Scene.Game
+    scene: Scene.Title
   )
+
+  events_clear()
 
   ret world
 end
@@ -124,7 +119,7 @@ def try_move(world: World, move: Key) do
 
         --- tell the player about the item
         var modal: Modal = Modal(
-          lines: ["","PICKED UP:", "", item.info],
+          lines: ["","ITEM PICKUP", "-", "", item.info],
           sprites: [item.sprite]
         )
         world.modal = modal
@@ -140,6 +135,42 @@ def try_move(world: World, move: Key) do
       world.player.pos = pos
     end
   end
+end
+
+--------------------------------------------------------------[ SCENE: Title ]
+
+def title_update(world: World) do
+  if buttonp(Key.X) do
+    world.scene = Scene.Game
+  end
+end
+
+def title_draw() do
+  clear()
+  --- void borders
+  for x = 0 to 16 do
+    render_tile(SWIRL_SPRITE1, x, 0)
+    render_tile(SWIRL_SPRITE1, x, 15)
+  end
+  for y = 1 to 15 do
+    render_tile(SWIRL_SPRITE2, 0, y)
+    render_tile(SWIRL_SPRITE2, 15, y)
+  end
+
+  --- bone interior
+  for x = 1 to 15 do
+    render_tile(BONES_SPRITE, x, 1)
+    render_tile(BONES_SPRITE, x, 14)
+  end
+  for y = 2 to 14 do
+    render_tile(BONES_SPRITE, 1, y)
+    render_tile(BONES_SPRITE, 14, y)
+  end
+
+  --- text
+  render_text_centered("CALL", 4)
+  render_text_centered("OF", 7)
+  render_text_centered("THE VOID", 10)
 end
 
 --------------------------------------------------------------[ SCENE: Game ]
@@ -183,14 +214,28 @@ end
 
 def inventory_draw(inventory: Inventory) do
   clear()
+
+  --- border
+  for i = 0 to 16 do
+    render_tile(DASH_H_SPRITE, i, 0)
+    render_tile(DASH_H_SPRITE, i, 15)
+    render_tile(DASH_H_SPRITE, i, 2)
+    render_tile(DASH_V_SPRITE, 0, i)
+    render_tile(DASH_V_SPRITE, 15, i)
+  end
+
+  --- title
   render_text_centered("INVENTORY", 1)
+
+  --- items
+
   if len(inventory.items) == 0 do
-    render_text_centered("EMPTY", 6)
+    render_text_centered("EMPTY", 4)
   else
     for i = 0 to len(inventory.items) do
       var item: Item = inventory.items[i]
-      render_sprite(item.sprite, 0, (TILE_SIZE*3) + (i * TILE_SIZE))
-      render_text(item.info, 2, 3 + i)
+      render_tile(item.sprite, 2, 4 + i)
+      render_text(item.info, 3, 4 + i)
     end
   end
 end
@@ -205,13 +250,29 @@ end
 
 def modal_draw(modal: Modal) do
   clear()
+
+  for i = 0 to 16 do
+    render_tile(DASH_H_SPRITE, i, 0)
+    render_tile(DASH_H_SPRITE, i, 15)
+    render_tile(DASH_V_SPRITE, 0, i)
+    render_tile(DASH_V_SPRITE, 15, i)
+  end
+
   var i: int = 0
   for l in modal.lines do
-    render_text_centered(l, i)
+    if l == "-" do
+      for x = 0 to 16 do
+        render_tile(DASH_H_SPRITE, x, i)
+      end
+    else
+      render_text_centered(l, i)
+    end
     i += 1
   end
+
   var sprites_len: int = len(modal.sprites)
   var start_x: int = (16 - sprites_len) / 2
+
   for s = 0 to sprites_len do
     render_sprite(modal.sprites[s], (start_x * TILE_SIZE) + (s * TILE_SIZE), (i + 1) * TILE_SIZE)
   end
@@ -228,7 +289,7 @@ def map_change_draw(world: World) do
     end
     when world.map.id == 2 do
       render_text_centered("THE DARK ENTITY", 2)
-      render_text_centered("LAUGHS AT YOU:", 3)
+      render_text_centered("LAUGHS AT YOU", 3)
       render_text_centered("THE ONLY WAY", 6)
       render_text_centered("TO WIN WAS TO", 7)
       render_text_centered("NOT PLAY", 8)
@@ -252,7 +313,7 @@ end
 
 --------------------------------------------------------------[ main game loop ]
 
---- world.scene = Scene.MapChange
+--- world.scene = Scene.GameOver
 
 def update() do
   --- fancy event system
@@ -270,6 +331,9 @@ def update() do
 
   --- scene specific updates
   match world.scene do
+    when Scene.Title do
+      title_update(world)
+    end
     when Scene.Game do
       game_update(world)
     end
@@ -291,6 +355,9 @@ end
 def draw() do
   --- scene specific draws
   match world.scene do
+    when Scene.Title do
+      title_draw()
+    end
     when Scene.Game do
       game_draw(world)
     end
@@ -305,7 +372,7 @@ def draw() do
     end
     when Scene.GameOver do
       clear()
-      render_text_centered("GAME OVER", 5)
+      render_text_centered("GAME OVER", 6)
     end
   end
 end

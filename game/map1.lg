@@ -89,7 +89,7 @@ def map1_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.LesserVoid, amount: 2)
     ],
-    info: ["","VOID SHRINE","","NEEDS:","","2 LESSER VOIDS"],
+    info: ["","VOID SHRINE","-","","REQUIRES","","2 LESSER VOIDS"],
     info_sprites: [LESSER_VOID_SPRITE, LESSER_VOID_SPRITE],
     event: Event(
       kind: EventKind.ChangeScene,
@@ -106,7 +106,7 @@ def map1_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.WaterPotion, amount: 1)
     ],
-    info: ["","MAGIC WATER","","NEEDS:","","WATER POTION"],
+    info: ["","MAGIC WATER","-","","REQUIRES","","WATER POTION"],
     info_sprites: [WATER_POTION_SPRITE],
     event: EVENT_NONE,
     consumes: true,
@@ -120,7 +120,7 @@ def map1_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.FirePotion, amount: 1)
     ],
-    info: ["","MAGIC FIRE","","NEEDS:","","FIRE POTION"],
+    info: ["","MAGIC FIRE","-","","REQUIRES","","FIRE POTION"],
     info_sprites: [FIRE_POTION_SPRITE],
     event: EVENT_NONE,
     consumes: true,

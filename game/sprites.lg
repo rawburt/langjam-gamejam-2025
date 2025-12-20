@@ -31,6 +31,9 @@ def make_sprite_with_overlay(x: int, y: int, c: color) Sprite do
   ret sprite
 end
 
+const DASH_V_SPRITE: Sprite = make_sprite_with_overlay(184, 40, #7b2194)
+const DASH_H_SPRITE: Sprite = make_sprite_with_overlay(192, 40, #7b2194)
+
 --- this sprite is empty
 const DEFAULT_SPRITE: Sprite = make_sprite(96, 0)
 
@@ -110,7 +113,12 @@ map_sprites[31] = make_sprite(16, 8)
 map_sprites[32] = make_sprite(24, 8)
 map_sprites[49] = make_sprite(160, 8)
 map_sprites[63] = make_sprite(48, 16)
-map_sprites[137] = make_sprite(192, 32)
+
+const SKULL_SPRITE: Sprite = make_sprite(184, 32)
+map_sprites[136] = SKULL_SPRITE
+
+const BONES_SPRITE: Sprite = make_sprite(192, 32)
+map_sprites[137] = BONES_SPRITE
 
 const EMPTY_TILE: int = 0
 const LEAF_TILE: int = 1

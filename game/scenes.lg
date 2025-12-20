@@ -1,4 +1,5 @@
 enum Scene do
+  Title
   Game
   Inventory
   Modal

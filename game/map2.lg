@@ -53,7 +53,7 @@ def make_blood_obstacle(x: int, y: int) Obstacle do
     requires: [
       ObstacleRequirement(item: ItemKind.BloodWand, amount: 1)
     ],
-    info: ["","ETERNAL BLOOD","","NEEDS:","","BLOOD WAND"],
+    info: ["","ETERNAL BLOOD","-","","REQUIRES","","BLOOD WAND"],
     info_sprites: [BLOOD_WAND_SPRITE],
     event: Event(
       kind: EventKind.None,
@@ -74,7 +74,7 @@ def map2_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.GoldKey, amount: 1)
     ],
-    info: ["","LOCKED DOOR","","FIND A KEY"],
+    info: ["","LOCKED DOOR","-","","FIND A KEY"],
     info_sprites: [GOLD_KEY_SPRITE],
     event: Event(
       kind: EventKind.None,
@@ -101,7 +101,7 @@ def map2_obstacles_init() [Obstacle] do
     requires: [
       ObstacleRequirement(item: ItemKind.LightOfLife, amount: 1)
     ],
-    info: ["","DARK ENTITY","","DESIRES","","LIGHT OF LIFE"],
+    info: ["","DARK ENTITY","-","","DESIRES","","LIGHT OF LIFE"],
     info_sprites: [LIGHT_OF_LIFE_SPRITE],
     event: Event(
       kind: EventKind.ChangeScene,
