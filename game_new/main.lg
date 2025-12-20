@@ -9,7 +9,6 @@ use text
 
 rec Modal do
   lines: [str]
-  sprites: [Sprite]
 end
 
 enum GameState do
@@ -18,12 +17,19 @@ enum GameState do
   Dead
 end
 
+enum Scene do
+  Game
+  Inventory
+  Modal
+end
+
 rec World do
   player: Player
   camera: Camera
   map: Map
   modal: Modal
   game_state: GameState
+  scene: Scene
 end
 
 def world_init() World do
@@ -39,17 +45,22 @@ def world_init() World do
     player: player,
     camera: camera,
     map: map,
-    modal: Modal(lines: [], sprites: []),
-    game_state: GameState.Play
+    modal: Modal(lines: []),
+    game_state: GameState.Play,
+    scene: Scene.Game
   )
 
   ret world
 end
 
+var world: World = world_init()
+
+--------------------------------------------------------------
+
 def try_move(world: World, move: Key) do
   var change: Vec2 = Vec2(x: 0, y: 0)
 
-  --- `cond` because we don't care about some Key's so `match` is not exhaustive
+  --- `cond` because we don't care about some Key's
   cond do
     when move == Key.Left do
       change.x -= 1
@@ -76,6 +87,10 @@ def try_move(world: World, move: Key) do
   for obstacle in world.map.obstacles do
     if obstacle.pos == pos && obstacle.active do
       can_move = false
+      --- open obstacle modal
+      var modal: Modal = Modal(lines: obstacle.info)
+      world.modal = modal
+      world.scene = Scene.Modal
       break
     end
   end
@@ -89,18 +104,6 @@ def try_move(world: World, move: Key) do
     end
   end
 end
-
---------------------------------------------------------------[ main state ]
-
-var world: World = world_init()
-
-enum Scene do
-  Game
-  Inventory
-  Modal
-end
-
-var scene: Scene = Scene.Game
 
 --------------------------------------------------------------[ SCENE: Game ]
 
@@ -123,7 +126,7 @@ def game_update(world: World) do
   camera_update(world.camera, world.player)
 
   if buttonp(Key.X) do
-    scene = Scene.Inventory
+    world.scene = Scene.Inventory
   end
 end
 
@@ -137,15 +140,15 @@ end
 
 def inventory_update() do
   if buttonp(Key.X) do
-    scene = Scene.Game
+    world.scene = Scene.Game
   end
 end
 
 def inventory_draw(inventory: Inventory) do
   clear()
-  render_text("INVENTORY", 3, 0)
+  render_text_centered("INVENTORY", 0)
   if len(inventory.items) == 0 do
-    render_text("EMPTY", 5, 6)
+    render_text_centered("EMPTY", 6)
   else
     for i = 0 to len(inventory.items) do
       var item: Item = inventory.items[i]
@@ -159,17 +162,21 @@ end
 
 def modal_update() do
   if buttonp(Key.X) do
-    scene = Scene.Game
+    world.scene = Scene.Game
   end
 end
 
 def modal_draw(modal: Modal) do
+  clear()
+  for i = 0 to len(modal.lines) do
+    render_text_centered(modal.lines[i], i)
+  end
 end
 
 --------------------------------------------------------------[ main game loop ]
 
 def update() do
-  match scene do
+  match world.scene do
     when Scene.Game do
       game_update(world)
     end
@@ -183,7 +190,7 @@ def update() do
 end
 
 def draw() do
-  match scene do
+  match world.scene do
     when Scene.Game do
       game_draw(world)
     end

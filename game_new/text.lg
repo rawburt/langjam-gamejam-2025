@@ -63,3 +63,8 @@ def render_text(text: str, x: int, y: int) do
     end
   end
 end
+
+def render_text_centered(text: str, y: int) do
+  var x: int = (16 - len(text)) / 2
+  render_text(text, x, y)
+end
