@@ -226,6 +226,13 @@ def map_change_draw(world: World) do
       render_text_centered("VOID AWAKENS", 2)
       render_text_centered("VOID PULLS YOU", 5)
     end
+    when world.map.id == 2 do
+      render_text_centered("THE DARK ENTITY", 2)
+      render_text_centered("LAUGHS AT YOU:", 3)
+      render_text_centered("THE ONLY WAY", 6)
+      render_text_centered("TO WIN WAS TO", 7)
+      render_text_centered("NOT PLAY", 8)
+    end
   end
 end
 
@@ -233,7 +240,7 @@ def map_change_update(world: World) do
   if buttonp(Key.Z) || buttonp(Key.X) do
     var next_map: int = map_next(world.map.id)
     if next_map == NO_MAP do
-      --- game over
+      world.scene = Scene.GameOver
     else
       world.map = map_get(next_map)
       world.player.pos = world.map.start
@@ -275,6 +282,9 @@ def update() do
     when Scene.MapChange do
       map_change_update(world)
     end
+    when Scene.GameOver do
+      --- nothing
+    end
   end
 end
 
@@ -292,6 +302,10 @@ def draw() do
     end
     when Scene.MapChange do
       map_change_draw(world)
+    end
+    when Scene.GameOver do
+      clear()
+      render_text_centered("GAME OVER", 5)
     end
   end
 end
