@@ -91,11 +91,13 @@ def map1_obstacles_init() [Obstacle] do
     ],
     info: ["","VOID SHRINE","","NEEDS:","","2 LESSER VOIDS"],
     info_sprites: [LESSER_VOID_SPRITE, LESSER_VOID_SPRITE],
-    active: true,
     event: Event(
       kind: EventKind.ChangeScene,
       scene: Scene.MapChange
-    )
+    ),
+    consumes: true,
+    deletes: true,
+    active: true
   )
 
   var magic_water: Obstacle = Obstacle(
@@ -106,8 +108,10 @@ def map1_obstacles_init() [Obstacle] do
     ],
     info: ["","MAGIC WATER","","NEEDS:","","WATER POTION"],
     info_sprites: [WATER_POTION_SPRITE],
-    active: true,
-    event: EVENT_NONE
+    event: EVENT_NONE,
+    consumes: true,
+    deletes: true,
+    active: true
   )
 
   var magic_fire: Obstacle = Obstacle(
@@ -118,8 +122,10 @@ def map1_obstacles_init() [Obstacle] do
     ],
     info: ["","MAGIC FIRE","","NEEDS:","","FIRE POTION"],
     info_sprites: [FIRE_POTION_SPRITE],
-    active: true,
-    event: EVENT_NONE
+    event: EVENT_NONE,
+    consumes: true,
+    deletes: true,
+    active: true
   )
 
   ret [
@@ -134,32 +140,28 @@ def map1_items_init() [Item] do
     kind: ItemKind.WaterPotion,
     sprite: WATER_POTION_SPRITE,
     pos: Vec2(x: 6, y: 31),
-    info: "WATER POTION",
-    active: true
+    info: "WATER POTION"
   )
 
   var fire_potion: Item = Item(
     kind: ItemKind.FirePotion,
     sprite: FIRE_POTION_SPRITE,
     pos: Vec2(x: 55, y: 11),
-    info: "FIRE POTION",
-    active: true
+    info: "FIRE POTION"
   )
 
   var lesser_void_1: Item = Item(
     kind: ItemKind.LesserVoid,
     sprite: LESSER_VOID_SPRITE,
     pos: Vec2(x: 57, y: 49),
-    info: "LESSER VOID",
-    active: true
+    info: "LESSER VOID"
   )
 
   var lesser_void_2: Item = Item(
     kind: ItemKind.LesserVoid,
     sprite: LESSER_VOID_SPRITE,
     pos: Vec2(x: 39, y: 56),
-    info: "LESSER VOID",
-    active: true
+    info: "LESSER VOID"
   )
 
   ret [

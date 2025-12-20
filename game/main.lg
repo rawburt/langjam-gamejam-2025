@@ -83,10 +83,17 @@ def try_move(world: World, move: Key) do
   for i = 0 to len(world.map.obstacles) do
     var obstacle: Obstacle = world.map.obstacles[i]
 
-    if obstacle.active && obstacle.pos == pos do
+    --- walk on top of it
+    if !obstacle.active do
+      break
+    end
+
+    if obstacle.pos == pos do
       --- does player meet requirements to solve obstacle
       if obstacle_requirements_met(obstacle, world.player) do
-        delete(i, world.map.obstacles)
+        if obstacle.deletes do
+          delete(i, world.map.obstacles)
+        end
         break
       end
 
@@ -100,19 +107,20 @@ def try_move(world: World, move: Key) do
       )
       world.modal = modal
       world.scene = Scene.Modal
+
       break
     end
   end
 
   --- is there an item to pick up
   if can_move do
-    for item in world.map.items do
-      if item.active && item.pos == pos do
+    for i = 0 to len(world.map.items) do
+      var item: Item = world.map.items[i]
+
+      if item.pos == pos do
         --- pick up item
         player_add_item_to_inventory(world.player, item)
-
-        --- TODO: better way to remove items from map
-        item.active = false
+        delete(i, world.map.items)
 
         --- tell the player about the item
         var modal: Modal = Modal(

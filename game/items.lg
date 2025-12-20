@@ -12,5 +12,4 @@ rec Item do
   sprite: Sprite
   pos: Vec2
   info: str
-  active: bool
 end
