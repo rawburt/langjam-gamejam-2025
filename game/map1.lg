@@ -70,6 +70,10 @@ const MAP1_DATA: [int] = [
             5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 ]
 
+const LESSER_VOID_SPRITE: Sprite = make_sprite(24, 16)
+const WATER_POTION_SPRITE: Sprite = make_sprite_with_overlay(8, 32, #46abe7)
+const FIRE_POTION_SPRITE: Sprite = make_sprite_with_overlay(8, 32, #f05c5c)
+
 def map1_obstacles_init() [Obstacle] do
   var void_shrine: Obstacle = Obstacle(
     sprite: make_sprite(152, 16),
@@ -78,19 +82,76 @@ def map1_obstacles_init() [Obstacle] do
       ObstacleRequirement(item: ItemKind.LesserVoid, amount: 2)
     ],
     info: ["VOID SHRINE","","NEEDS:","","2 LESSER VOIDS"],
-    info_sprites: [make_sprite(24, 16), make_sprite(24, 16)],
+    info_sprites: [LESSER_VOID_SPRITE, LESSER_VOID_SPRITE],
     active: true
   )
-  ret [void_shrine]
+
+  var magic_water: Obstacle = Obstacle(
+    sprite: make_sprite(8, 8),
+    pos: Vec2(x: 39, y: 55),
+    requires: [
+      ObstacleRequirement(item: ItemKind.WaterPotion, amount: 1)
+    ],
+    info: ["MAGIC WATER","","NEEDS:","","WATER POTION"],
+    info_sprites: [WATER_POTION_SPRITE],
+    active: true
+  )
+
+  var magic_fire: Obstacle = Obstacle(
+    sprite: make_sprite(32, 8),
+    pos: Vec2(x: 54, y: 46),
+    requires: [
+      ObstacleRequirement(item: ItemKind.FirePotion, amount: 1)
+    ],
+    info: ["MAGIC FIRE","","NEEDS:","","FIRE POTION"],
+    info_sprites: [FIRE_POTION_SPRITE],
+    active: true
+  )
+
+  ret [
+    void_shrine,
+    magic_water,
+    magic_fire
+  ]
 end
 
 def map1_items_init() [Item] do
   var water_potion: Item = Item(
     kind: ItemKind.WaterPotion,
-    sprite: make_sprite_with_overlay(8, 32, #46abe7),
-    pos: Vec2(x: 55, y: 11),
+    sprite: WATER_POTION_SPRITE,
+    pos: Vec2(x: 6, y: 31),
     info: "WATER POTION",
     active: true
   )
-  ret [water_potion]
+
+  var fire_potion: Item = Item(
+    kind: ItemKind.FirePotion,
+    sprite: FIRE_POTION_SPRITE,
+    pos: Vec2(x: 55, y: 11),
+    info: "FIRE POTION",
+    active: true
+  )
+
+  var lesser_void_1: Item = Item(
+    kind: ItemKind.LesserVoid,
+    sprite: LESSER_VOID_SPRITE,
+    pos: Vec2(x: 57, y: 49),
+    info: "LESSER VOID",
+    active: true
+  )
+
+  var lesser_void_2: Item = Item(
+    kind: ItemKind.LesserVoid,
+    sprite: LESSER_VOID_SPRITE,
+    pos: Vec2(x: 39, y: 56),
+    info: "LESSER VOID",
+    active: true
+  )
+
+  ret [
+    water_potion,
+    fire_potion,
+    lesser_void_1,
+    lesser_void_2
+  ]
 end

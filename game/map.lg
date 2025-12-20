@@ -1,62 +1,97 @@
 use std
 use sprites
-use maps/map1
+use items
+use obstacles
+use camera
+use map1
 
 rec Map do
+  id: int
   w: int
   h: int
   data: [int]
+  start: Vec2
+  items: [Item]
+  obstacles: [Obstacle]
 end
 
-var maps: [Map] = [
-  Map(w: MAP1_WIDTH, h: MAP1_HEIGHT, data: MAP1_DATA)
-]
+var maps: [Map] = []
 
-var current_map: Map = maps[0]
+def map1_init() Map do
+  var map: Map = Map(
+    id: 1,
+    w: MAP1_WIDTH,
+    h: MAP1_HEIGHT,
+    data: MAP1_DATA,
+    start: Vec2(x: 21, y: 21),
+    items: map1_items_init(),
+    obstacles: map1_obstacles_init()
+  )
+  ret map
+end
 
---- const TREE_COLOR: color = #1e4a31
+def maps_init() do
+  maps = []
+  push(map1_init(), maps)
+end
 
-def render_tile(sprite: Sprite, x: int, y: int) do
-  render_sprite(sprite, x * TILE_SIZE, y * TILE_SIZE)
+def map_init() Map do
+  maps_init()
+  ret maps[0]
 end
 
 def render_map_tile(tile: int, x: int, y: int) do
   var sprite: Sprite = map_sprite(tile)
   render_tile(sprite, x, y)
-  --- if tile == TREE_TILE do
-  ---   render_overlay(TREE_COLOR, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-  --- end
 end
 
-var camera: Vec2 = Vec2(x: 0, y: 0)
-
-def draw_map() do
+def map_draw(map: Map, camera: Camera) do
   for y = 0 to 16 do
     for x = 0 to 16 do
-      --- check map array boundaries
-      var map_x: int = x + camera.x
-      var map_y: int = y + camera.y
-      if map_x >= 0 && map_y >= 0 && map_x < current_map.w && map_y < current_map.h do
-        var tile: int = current_map.data[map_y * current_map.w + map_x]
+      var map_x: int = x + camera.pos.x
+      var map_y: int = y + camera.pos.y
+      if map_x >= 0 && map_y >= 0 && map_x < map.w && map_y < map.h do
+        var tile: int = map.data[map_y * map.w + map_x]
         if tile != 0 do
           render_map_tile(tile, x, y)
         end
       end
     end
   end
+
+  for obstacle in map.obstacles do
+    if obstacle.active do
+      if camera_in_view(camera, obstacle.pos) do
+        var screen_x: int = obstacle.pos.x - camera.pos.x
+        var screen_y: int = obstacle.pos.y - camera.pos.y
+        render_tile(obstacle.sprite, screen_x, screen_y)
+      end
+    end
+  end
+
+  for item in map.items do
+    if item.active do
+      if camera_in_view(camera, item.pos) do
+        var screen_x: int = item.pos.x - camera.pos.x
+        var screen_y: int = item.pos.y - camera.pos.y
+        render_tile(item.sprite, screen_x, screen_y)
+      end
+    end
+  end
 end
 
-def can_walk(x: int, y: int) bool do
-  var tile: int = current_map.data[y * current_map.w + x]
-  --- if tile == DOOR_TILE && inventory_has(ItemKind.Key) do
-  ---   ret true
-  --- end
-  var walk: bool = false
-  for tile_type in WALKABLE_TILES do
-    if tile_type == tile do
-      walk = true
+def map_get_tile(map: Map, x: int, y: int) int do
+  ret map.data[(y * map.w) + x]
+end
+
+def map_location_walkable(map: Map, pos: Vec2) bool do
+  var walkable: bool = false
+  var tile: int = map_get_tile(map, pos.x, pos.y)
+  for walkable_tile in WALKABLE_TILES do
+    if tile == walkable_tile do
+      walkable = true
       break
     end
   end
-  ret walk
+  ret walkable
 end

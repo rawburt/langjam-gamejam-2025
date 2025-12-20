@@ -1,25 +1,28 @@
 use std
+use inventory
+use sprites
 use items
 
 rec Player do
   sprite: Sprite
   pos: Vec2
-  inventory: [Item]
+  inventory: Inventory
 end
 
-var player: Player = Player(
-  sprite: make_sprite(8, 40),
-  pos: Vec2(x: 22, y: 20),
-  inventory: []
-)
+def player_init() Player do
+  var player: Player = Player(
+    sprite: make_sprite(0, 24),
+    pos: Vec2(x: 0, y: 0),
+    inventory: Inventory(items: [])
+  )
 
-def inventory_has(item_kind: ItemKind) bool do
-  var has_item: bool = false
-  for item in player.inventory do
-    if item.kind == item_kind do
-      has_item = true
-      break
-    end
-  end
-  ret has_item
+  ret player
+end
+
+def player_draw(player: Player) do
+  render_tile(player.sprite, 8, 8)
+end
+
+def player_add_item_to_inventory(player: Player, item: Item) do
+  inventory_add(player.inventory, item)
 end
