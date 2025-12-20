@@ -222,9 +222,22 @@ def map_change_draw(world: World) do
 end
 
 def map_change_update(world: World) do
+  if buttonp(Key.Z) || buttonp(Key.X) do
+    var next_map: int = map_next(world.map.id)
+    if next_map == NO_MAP do
+      --- game over
+    else
+      world.map = map_get(next_map)
+      world.player.pos = world.map.start
+      camera_update(world.camera, world.player)
+      world.scene = Scene.Game
+    end
+  end
 end
 
 --------------------------------------------------------------[ main game loop ]
+
+world.scene = Scene.MapChange
 
 def update() do
   --- fancy event system

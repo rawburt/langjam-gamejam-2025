@@ -4,6 +4,7 @@ use items
 use obstacles
 use camera
 use map1
+use map2
 
 rec Map do
   id: int
@@ -23,9 +24,22 @@ def map1_init() Map do
     w: MAP1_WIDTH,
     h: MAP1_HEIGHT,
     data: MAP1_DATA,
-    start: Vec2(x: 21, y: 21),
+    start: MAP1_START_POS,
     items: map1_items_init(),
     obstacles: map1_obstacles_init()
+  )
+  ret map
+end
+
+def map2_init() Map do
+  var map: Map = Map(
+    id: 2,
+    w: MAP2_WIDTH,
+    h: MAP2_HEIGHT,
+    data: MAP2_DATA,
+    start: MAP2_START_POS,
+    items: map2_items_init(),
+    obstacles: map2_obstacles_init()
   )
   ret map
 end
@@ -33,11 +47,26 @@ end
 def maps_init() do
   maps = []
   push(map1_init(), maps)
+  push(map2_init(), maps)
 end
 
 def map_init() Map do
   maps_init()
   ret maps[0]
+end
+
+const NO_MAP: int = -1
+
+def map_next(id: int) int do
+  var next: int = id
+  if next < len(maps) do
+    ret next
+  end
+  ret NO_MAP
+end
+
+def map_get(id: int) Map do
+  ret maps[id]
 end
 
 def render_map_tile(tile: int, x: int, y: int) do

@@ -67,8 +67,11 @@ map_sprites[29] = WATER1_SPRITE
 const WATER2_SPRITE: Sprite = make_sprite(8, 8)
 map_sprites[30] = WATER2_SPRITE
 
-const FIRE_SPRITE: Sprite = make_sprite(40, 8)
-map_sprites[34] = FIRE_SPRITE
+const FIRE_SPRITE1: Sprite = make_sprite(40, 8)
+map_sprites[33] = FIRE_SPRITE1
+
+const FIRE_SPRITE2: Sprite = make_sprite(40, 8)
+map_sprites[34] = FIRE_SPRITE2
 
 const BLOOD_SPRITE: Sprite = make_sprite(48, 8)
 map_sprites[35] = BLOOD_SPRITE
@@ -102,6 +105,11 @@ map_sprites[69] = GROUND5_SPRITE
 
 const DOOR_OPEN_SPRITE: Sprite = make_sprite(112, 16)
 map_sprites[71] = DOOR_OPEN_SPRITE
+
+map_sprites[31] = make_sprite(16, 8)
+map_sprites[32] = make_sprite(24, 8)
+map_sprites[49] = make_sprite(160, 8)
+map_sprites[63] = make_sprite(48, 16)
 
 const EMPTY_TILE: int = 0
 const LEAF_TILE: int = 1

@@ -2,6 +2,7 @@ use obstacles
 use events
 use scenes
 
+const MAP1_START_POS: Vec2 = Vec2(x: 21, y: 21)
 const MAP1_HEIGHT: int = 64
 const MAP1_WIDTH: int = 64
 
