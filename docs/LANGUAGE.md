@@ -2,24 +2,31 @@
 
 The programming language is a statically typed programming language that compiles to JavaScript with specific knowledge of the JavaScript game engine it is compiling for.
 
-Below is more details about the programming language.
+## Basic Types
 
-## Types
+* `unit`
+* `bool`
+* `int`
+* `color`
+* `str`
+* `image`
 
-TODO
+## Composite Types
 
-## Data Structures
+### Lists
 
-TODO
+### Records
 
-## Control Flow
+## Enumerable Type
 
-TODO
+## Variables
 
-## Assets
+Variables must be declared with a type and an initial value. There is no such thing as `null` is the programming language.
 
-TODO
+Examples:
+```
+var i: int = 1
+i += 2
 
-## Libraries
-
-TODO
+var j: color = #99aa00
+```
