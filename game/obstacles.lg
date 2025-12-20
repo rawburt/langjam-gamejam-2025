@@ -21,8 +21,6 @@ end
 def obstacle_requirements_met(obstacle: Obstacle, player: Player) bool do
   var met: bool = false
 
-  --- TODO: bug in here for water potion map1
-
   for req in obstacle.requires do
     var count: int = inventory_count(player.inventory, req.item)
     if count >= req.amount do
