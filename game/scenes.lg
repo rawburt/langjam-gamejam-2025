@@ -4,5 +4,6 @@ enum Scene do
   Inventory
   Modal
   MapChange
+  Lesson
   GameOver
 end

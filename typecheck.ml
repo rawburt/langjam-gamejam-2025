@@ -46,7 +46,7 @@ type env = {
   looping : bool;
 }
 
-let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down"; "Z"; "X" ])
+let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down"; "X" ])
 
 let base_tenv =
   [

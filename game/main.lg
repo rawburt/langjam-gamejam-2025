@@ -137,17 +137,7 @@ def try_move(world: World, move: Key) do
   end
 end
 
---------------------------------------------------------------[ SCENE: Title ]
-
-def title_update(world: World) do
-  if buttonp(Key.X) do
-    world.scene = Scene.Game
-  end
-end
-
-def title_draw() do
-  clear()
-
+def void_and_bone_border() do
   --- void borders
   for x = 0 to 16 do
     render_tile(SWIRL_SPRITE1, x, 0)
@@ -167,6 +157,20 @@ def title_draw() do
     render_tile(BONES_SPRITE, 1, y)
     render_tile(BONES_SPRITE, 14, y)
   end
+end
+
+--------------------------------------------------------------[ SCENE: Title ]
+
+def title_update(world: World) do
+  if buttonp(Key.X) do
+    world.scene = Scene.Game
+  end
+end
+
+def title_draw() do
+  clear()
+
+  void_and_bone_border()
 
   --- text
   render_text_centered("CALL", 4)
@@ -194,7 +198,7 @@ def game_update(world: World) do
 
   camera_update(world.camera, world.player)
 
-  if buttonp(Key.Z) do
+  if buttonp(Key.X) do
     world.scene = Scene.Inventory
   end
 end
@@ -283,26 +287,30 @@ end
 
 def map_change_draw(world: World) do
   clear()
+
+  void_and_bone_border()
+
   cond do
     when world.map.id == 1 do
-      render_text_centered("VOID AWAKENS", 2)
-      render_text_centered("VOID PULLS YOU", 5)
+      render_text_centered("SHRINE", 3)
+      render_text_centered("AWAKES", 5)
+      render_text_centered("YOU BECOME", 8)
+      render_text_centered("VOID", 10)
     end
     when world.map.id == 2 do
-      render_text_centered("THE DARK ENTITY", 2)
-      render_text_centered("LAUGHS AT YOU", 3)
-      render_text_centered("THE ONLY WAY", 6)
-      render_text_centered("TO WIN WAS TO", 7)
-      render_text_centered("NOT PLAY", 8)
+      render_text_centered("DARKNESS", 3)
+      render_text_centered("CONSUMES", 5)
+      render_text_centered("YOUR", 7)
+      render_text_centered("MIND", 9)
     end
   end
 end
 
 def map_change_update(world: World) do
-  if buttonp(Key.Z) || buttonp(Key.X) do
+  if buttonp(Key.X) do
     var next_map: int = map_next(world.map.id)
     if next_map == NO_MAP do
-      world.scene = Scene.GameOver
+      world.scene = Scene.Lesson
     else
       world.map = map_get(next_map)
       world.player.pos = world.map.start
@@ -311,31 +319,30 @@ def map_change_update(world: World) do
     end
   end
 end
+--------------------------------------------------------------[ SCENE: Lesson ]
+
+def lesson_update(world: World) do
+  if buttonp(Key.X) do
+    world.scene = Scene.GameOver
+  end
+end
+
+def lesson_draw() do
+  clear()
+
+  void_and_bone_border()
+
+  render_text_centered("TO WIN", 3)
+  render_text_centered("YOU MUST", 6)
+  render_text_centered("NOT PLAY", 9)
+end
 
 --------------------------------------------------------------[ SCENE: GameOver ]
 
 def game_over_draw() do
   clear()
 
-  --- void borders
-  for x = 0 to 16 do
-    render_tile(SWIRL_SPRITE1, x, 0)
-    render_tile(SWIRL_SPRITE1, x, 15)
-  end
-  for y = 1 to 15 do
-    render_tile(SWIRL_SPRITE2, 0, y)
-    render_tile(SWIRL_SPRITE2, 15, y)
-  end
-
-  --- bone interior
-  for x = 1 to 15 do
-    render_tile(BONES_SPRITE, x, 1)
-    render_tile(BONES_SPRITE, x, 14)
-  end
-  for y = 2 to 14 do
-    render_tile(BONES_SPRITE, 1, y)
-    render_tile(BONES_SPRITE, 14, y)
-  end
+  void_and_bone_border()
 
   render_text_centered("GAME", 5)
   render_text_centered("OVER", 7)
@@ -343,7 +350,7 @@ end
 
 --------------------------------------------------------------[ main game loop ]
 
---- world.scene = Scene.GameOver
+--- world.scene = Scene.MapChange
 
 def update() do
   --- fancy event system
@@ -376,6 +383,9 @@ def update() do
     when Scene.MapChange do
       map_change_update(world)
     end
+    when Scene.Lesson do
+      lesson_update(world)
+    end
     when Scene.GameOver do
       --- nothing
     end
@@ -399,6 +409,9 @@ def draw() do
     end
     when Scene.MapChange do
       map_change_draw(world)
+    end
+    when Scene.Lesson do
+      lesson_draw()
     end
     when Scene.GameOver do
       game_over_draw()
