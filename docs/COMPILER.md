@@ -6,7 +6,7 @@ Lexing is done using OCaml's stdlib `ocamllex`.
 
 ## Parsing
 
-Parsing is done using (Menhir)[https://gallium.inria.fr/~fpottier/menhir/], a LR(1) parser generator.
+Parsing is done using [Menhir](https://gallium.inria.fr/~fpottier/menhir/), a LR(1) parser generator.
 
 ## Type Checking
 
