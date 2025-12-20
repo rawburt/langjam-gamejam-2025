@@ -147,6 +147,7 @@ end
 
 def title_draw() do
   clear()
+
   --- void borders
   for x = 0 to 16 do
     render_tile(SWIRL_SPRITE1, x, 0)
@@ -311,6 +312,35 @@ def map_change_update(world: World) do
   end
 end
 
+--------------------------------------------------------------[ SCENE: GameOver ]
+
+def game_over_draw() do
+  clear()
+
+  --- void borders
+  for x = 0 to 16 do
+    render_tile(SWIRL_SPRITE1, x, 0)
+    render_tile(SWIRL_SPRITE1, x, 15)
+  end
+  for y = 1 to 15 do
+    render_tile(SWIRL_SPRITE2, 0, y)
+    render_tile(SWIRL_SPRITE2, 15, y)
+  end
+
+  --- bone interior
+  for x = 1 to 15 do
+    render_tile(BONES_SPRITE, x, 1)
+    render_tile(BONES_SPRITE, x, 14)
+  end
+  for y = 2 to 14 do
+    render_tile(BONES_SPRITE, 1, y)
+    render_tile(BONES_SPRITE, 14, y)
+  end
+
+  render_text_centered("GAME", 5)
+  render_text_centered("OVER", 7)
+end
+
 --------------------------------------------------------------[ main game loop ]
 
 --- world.scene = Scene.GameOver
@@ -371,8 +401,7 @@ def draw() do
       map_change_draw(world)
     end
     when Scene.GameOver do
-      clear()
-      render_text_centered("GAME OVER", 6)
+      game_over_draw()
     end
   end
 end
