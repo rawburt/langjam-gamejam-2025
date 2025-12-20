@@ -94,7 +94,7 @@ def try_move(world: World, move: Key) do
         delete(i, world.map.obstacles)
       end
 
-      --- obstcle is in the way
+      --- obstacle is in the way
       can_move = false
 
       --- open obstacle modal
