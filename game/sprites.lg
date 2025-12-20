@@ -110,6 +110,7 @@ map_sprites[31] = make_sprite(16, 8)
 map_sprites[32] = make_sprite(24, 8)
 map_sprites[49] = make_sprite(160, 8)
 map_sprites[63] = make_sprite(48, 16)
+map_sprites[137] = make_sprite(192, 32)
 
 const EMPTY_TILE: int = 0
 const LEAF_TILE: int = 1

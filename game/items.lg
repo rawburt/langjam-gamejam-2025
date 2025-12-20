@@ -1,10 +1,12 @@
 use std
 
 enum ItemKind do
-  GoldKey
   WaterPotion
   FirePotion
   LesserVoid
+  BloodWand
+  LightOfLife
+  GoldKey
 end
 
 rec Item do
