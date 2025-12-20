@@ -294,8 +294,8 @@ def map_change_draw(world: World) do
     when world.map.id == 1 do
       render_text_centered("SHRINE", 3)
       render_text_centered("AWAKES", 5)
-      render_text_centered("YOU BECOME", 8)
-      render_text_centered("VOID", 10)
+      render_text_centered("YOU ENTER", 8)
+      render_text_centered("THE VOID", 10)
     end
     when world.map.id == 2 do
       render_text_centered("DARKNESS", 3)
