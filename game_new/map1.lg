@@ -1,3 +1,5 @@
+use obstacles
+
 const MAP1_HEIGHT: int = 64
 const MAP1_WIDTH: int = 64
 
@@ -67,3 +69,16 @@ const MAP1_DATA: [int] = [
             5, 6, 6, 6, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 0, 0, 6, 6, 6, 6, 6, 6, 3, 3, 3, 6, 6, 0, 2, 0, 2, 2, 8, 0, 2, 2, 2, 2, 2, 2, 2, 8, 8, 8, 8, 0, 5, 5,
             5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 ]
+
+def map1_obstacles_init() [Obstacle] do
+  var void_shrine: Obstacle = Obstacle(
+    sprite: make_sprite(152, 16),
+    pos: Vec2(x: 46, y: 10),
+    requires: [
+      ObstacleRequirement(item: ItemKind.LesserVoid, amount: 2)
+    ],
+    info: ["VOID SHRINE"],
+    active: true
+  )
+  ret [void_shrine]
+end

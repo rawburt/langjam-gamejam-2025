@@ -70,11 +70,23 @@ def try_move(world: World, move: Key) do
     y: world.player.pos.y + change.y
   )
 
+  var can_move: bool = true
+
   --- is there an obstacle to interact with
+  for obstacle in world.map.obstacles do
+    if obstacle.pos == pos && obstacle.active do
+      can_move = false
+      break
+    end
+  end
+
   --- is there an item to pick up
+
   --- is it a walkable map tile
-  if map_location_walkable(world.map, pos) do
-    world.player.pos = pos
+  if can_move do
+    if map_location_walkable(world.map, pos) do
+      world.player.pos = pos
+    end
   end
 end
 

@@ -3,6 +3,7 @@ use std
 enum ItemKind do
   GoldKey
   FirePotion
+  LesserVoid
 end
 
 rec Item do

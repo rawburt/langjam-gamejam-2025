@@ -1,9 +1,15 @@
 use std
 use items
 
+rec ObstacleRequirement do
+  item: ItemKind
+  amount: int
+end
+
 rec Obstacle do
   sprite: Sprite
   pos: Vec2
-  requires: [ItemKind]
+  requires: [ObstacleRequirement]
   info: [str]
+  active: bool
 end

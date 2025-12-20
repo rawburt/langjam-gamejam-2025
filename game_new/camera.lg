@@ -9,3 +9,8 @@ def camera_update(camera: Camera, player: Player) do
   camera.pos.x = player.pos.x - 8
   camera.pos.y = player.pos.y - 8
 end
+
+def camera_in_view(camera: Camera, pos: Vec2) bool do
+  ret pos.x >= camera.pos.x && pos.x < camera.pos.x + 16 &&
+      pos.y >= camera.pos.y && pos.y < camera.pos.y + 16
+end

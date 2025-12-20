@@ -3,7 +3,7 @@ use sprites
 use items
 use obstacles
 use camera
-use maps/map1
+use map1
 
 rec Map do
   id: int
@@ -25,7 +25,7 @@ def map1_init() Map do
     data: MAP1_DATA,
     start: Vec2(x: 21, y: 21),
     items: [],
-    obstacles: []
+    obstacles: map1_obstacles_init()
   )
   ret map
 end
@@ -55,6 +55,16 @@ def map_draw(map: Map, camera: Camera) do
         if tile != 0 do
           render_map_tile(tile, x, y)
         end
+      end
+    end
+  end
+
+  for obstacle in map.obstacles do
+    if obstacle.active do
+      if camera_in_view(camera, obstacle.pos) do
+        var screen_x: int = obstacle.pos.x - camera.pos.x
+        var screen_y: int = obstacle.pos.y - camera.pos.y
+        render_tile(obstacle.sprite, screen_x, screen_y)
       end
     end
   end
