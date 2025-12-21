@@ -15,9 +15,9 @@ let mkcompound var bop expr loc =
 %token <string> STRING
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
-%token COMMA DOT COLON EQ
-%token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM MATCH WHEN BREAK IN COND
-%token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE MODULO
+%token COMMA DOT COLON EQ QUESTION
+%token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM MATCH WHEN BREAK IN COND NULL
+%token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE MODULO BINDEQ
 %token EOF
 
 %right NEGATE
@@ -68,6 +68,7 @@ field_decl:
 block: list(stmt) { Block $1 }
 
 typing:
+| typing QUESTION { TOpt $1 }
 | IDENT { TName $1 }
 | TIDENT { TName $1 }
 | LBRACK typing RBRACK { TList $2 }
@@ -75,8 +76,8 @@ typing:
 stmt:
 | VAR IDENT COLON typing EQ expr { SVar ($2, $4, $6, mkloc $startpos) }
 | mutate { $1 }
-| IF expr DO block ELSE block END { SIfElse ($2, $4, Some $6, mkloc $startpos) }
-| IF expr DO block END { SIfElse ($2, $4, None, mkloc $startpos) }
+| IF if_expr DO block ELSE block END { SIfElse ($2, $4, Some $6, mkloc $startpos) }
+| IF if_expr DO block END { SIfElse ($2, $4, None, mkloc $startpos) }
 | FOR IDENT EQ expr TO expr DO block END { SFor ($2, $4, $6, $8, mkloc $startpos) }
 | FOR IDENT IN expr DO block END { SForIn ($2, $4, $6, mkloc $startpos) }
 | call { SExpr ($1, mkloc $startpos) }
@@ -100,6 +101,10 @@ mutate:
 
 call:
 | var LPAREN separated_list(COMMA, expr) RPAREN { ECall ($1, $3, mkloc $startpos) }
+
+if_expr:
+| expr { $1 }
+| IDENT BINDEQ expr { ESafeBind ($1, $3, mkloc $startpos) }
 
 expr:
 | LPAREN expr RPAREN { $2 }
@@ -141,6 +146,7 @@ var:
 | var DOT IDENT { VField ($1, $3, mkloc $startpos) }
 
 constant:
+| NULL { ENull }
 | TRUE { EBool true }
 | FALSE { EBool false }
 | COLOR { EColor $1 }

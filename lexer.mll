@@ -19,6 +19,7 @@ rule token = parse
   | ws { token lexbuf }
   | "---" { comment lexbuf }
   | '\n' { new_line lexbuf; token lexbuf }
+  | '?' { QUESTION }
   | '(' { LPAREN }
   | ')' { RPAREN }
   | '[' { LBRACK }
@@ -41,6 +42,7 @@ rule token = parse
   | ">=" { GTE }
   | "||" { OR }
   | "&&" { AND }
+  | "?=" { BINDEQ }
   | "var" { VAR }
   | "true" { TRUE }
   | "false" { FALSE }
@@ -62,6 +64,7 @@ rule token = parse
   | "break" { BREAK }
   | "in" { IN }
   | "cond" { COND }
+  | "null" { NULL }
   | cident as c { CIDENT c }
   | integer as i { INTEGER (int_of_string i) }
   | color as c { COLOR c }

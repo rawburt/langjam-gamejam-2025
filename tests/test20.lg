@@ -1,0 +1,14 @@
+def display_maybe(z: int?) do
+  if j ?= z do
+    debug("j has value: " + str(j))
+  else
+    debug("j is NULL")
+  end
+end
+
+var v: int? = null
+
+display_maybe(v)
+display_maybe(4)
+display_maybe(6)
+display_maybe(null)

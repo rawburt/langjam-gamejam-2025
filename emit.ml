@@ -37,6 +37,7 @@ let rec compile_var = function
   | VField (var, name, _) -> Printf.sprintf "%s.%s" (compile_var var) name
 
 and compile_expr = function
+  | ENull -> "null"
   | EBool b -> string_of_bool b
   | EInt i -> string_of_int i
   | EColor color -> Printf.sprintf "\"%s\"" color
@@ -77,6 +78,7 @@ and compile_expr = function
       let f = List.map compile_field fields |> String.concat ", " in
       Printf.sprintf "{%s}" f
   | EEnum (name, member, _) -> Printf.sprintf "%s.%s" name member
+  | ESafeBind _ -> failwith "unexpected safe bind"
 
 let rec compile_stmt = function
   | SVar (name, _, expr, _) ->
@@ -84,14 +86,21 @@ let rec compile_stmt = function
   | SMutate (var, expr, _) ->
       Printf.sprintf "%s = %s;" (compile_var var) (compile_expr expr)
   | SExpr (expr, _) -> compile_expr expr
-  | SIfElse (expr, block1, block2, _) ->
-      let e = compile_expr expr in
+  | SIfElse (expr, block1, block2, _) -> (
       let b1 = compile_block block1 in
       let b2 = Option.map compile_block block2 in
       let b2_else =
         match b2 with Some b -> Printf.sprintf "else {\n%s\n}" b | None -> ""
       in
-      Printf.sprintf "if (%s) {\n%s\n} %s" e b1 b2_else
+      match expr with
+      | ESafeBind (bind_name, bind_expr, _) ->
+          let be = compile_expr bind_expr in
+          let varbind = Printf.sprintf "let %s = %s;" bind_name be in
+          Printf.sprintf "%s\nif (%s !== null) {\n%s\n} %s" varbind bind_name b1
+            b2_else
+      | _ ->
+          let e = compile_expr expr in
+          Printf.sprintf "if (%s) {\n%s\n} %s" e b1 b2_else)
   | SFor (name, expr1, expr2, block, _) ->
       Printf.sprintf "for (let %s = %s; %s < %s; %s += 1) {\n%s\n}" name
         (compile_expr expr1) name (compile_expr expr2) name

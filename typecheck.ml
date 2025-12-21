@@ -2,6 +2,7 @@ open Syntax
 module StringSet = Set.Make (String)
 
 type ty =
+  | TyNull
   | TyUnit
   | TyBool
   | TyInt
@@ -13,8 +14,10 @@ type ty =
   | TyVar of ty option ref
   | TyRec of (string * ty) list
   | TyEnum of string * string list
+  | TyOpt of ty
 
 let rec show_ty = function
+  | TyNull -> "null"
   | TyUnit -> "unit"
   | TyBool -> "bool"
   | TyInt -> "int"
@@ -26,12 +29,13 @@ let rec show_ty = function
       Printf.sprintf "((%s) -> %s)" inner (show_ty ty)
   | TyList ty -> "[" ^ show_ty ty ^ "]"
   | TyVar tyoptref -> (
-      match !tyoptref with Some t -> show_ty t | None -> "?")
+      match !tyoptref with Some t -> show_ty t | None -> "_")
   | TyRec fields ->
       let field_ty (name, ty) = Printf.sprintf "%s: %s" name (show_ty ty) in
       let inner = List.map field_ty fields |> String.concat ", " in
       Printf.sprintf "rec(%s)" inner
   | TyEnum (name, _) -> Printf.sprintf "enum(%s)" name
+  | TyOpt ty -> show_ty ty ^ "?"
 
 exception TypeError of string * loc
 
@@ -122,6 +126,8 @@ let rec unify loc t1 t2 =
   | TyVar r1, _ -> r1 := Some t2'
   | _, TyVar r2 -> r2 := Some t1'
   | TyList l1, TyList l2 -> unify loc l1 l2
+  | TyOpt _, TyNull -> ()
+  | TyOpt o1, o2 when o1 = o2 -> ()
   | TyEnum (n1, _), TyEnum (n2, _) when n1 = n2 -> ()
   | _ ->
       error loc
@@ -150,6 +156,7 @@ let same_fields f1 f2 =
 let rec lookup_typing loc env = function
   | TName name -> lookup loc name env.tenv
   | TList typing -> TyList (lookup_typing loc env typing)
+  | TOpt typing -> TyOpt (lookup_typing loc env typing)
 
 let rec check_var env var =
   let rec check = function
@@ -176,6 +183,7 @@ let rec check_var env var =
 
 and check_expr env expr =
   let rec check = function
+    | ENull -> TyNull
     | EBool _ -> TyBool
     | EInt _ -> TyInt
     | EColor _ -> TyColor
@@ -291,6 +299,7 @@ and check_expr env expr =
               error loc
                 (Printf.sprintf "%s is not a member of the enum %s" member name)
         | _ -> error loc (Printf.sprintf "%s is not an enum" name))
+    | ESafeBind (_, _, loc) -> error loc "unexpected safe bind"
   in
   check expr
 
@@ -317,9 +326,23 @@ let rec check_stmt env stmt =
       let _ = check_expr env expr in
       env
   | SIfElse (expr, block1, block2, loc) ->
-      let expr_ty = check_expr env expr in
-      unify loc TyBool expr_ty;
-      let _ = check_block env block1 in
+      let env' =
+        match expr with
+        | ESafeBind (name, e, eloc) -> (
+            if mem name env.venv then
+              error loc ("duplicate symbol definition: " ^ name)
+            else
+              match check_expr env e with
+              | TyOpt ty ->
+                  let venv = (name, { ty; const = false }) :: env.venv in
+                  { env with venv }
+              | _ -> error eloc "safe bind requires nullable expression")
+        | _ ->
+            let expr_ty = check_expr env expr in
+            unify loc TyBool expr_ty;
+            env
+      in
+      let _ = check_block env' block1 in
       let _ = Option.map (check_block env) block2 in
       env
   | SFor (name, expr1, expr2, block, loc) ->

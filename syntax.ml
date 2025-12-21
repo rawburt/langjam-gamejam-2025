@@ -3,7 +3,8 @@ type loc = Loc of string * int [@@deriving show]
 let loc_get_file (Loc (f, _)) = f
 let mkloc (s : Lexing.position) = Loc (s.pos_fname, s.pos_lnum)
 
-type typing = TName of string | TList of typing [@@deriving show]
+type typing = TName of string | TList of typing | TOpt of typing
+[@@deriving show]
 
 type bop =
   | Add
@@ -30,6 +31,7 @@ type var =
 [@@deriving show]
 
 and expr =
+  | ENull
   | EBool of bool
   | EInt of int
   | EColor of string
@@ -41,6 +43,7 @@ and expr =
   | EList of expr list * loc
   | ERec of string * (string * expr) list * loc
   | EEnum of string * string * loc
+  | ESafeBind of string * expr * loc
 [@@deriving show]
 
 type stmt =
