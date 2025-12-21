@@ -7,7 +7,7 @@
   syntax
   grammar
   lexer
-  compiler
+  emit
   typecheck
   registry
   common

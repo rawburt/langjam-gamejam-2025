@@ -20,7 +20,7 @@ let compile file =
     Analyzer.run program;
     if not !check then (
       if !ast then print_endline ("======= AST:\n" ^ Syntax.show_program program);
-      let game = Compiler.compile program in
+      let game = Emit.compile program in
       let chan = open_out !output_file in
       Printf.fprintf chan "%s\n" game;
       close_out chan)
