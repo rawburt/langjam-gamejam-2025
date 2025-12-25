@@ -1,0 +1,4 @@
+@ffi("console.log($0)")
+def log(msg: str) do end
+
+log("Hello, World!")

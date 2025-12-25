@@ -16,7 +16,8 @@ let mkcompound var bop expr loc =
 %token TRUE FALSE
 %token LPAREN RPAREN LBRACK RBRACK
 %token COMMA DOT COLON EQ QUESTION
-%token VAR IF DO ELSE END FOR TO DEF RET REC USE ASSET CONST ENUM MATCH WHEN BREAK IN COND NULL
+%token VAR IF DO ELSE END FOR TO DEF RET REC FFI
+%token USE ASSET CONST ENUM MATCH WHEN BREAK IN COND NULL
 %token PLUS MINUS EQEQ NEQ TIMES DIV LT GT LTE GTE OR AND NEGATE MODULO BINDEQ
 %token EOF
 
@@ -48,8 +49,12 @@ toplevel:
 | CONST CIDENT COLON typing EQ expr { TLConst ($2, $4, $6, mkloc $startpos)}
 | ENUM name=TIDENT DO members=list(TIDENT) END { TLEnum (name, members, mkloc $startpos) }
 
+ffi:
+| FFI LPAREN STRING RPAREN { $3 }
+
 def:
-| DEF name=IDENT LPAREN params=param_list RPAREN ret=def_ret DO body=block END { {name; params; body; ret; loc=mkloc $startpos} }
+| ffi=option(ffi) DEF name=IDENT LPAREN params=param_list RPAREN ret=def_ret DO body=block END
+  { {name; params; body; ret; ffi; loc=mkloc $startpos} }
 
 def_ret:
 | { None }

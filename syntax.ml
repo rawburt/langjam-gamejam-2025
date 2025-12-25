@@ -65,6 +65,7 @@ type def = {
   params : (string * typing) list;
   body : block;
   ret : typing option;
+  ffi : string option;
   loc : loc;
 }
 [@@deriving show]

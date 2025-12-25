@@ -242,7 +242,7 @@ and check_expr env expr =
         let t2 = check expr2 in
         match bop with
         | Add ->
-            (* a very janky function overloading :) *)
+            (* TODO: add def overloads? *)
             if t1 = TyStr then (
               unify loc TyStr t1;
               unify loc TyStr t2;
@@ -422,6 +422,8 @@ let check_toplevel env = function
   | TLDef def ->
       if mem def.name env.venv then
         error def.loc ("duplicate symbol definition: " ^ def.name)
+      else if Option.is_some def.ffi && def.body <> Block [] then
+        error def.loc "ffi with body is not allowed"
       else
         let format_param (name, typing) =
           let entry =

@@ -2,6 +2,7 @@
  (name lgc)
  (preprocess
   (pps ppx_deriving.show))
+ (libraries str)
  (modules lgc syntax grammar lexer emit typecheck registry common analyzer))
 
 (menhir
