@@ -12,9 +12,11 @@ type ty =
   | TyFun of ty list * ty
   | TyList of ty
   | TyVar of ty option ref
+  | TyVarNamed of string
   | TyRec of (string * ty) list
   | TyEnum of string * string list
   | TyOpt of ty
+  | TyUnion of ty list
 
 let rec show_ty = function
   | TyNull -> "null"
@@ -30,12 +32,16 @@ let rec show_ty = function
   | TyList ty -> "[" ^ show_ty ty ^ "]"
   | TyVar tyoptref -> (
       match !tyoptref with Some t -> show_ty t | None -> "_")
+  | TyVarNamed name -> "'" ^ name
   | TyRec fields ->
       let field_ty (name, ty) = Printf.sprintf "%s: %s" name (show_ty ty) in
       let inner = List.map field_ty fields |> String.concat ", " in
       Printf.sprintf "rec(%s)" inner
   | TyEnum (name, _) -> Printf.sprintf "enum(%s)" name
   | TyOpt ty -> show_ty ty ^ "?"
+  | TyUnion tys ->
+      let inner = List.map show_ty tys |> String.concat " | " in
+      Printf.sprintf "(%s)" inner
 
 exception TypeError of string * loc
 
@@ -90,15 +96,27 @@ let base_venv =
       } );
     (* special forms that are here for name lookup but handled different in type checking *)
     (* forall a: a -> str *)
-    ("str", { ty = TyFun ([ TyVar (ref None) ], TyStr); const = true });
+    ("str", { ty = TyFun ([ TyVarNamed "a" ], TyStr); const = true });
     (* forall a: list[a] -> int *)
-    ("len", { ty = TyFun ([ TyList (TyVar (ref None)) ], TyInt); const = true });
+    ( "len",
+      {
+        ty = TyFun ([ TyUnion [ TyList (TyVarNamed "a"); TyStr ] ], TyInt);
+        const = true;
+      } );
     (* forall a: a -> list[a] -> int *)
-    ("push", { ty = TyFun ([], TyUnit); const = true });
+    ( "push",
+      {
+        ty = TyFun ([ TyVarNamed "a"; TyList (TyVarNamed "a") ], TyUnit);
+        const = true;
+      } );
     (* forall a: list[a] -> a *)
-    ("pop", { ty = TyFun ([], TyUnit); const = true });
+    ( "pop",
+      { ty = TyFun ([ TyList (TyVarNamed "a") ], TyVarNamed "a"); const = true }
+    );
     (* forall a: int -> list[a] -> unit *)
-    ("delete", { ty = TyFun ([], TyUnit); const = true });
+    ( "delete",
+      { ty = TyFun ([ TyInt; TyList (TyVarNamed "a") ], TyUnit); const = true }
+    );
   ]
 
 let lookup loc k e =
@@ -107,6 +125,19 @@ let lookup loc k e =
   | None -> error loc ("symbol not found: " ^ k)
 
 let mem = List.mem_assoc
+
+let instantiate =
+  let rec inst_ty ty =
+    match ty with
+    | TyVarNamed _ -> TyVar (ref None)
+    | TyFun (params, ret) -> TyFun (List.map inst_ty params, inst_ty ret)
+    | TyList t -> TyList (inst_ty t)
+    | TyOpt t -> TyOpt (inst_ty t)
+    | TyUnion tys -> TyUnion (List.map inst_ty tys)
+    | TyRec fields -> TyRec (List.map (fun (n, t) -> (n, inst_ty t)) fields)
+    | t -> t
+  in
+  inst_ty
 
 let rec final_ty = function
   | TyVar r as t -> (
@@ -118,28 +149,32 @@ let rec final_ty = function
       | None -> t)
   | t -> t
 
-let rec unify loc t1 t2 =
-  let t1' = final_ty t1 in
-  let t2' = final_ty t2 in
-  match (t1', t2') with
-  | _ when t1' = t2' -> ()
-  | TyVar r1, _ -> r1 := Some t2'
-  | _, TyVar r2 -> r2 := Some t1'
-  | TyList l1, TyList l2 -> unify loc l1 l2
-  | TyOpt _, TyNull -> ()
-  | TyOpt o1, o2 when o1 = o2 -> ()
-  | TyEnum (n1, _), TyEnum (n2, _) when n1 = n2 -> ()
-  | _ ->
-      error loc
-        (Printf.sprintf
-           "unifcation failed.\n\n\
-            while trying to unify the following types:\n\
-            type a = %s\n\
-            type b = %s\n\n\
-            unification failed at this step:\n\
-            type c = %s\n\
-            type d = %s"
-           (show_ty t1) (show_ty t2) (show_ty t1') (show_ty t2'))
+let unify loc ty1 ty2 =
+  let rec uni t1 t2 =
+    let t1' = final_ty t1 in
+    let t2' = final_ty t2 in
+    match (t1', t2') with
+    | _ when t1' = t2' -> true
+    | TyVar r1, _ ->
+        r1 := Some t2';
+        true
+    | _, TyVar r2 ->
+        r2 := Some t1';
+        true
+    | TyUnion tys, t2 -> List.exists (fun t1 -> uni t1 t2) tys
+    | t1, TyUnion tys -> List.exists (fun t2 -> uni t1 t2) tys
+    | TyList l1, TyList l2 -> uni l1 l2
+    | TyOpt _, TyNull -> true
+    | TyOpt o1, o2 when o1 = o2 -> true
+    | TyEnum (n1, _), TyEnum (n2, _) when n1 = n2 -> true
+    | _ -> false
+  in
+  if uni ty1 ty2 then ()
+  else
+    error loc
+      (Printf.sprintf
+         "type mismatch\n\nunification failed:\ntype 1 = %s\ntype 2 = %s"
+         (show_ty ty1) (show_ty ty2))
 
 let has_duplicates fields =
   let n1 = List.length fields in
@@ -201,38 +236,13 @@ and check_expr env expr =
           | _ -> error loc "not a valid function name"
         in
         let expr_tys = List.map check exprs in
-        (* a very janky parametric polymorphism :) *)
-        match name with
-        | "len" ->
-            if expr_tys = [ TyStr ] then TyInt
-            else (
-              List.iter2 (unify loc) [ TyList (TyVar (ref None)) ] expr_tys;
-              TyInt)
-        | "str" ->
-            List.iter2 (unify loc) [ TyVar (ref None) ] expr_tys;
-            TyStr
-        | "push" ->
-            let a = TyVar (ref None) in
-            let f = [ a; TyList a ] in
-            List.iter2 (unify loc) f expr_tys;
-            TyInt
-        | "pop" ->
-            let a = TyVar (ref None) in
-            let f = [ TyList a ] in
-            List.iter2 (unify loc) f expr_tys;
-            a
-        | "delete" ->
-            let a = TyVar (ref None) in
-            let f = [ TyInt; TyList a ] in
-            List.iter2 (unify loc) f expr_tys;
-            TyUnit
-        | _ -> (
-            let entry = lookup loc name env.venv in
-            match entry.ty with
-            | TyFun (param_tys, return_ty) ->
-                List.iter2 (unify loc) param_tys expr_tys;
-                return_ty
-            | _ -> error loc ("not a function:: " ^ name)))
+        let entry = lookup loc name env.venv in
+        let instantiated_ty = instantiate entry.ty in
+        match instantiated_ty with
+        | TyFun (param_tys, return_ty) ->
+            List.iter2 (unify loc) param_tys expr_tys;
+            return_ty
+        | _ -> error loc ("not a function:: " ^ name))
     | EBinary (bop, expr1, expr2, loc) -> (
         let t1 = check expr1 in
         let t2 = check expr2 in
