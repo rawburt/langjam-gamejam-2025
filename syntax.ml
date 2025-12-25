@@ -30,12 +30,11 @@ type var =
   | VField of var * string * loc
 [@@deriving show]
 
+and const = CNull | CInt of int | CBool of bool | CStr of string | CColor of string
+[@@deriving show]
+
 and expr =
-  | ENull
-  | EBool of bool
-  | EInt of int
-  | EColor of string
-  | EStr of string
+  | EConst of const
   | EVar of var
   | ECall of var * expr list * loc
   | EBinary of bop * expr * expr * loc

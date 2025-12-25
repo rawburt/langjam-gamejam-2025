@@ -108,7 +108,7 @@ if_expr:
 
 expr:
 | LPAREN expr RPAREN { $2 }
-| constant { $1 }
+| constant { EConst $1 }
 | call { $1 }
 | var { EVar $1 }
 | MINUS expr { EUnary (Minus, $2, mkloc $startpos) }
@@ -146,9 +146,9 @@ var:
 | var DOT IDENT { VField ($1, $3, mkloc $startpos) }
 
 constant:
-| NULL { ENull }
-| TRUE { EBool true }
-| FALSE { EBool false }
-| COLOR { EColor $1 }
-| INTEGER { EInt $1 }
-| STRING { EStr $1 }
+| NULL { CNull }
+| TRUE { CBool true }
+| FALSE { CBool false }
+| COLOR { CColor $1 }
+| INTEGER { CInt $1 }
+| STRING { CStr $1 }

@@ -181,13 +181,16 @@ let rec check_var env var =
   in
   check var
 
+and check_const = function
+  | CNull -> TyNull
+  | CBool _ -> TyBool
+  | CInt _ -> TyInt
+  | CColor _ -> TyColor
+  | CStr _ -> TyStr
+
 and check_expr env expr =
   let rec check = function
-    | ENull -> TyNull
-    | EBool _ -> TyBool
-    | EInt _ -> TyInt
-    | EColor _ -> TyColor
-    | EStr _ -> TyStr
+    | EConst const -> check_const const
     | EVar var ->
         let entry = check_var env var in
         entry.ty

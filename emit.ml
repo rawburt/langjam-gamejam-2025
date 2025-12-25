@@ -36,12 +36,15 @@ let rec compile_var = function
       Printf.sprintf "%s[%s]" (compile_var var) estr
   | VField (var, name, _) -> Printf.sprintf "%s.%s" (compile_var var) name
 
+and compile_const = function
+  | CNull -> "null"
+  | CInt i -> string_of_int i
+  | CBool b -> if b then "true" else "false"
+  | CStr s -> Printf.sprintf "'%s'" s
+  | CColor c -> Printf.sprintf "'%s'" c
+
 and compile_expr = function
-  | ENull -> "null"
-  | EBool b -> string_of_bool b
-  | EInt i -> string_of_int i
-  | EColor color -> Printf.sprintf "\"%s\"" color
-  | EStr str -> Printf.sprintf "\"%s\"" str
+  | EConst const -> compile_const const
   | EVar var -> compile_var var
   | ECall (var, exprs, Loc (file, line)) -> (
       let name =
