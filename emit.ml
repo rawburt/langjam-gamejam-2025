@@ -63,8 +63,8 @@ and compile_expr = function
       let c2 = compile_expr e2 in
       let op = compile_bop bop in
       match bop with
-      | Eq -> Printf.sprintf "_.isEqual(%s, %s)" c1 c2
-      | Neq -> Printf.sprintf "! _.isEqual(%s, %s)" c1 c2
+      | Eq -> Printf.sprintf "window.deepEqual(%s, %s)" c1 c2
+      | Neq -> Printf.sprintf "! window.deepEqual(%s, %s)" c1 c2
       | _ -> basic_binary op c1 c2)
   | EUnary (uop, e, _) ->
       let c1 = compile_expr e in

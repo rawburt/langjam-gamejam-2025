@@ -5,3 +5,4 @@ dist/
 engine/game.js
 game.js
 engine/assets/
+node_modules/

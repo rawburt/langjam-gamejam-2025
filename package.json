@@ -1,0 +1,19 @@
+{
+  "name": "langjam-gamejam-2025",
+  "version": "0.0.1",
+  "description": "This project is a submission for Langjam Gamejam 2025.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild index.js --bundle --minify --outfile=engine/bundle.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.27.2"
+  },
+  "dependencies": {
+    "fast-equals": "^6.0.0"
+  }
+}

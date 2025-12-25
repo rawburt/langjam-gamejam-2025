@@ -1,42 +1,42 @@
 <html>
 <header>
-    <title>Game</title>
-    <style>
-        body {
-            background: #444;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+  <title>Game</title>
+  <style>
+    body {
+      background: #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-        canvas {
-            background: #000;
-        }
-    </style>
+    canvas {
+      background: #000;
+    }
+  </style>
 </header>
 
 <body>
-    <canvas id="canvas" width="512" height="512"></canvas>
-    <script src="./lodash.js"></script>
-    <script src="./engine.js"></script>
-    <script src="./game.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const myFont = new FontFace('GameFont', 'url(PressStart2P-Regular.ttf)');
-            document.fonts.add(myFont);
-            myFont.load().then(function () {
-                (async () => {
-                    const engine = new Engine();
-                    await engine.init(game);
-                    engine.run();
-                })();
-            }).catch(function (error) {
-                console.error('Font loading failed:', error);
-            });
-        });
-    </script>
+  <canvas id="canvas" width="512" height="512"></canvas>
+  <script src="./bundle.js"></script>
+  <script src="./engine.js"></script>
+  <script src="./game.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const myFont = new FontFace('GameFont', 'url(PressStart2P-Regular.ttf)');
+      document.fonts.add(myFont);
+      myFont.load().then(function () {
+        (async () => {
+          const engine = new Engine();
+          await engine.init(game);
+          engine.run();
+        })();
+      }).catch(function (error) {
+        console.error('Font loading failed:', error);
+      });
+    });
+  </script>
 </body>
 
 </html>
