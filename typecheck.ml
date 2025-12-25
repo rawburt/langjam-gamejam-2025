@@ -94,26 +94,20 @@ let base_venv =
         ty = TyFun ([ TyColor; TyInt; TyInt; TyInt; TyInt ], TyUnit);
         const = true;
       } );
-    (* special forms that are here for name lookup but handled different in type checking *)
-    (* forall a: a -> str *)
     ("str", { ty = TyFun ([ TyVarNamed "a" ], TyStr); const = true });
-    (* forall a: list[a] -> int *)
     ( "len",
       {
         ty = TyFun ([ TyUnion [ TyList (TyVarNamed "a"); TyStr ] ], TyInt);
         const = true;
       } );
-    (* forall a: a -> list[a] -> int *)
     ( "push",
       {
         ty = TyFun ([ TyVarNamed "a"; TyList (TyVarNamed "a") ], TyUnit);
         const = true;
       } );
-    (* forall a: list[a] -> a *)
     ( "pop",
       { ty = TyFun ([ TyList (TyVarNamed "a") ], TyVarNamed "a"); const = true }
     );
-    (* forall a: int -> list[a] -> unit *)
     ( "delete",
       { ty = TyFun ([ TyInt; TyList (TyVarNamed "a") ], TyUnit); const = true }
     );
