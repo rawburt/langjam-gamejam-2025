@@ -19,6 +19,8 @@ rule token = parse
   | ws { token lexbuf }
   | "---" { comment lexbuf }
   | '\n' { new_line lexbuf; token lexbuf }
+  | '\'' { SQUOTE }
+  | '|' { PIPE }
   | '?' { QUESTION }
   | '(' { LPAREN }
   | ')' { RPAREN }

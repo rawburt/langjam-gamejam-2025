@@ -1,0 +1,45 @@
+--- engine built ins
+
+@ffi("engine.pset($0, $1, $2)")
+def pset(x: int, y: int, c: color) do end
+
+@ffi("engine.button($0)")
+def button(k: key_enum) bool do end
+
+@ffi("engine.buttonp($0)")
+def buttonp(k: key_enum) bool do end
+
+@ffi("engine.clear()")
+def clear() do end
+
+@ffi("engine.text($0, $1, $2, $3, $4)")
+def text(s: str, x: int, y: int, size: int, c: color) do end
+
+@ffi("engine.debug($0)")
+def debug(s: str) do end
+
+@ffi("engine.render($0, $1, $2, $3, $4, $5, $6, $7, $8)")
+def render(img: image, sx: int, sy: int, sw: int, sh: int, dx: int, dy: int, dw: int, dh: int) do end
+
+@ffi("engine.rand($0, $1)")
+def rand(min: int, max: int) int do end
+
+@ffi("engine.render_overlay($0, $1, $2, $3, $4)")
+def render_overlay(c: color, x: int, y: int, w: int, h: int) do end
+
+--- js built ins
+
+@ffi("")
+def str(a: 'a) str do end
+
+@ffi("$0.length")
+def len(a: list['a] | str) int do end
+
+@ffi("$1.push($0)")
+def push(item: 'a, lst: list['a]) do end
+
+@ffi("$0.pop()")
+def pop(lst: list['a]) 'a do end
+
+@ffi("$1.delete($0)")
+def delete(index: int, lst: list['a]) do end

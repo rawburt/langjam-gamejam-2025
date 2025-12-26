@@ -14,7 +14,7 @@ let mkcompound var bop expr loc =
 %token <int> INTEGER
 %token <string> STRING
 %token TRUE FALSE
-%token LPAREN RPAREN LBRACK RBRACK
+%token LPAREN RPAREN LBRACK RBRACK SQUOTE PIPE
 %token COMMA DOT COLON EQ QUESTION
 %token VAR IF DO ELSE END FOR TO DEF RET REC FFI
 %token USE ASSET CONST ENUM MATCH WHEN BREAK IN COND NULL
@@ -74,6 +74,15 @@ block: list(stmt) { Block $1 }
 
 typing:
 | typing QUESTION { TOpt $1 }
+| base_typing { $1 }
+| typing PIPE base_typing {
+    match $1 with
+    | TUnion ts -> TUnion (ts @ [$3])
+    | other -> TUnion [other; $3]
+  }
+
+base_typing:
+| SQUOTE IDENT { TParam $2 }
 | IDENT { TName $1 }
 | TIDENT { TName $1 }
 | LBRACK typing RBRACK { TList $2 }

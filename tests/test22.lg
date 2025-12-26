@@ -1,0 +1,32 @@
+rec Vec2 do
+  x: int
+  y: int
+end
+
+def generic(a: 'a) do
+  debug(str(a))
+end
+
+def id(i: 'a) 'a do
+  ret i
+end
+
+generic("hello")
+generic(456)
+generic(true)
+generic(Vec2(x: 1, y: 2))
+
+if id(Vec2(x: 10, y: 20)) == Vec2(x: 10, y: 20) do
+  debug("OK")
+else
+  debug("FAIL")
+end
+
+def union(out: int | str | Vec2) do
+  debug(str(out))
+end
+
+union(123)
+union("abc")
+union(id(789))
+union(Vec2(x: 3, y: 4))

@@ -186,6 +186,10 @@ let rec lookup_typing loc env = function
   | TName name -> lookup loc name env.tenv
   | TList typing -> TyList (lookup_typing loc env typing)
   | TOpt typing -> TyOpt (lookup_typing loc env typing)
+  | TParam name -> TyVarNamed name
+  | TUnion ts ->
+      let tys = List.map (lookup_typing loc env) ts in
+      TyUnion tys
 
 let rec check_var env var =
   let rec check = function
