@@ -1,3 +1,5 @@
+use std
+
 var pressed: bool = false
 
 def update() do

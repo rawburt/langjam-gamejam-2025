@@ -1,3 +1,5 @@
+use std
+
 def display_maybe(z: int?) do
   if j ?= z do
     debug("j has value: " + str(j))

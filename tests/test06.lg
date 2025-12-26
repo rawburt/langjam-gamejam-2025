@@ -1,3 +1,5 @@
+use std
+
 var items: [int] = [5,6,7,10,99]
 var empty: [color] = []
 var nested1: [[int]] = [[1,2,3],[4,5,6],[]]

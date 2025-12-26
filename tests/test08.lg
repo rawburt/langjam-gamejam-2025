@@ -1,3 +1,5 @@
+use std
+
 var c: color = #00ff00
 var s: int = 3
 

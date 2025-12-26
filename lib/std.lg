@@ -1,3 +1,5 @@
+use ffi
+
 rec Vec2 do
   x: int
   y: int

@@ -1,3 +1,5 @@
+use std
+
 enum MyKey do
   Left
   Right

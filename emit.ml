@@ -12,18 +12,6 @@ let build_ffi_map toplevels =
   in
   List.fold_left add_ffi [] toplevels
 
-let emit_name = function
-  | "pset" -> "engine.pset"
-  | "button" -> "engine.button"
-  | "buttonp" -> "engine.buttonp"
-  | "clear" -> "engine.clear"
-  | "text" -> "engine.text"
-  | "debug" -> "engine.debug"
-  | "render" -> "engine.render"
-  | "render_overlay" -> "engine.renderOverlay"
-  | "delete" -> "list_delete"
-  | n -> n
-
 let emit_bop = function
   | Add -> "+"
   | Sub -> "-"
@@ -82,10 +70,9 @@ and emit_expr env = function
           (* TODO remove this when prototypes work *)
           match name with
           | "debug" ->
-              Printf.sprintf "%s('[%s:%d]: ' + %s)" (emit_name name) file line
+              Printf.sprintf "console.log('[%s:%d]: ' + %s)" file line
                 compiled_exprs
-          | "str" -> compiled_exprs
-          | _ -> Printf.sprintf "%s(%s)" (emit_name name) compiled_exprs))
+          | _ -> Printf.sprintf "%s(%s)" name compiled_exprs))
   | EBinary (bop, e1, e2, _) -> (
       let f = match bop with Div -> "Math.floor" | _ -> "" in
       let basic_binary o l r = Printf.sprintf "%s(%s %s %s)" f l o r in

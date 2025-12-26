@@ -1,3 +1,5 @@
+use std
+
 var p: bool = false
 
 if p do

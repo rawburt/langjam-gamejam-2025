@@ -1,3 +1,5 @@
+use std
+
 var items: [int] = []
 push(4, items)
 push(3, items)

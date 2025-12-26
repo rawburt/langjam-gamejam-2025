@@ -1,1 +1,3 @@
+use std
+
 pset(64, 64, #ffffff)

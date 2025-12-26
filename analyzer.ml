@@ -30,7 +30,7 @@ let check_all_paths_return def =
 let rec return_validation = function
   | [] -> ()
   | TLDef def :: tls ->
-      check_all_paths_return def;
+      if Option.is_none def.ffi then check_all_paths_return def;
       return_validation tls
   | _ :: tls -> return_validation tls
 

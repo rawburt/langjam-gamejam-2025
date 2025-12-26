@@ -68,50 +68,7 @@ let base_tenv =
     ("Key", key_enum);
   ]
 
-let base_venv =
-  [
-    ("pset", { ty = TyFun ([ TyInt; TyInt; TyColor ], TyUnit); const = true });
-    ("button", { ty = TyFun ([ key_enum ], TyBool); const = true });
-    ("buttonp", { ty = TyFun ([ key_enum ], TyBool); const = true });
-    ("clear", { ty = TyFun ([], TyUnit); const = true });
-    ( "text",
-      {
-        ty = TyFun ([ TyStr; TyInt; TyInt; TyInt; TyColor ], TyUnit);
-        const = true;
-      } );
-    ("debug", { ty = TyFun ([ TyStr ], TyUnit); const = true });
-    ( "render",
-      {
-        ty =
-          TyFun
-            ( [ TyImage; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt; TyInt ],
-              TyUnit );
-        const = true;
-      } );
-    ("rand", { ty = TyFun ([ TyInt; TyInt ], TyInt); const = true });
-    ( "render_overlay",
-      {
-        ty = TyFun ([ TyColor; TyInt; TyInt; TyInt; TyInt ], TyUnit);
-        const = true;
-      } );
-    ("str", { ty = TyFun ([ TyVarNamed "a" ], TyStr); const = true });
-    ( "len",
-      {
-        ty = TyFun ([ TyUnion [ TyList (TyVarNamed "a"); TyStr ] ], TyInt);
-        const = true;
-      } );
-    ( "push",
-      {
-        ty = TyFun ([ TyVarNamed "a"; TyList (TyVarNamed "a") ], TyUnit);
-        const = true;
-      } );
-    ( "pop",
-      { ty = TyFun ([ TyList (TyVarNamed "a") ], TyVarNamed "a"); const = true }
-    );
-    ( "delete",
-      { ty = TyFun ([ TyInt; TyList (TyVarNamed "a") ], TyUnit); const = true }
-    );
-  ]
+let base_venv = [ ("debug", { ty = TyFun ([ TyStr ], TyUnit); const = true }) ]
 
 let lookup loc k e =
   match List.assoc_opt k e with

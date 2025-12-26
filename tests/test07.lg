@@ -1,3 +1,5 @@
+use std
+
 var offset: [int] = [4,4]
 var tile_size: int = 4
 var player: [int] = [3,3]
@@ -11,16 +13,6 @@ var map: [[int]] = [
   [1,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1]
 ]
-
-def clamp(n: int, min: int, max: int) int do
-  if n > max do
-    ret max
-  end
-  if n < min do
-    ret min
-  end
-  ret n
-end
 
 def draw_map() do
   for y = 0 to len(map) do

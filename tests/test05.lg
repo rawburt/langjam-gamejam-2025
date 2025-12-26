@@ -1,4 +1,6 @@
-def rectfill(x: int, y: int, w: int, h: int, c: color) do
+use std
+
+def rectfill2(x: int, y: int, w: int, h: int, c: color) do
   for xw = 0 to w do
     for yh = 0 to y do
       pset(x + xw, y + yh, c)
@@ -7,5 +9,5 @@ def rectfill(x: int, y: int, w: int, h: int, c: color) do
 end
 
 def draw() do
-  rectfill(40, 40, 50, 50, #9a0000)
+  rectfill2(40, 40, 50, 50, #9a0000)
 end
