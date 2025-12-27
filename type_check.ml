@@ -6,33 +6,32 @@ exception TypeError of string * loc
 
 let error loc msg = raise (TypeError (msg, loc))
 
-type ventry = { ty : ty; const : bool }
+module IntMap = Map.Make (Int)
 
-type env = {
-  tenv : (string * ty) list;
-  venv : (string * ventry) list;
-  ret : ty option;
-  looping : bool;
-}
+type entry = { ty : ty; const : bool }
+type env = { types : entry IntMap.t; ret : ty option; looping : bool }
 
 let key_enum = TyEnum ("Key", [ "Left"; "Right"; "Up"; "Down"; "X" ])
 
-let base_tenv =
+let base_types =
   [
-    ("int", TyInt);
-    ("bool", TyBool);
-    ("color", TyColor);
-    ("str", TyStr);
-    ("image", TyImage);
-    ("Key", key_enum);
+    (* int *)
+    (1, TyInt);
+    (* bool *)
+    (2, TyBool);
+    (* color *)
+    (3, TyColor);
+    (* str *)
+    (4, TyStr);
+    (* image *)
+    (5, TyImage);
+    (* Key *)
+    (6, key_enum);
+    (* debug *)
+    (7, TyFun ([ TyStr ], TyUnit));
   ]
-
-let base_venv = [ ("debug", { ty = TyFun ([ TyStr ], TyUnit); const = true }) ]
-
-let lookup loc k e =
-  match List.assoc_opt k e with
-  | Some v -> v
-  | None -> error loc ("symbol not found: " ^ k)
+  |> List.map (fun (id, ty) -> (id, { ty; const = true }))
+  |> IntMap.of_list
 
 let instantiate =
   let rec inst_ty ty =
@@ -92,7 +91,7 @@ let same_fields f1 f2 =
   else false
 
 let rec lookup_typing env = function
-  | TName ((name, _id), loc) -> lookup loc name env.tenv
+  | TName ((_name, id), _loc) -> (IntMap.find id env.types).ty
   | TList (typing, _loc) -> TyList (lookup_typing env typing)
   | TOpt (typing, _loc) -> TyOpt (lookup_typing env typing)
   | TParam ((name, _id), _loc) -> TyVarNamed name
@@ -102,7 +101,7 @@ let rec lookup_typing env = function
 
 let rec check_var env var =
   let rec check = function
-    | VName ((name, _id), loc) -> lookup loc name env.venv
+    | VName ((_name, id), _loc) -> IntMap.find id env.types
     | VSub (v, expr, loc) -> (
         match check_expr env expr with
         | TyInt -> (
@@ -137,13 +136,13 @@ and check_expr env expr =
         let entry = check_var env var in
         entry.ty
     | ECall (var, exprs, loc) -> (
-        let name, _id =
+        let name, id =
           match var with
           | VName (n, _) -> n
           | _ -> error loc "not a valid function name"
         in
         let expr_tys = List.map check exprs in
-        let entry = lookup loc name env.venv in
+        let entry = IntMap.find id env.types in
         let instantiated_ty = instantiate entry.ty in
         match instantiated_ty with
         | TyFun (param_tys, return_ty) ->
@@ -199,10 +198,10 @@ and check_expr env expr =
         | t :: ts ->
             List.iter (unify loc t) ts;
             TyList t)
-    | ERec ((name, _id), fields, loc) -> (
+    | ERec ((name, id), fields, loc) -> (
         let field_types (n, e) = (n, check e) in
         let fields' = List.map field_types fields |> List.sort compare in
-        match lookup loc name env.tenv with
+        match (IntMap.find id env.types).ty with
         | TyRec ts ->
             if same_fields (List.map fst ts) (List.map fst fields') then (
               (* fields' is sorted nd ts is sorted before adding to env *)
@@ -210,8 +209,8 @@ and check_expr env expr =
               TyRec ts)
             else error loc "missing record fields"
         | _ -> error loc ("not a record: " ^ name))
-    | EEnum ((name, _id), member, loc) -> (
-        match lookup loc name env.tenv with
+    | EEnum ((name, id), member, loc) -> (
+        match (IntMap.find id env.types).ty with
         | TyEnum (_, members) ->
             (* return a member of enum so we can do exhaustiveness check on a match *)
             if List.mem member members then TyEnum (name, [ member ])
@@ -223,17 +222,17 @@ and check_expr env expr =
   in
   check expr
 
-let check_var_decl ?(const = false) env name typing expr loc =
+let check_var_decl ?(const = false) env id typing expr loc =
   let ty = lookup_typing env typing in
   let expr_ty = check_expr env expr in
   unify loc ty expr_ty;
   let entry = { ty; const } in
-  { env with venv = (name, entry) :: env.venv }
+  { env with types = IntMap.add id entry env.types }
 
 let rec check_stmt env stmt =
   match stmt with
-  | SVar ((name, _id), typing, expr, loc) ->
-      check_var_decl env name typing expr loc
+  | SVar ((_name, id), typing, expr, loc) ->
+      check_var_decl env id typing expr loc
   | SMutate (var, expr, loc) ->
       let entry = check_var env var in
       if entry.const then error loc "can't mutate const"
@@ -247,11 +246,13 @@ let rec check_stmt env stmt =
   | SIfElse (expr, block1, block2, loc) ->
       let env' =
         match expr with
-        | ESafeBind ((name, _id), e, eloc) -> (
+        | ESafeBind ((_name, id), e, eloc) -> (
             match check_expr env e with
             | TyOpt ty ->
-                let venv = (name, { ty; const = false }) :: env.venv in
-                { env with venv }
+                {
+                  env with
+                  types = IntMap.add id { ty; const = false } env.types;
+                }
             | _ -> error eloc "safe bind requires nullable expression")
         | _ ->
             let expr_ty = check_expr env expr in
@@ -261,16 +262,16 @@ let rec check_stmt env stmt =
       let _ = check_block env' block1 in
       let _ = Option.map (check_block env) block2 in
       env
-  | SFor ((name, _id), expr1, expr2, block, loc) ->
+  | SFor ((_name, id), expr1, expr2, block, loc) ->
       unify loc TyInt (check_expr env expr1);
       unify loc TyInt (check_expr env expr2);
       let entry = { ty = TyInt; const = false } in
       let env' =
-        { env with venv = (name, entry) :: env.venv; looping = true }
+        { env with types = IntMap.add id entry env.types; looping = true }
       in
       let _ = check_block env' block in
       env
-  | SForIn ((name, _id), expr, block, loc) ->
+  | SForIn ((_name, id), expr, block, loc) ->
       let expr_ty = check_expr env expr in
       let t =
         match expr_ty with
@@ -280,7 +281,7 @@ let rec check_stmt env stmt =
       in
       let entry = { ty = t; const = false } in
       let env' =
-        { env with venv = (name, entry) :: env.venv; looping = true }
+        { env with types = IntMap.add id entry env.types; looping = true }
       in
       let _ = check_block env' block in
       env
@@ -327,53 +328,66 @@ let check_toplevel env = function
         error def.loc "ffi with body is not allowed"
       else
         (* add type params to type env *)
-        let load_type_param env (type_param_name, _) =
+        let load_type_param env (type_param_name, param_id) =
           let t = TyVarNamed type_param_name in
-          { env with tenv = (type_param_name, t) :: env.tenv }
+          {
+            env with
+            types = IntMap.add param_id { ty = t; const = true } env.types;
+          }
         in
-        let original_tenv = env.tenv in
-        let env = List.fold_left load_type_param env def.type_params in
-        let format_param ((name, _id), typing) =
-          let entry = { ty = lookup_typing env typing; const = false } in
-          (name, entry)
+        let original_types = env.types in
+        let env_with_type_params =
+          List.fold_left load_type_param env def.type_params
+        in
+        let format_param ((_name, id), typing) =
+          let entry =
+            { ty = lookup_typing env_with_type_params typing; const = false }
+          in
+          (id, entry)
         in
         let params = List.map format_param def.params in
-        let ret = Option.map (lookup_typing env) def.ret in
-        let env' = { env with venv = params @ env.venv; ret } in
-        let _ = check_block env' def.body in
+        let params_map = params |> IntMap.of_list in
+        let ret = Option.map (lookup_typing env_with_type_params) def.ret in
+        let env_types =
+          IntMap.union
+            (fun _ _ v -> Some v)
+            params_map env_with_type_params.types
+        in
+        let env_with_params =
+          { env_with_type_params with types = env_types; ret }
+        in
+        let _ = check_block env_with_params def.body in
         let tys = List.map (fun p -> (snd p).ty) params in
         let entry =
           { ty = TyFun (tys, Option.value ret ~default:TyUnit); const = true }
         in
-        (* use original_tenv because env.tenv has type parameters added to it and those are local to the def *)
-        {
-          env with
-          venv = (fst def.name, entry) :: env.venv;
-          tenv = original_tenv;
-        }
+        { env with types = IntMap.add (snd def.name) entry original_types }
   | TLRec record ->
       let type_field (n, t) = (n, lookup_typing env t) in
       let fields' = List.map type_field record.fields |> List.sort compare in
       let t = TyRec fields' in
-      { env with tenv = (fst record.name, t) :: env.tenv }
-  | TLLoad ((name, _id), value, loc) ->
+      {
+        env with
+        types = IntMap.add (snd record.name) { ty = t; const = true } env.types;
+      }
+  | TLLoad ((_name, id), value, loc) ->
       let filepath =
         Filename.concat (Filename.dirname (loc_get_file loc)) value
       in
+      (* TODO do this in name resolution pass *)
       if Sys.file_exists filepath then
-        let entry = { ty = TyImage; const = true } in
-        { env with venv = (name, entry) :: env.venv }
+        {
+          env with
+          types = IntMap.add id { ty = TyImage; const = true } env.types;
+        }
       else error loc ("can't load asset: " ^ filepath)
-  | TLConst ((name, _id), typing, expr, loc) ->
-      check_var_decl ~const:true env name typing expr loc
-  | TLEnum ((name, _id), members, _) ->
+  | TLConst ((_name, id), typing, expr, loc) ->
+      check_var_decl ~const:true env id typing expr loc
+  | TLEnum ((name, id), members, _) ->
       let t = TyEnum (name, members) in
-      let tenv' = (name, t) :: env.tenv in
-      { env with tenv = tenv' }
+      { env with types = IntMap.add id { ty = t; const = true } env.types }
 
 let check (Program toplevels) =
-  let base_env =
-    { tenv = base_tenv; venv = base_venv; ret = None; looping = false }
-  in
+  let base_env = { types = base_types; ret = None; looping = false } in
   let _ = List.fold_left check_toplevel base_env toplevels in
   ()
