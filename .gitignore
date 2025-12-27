@@ -4,5 +4,6 @@ dist/
 .DS_Store
 engine/game.js
 game.js
+out.js
 engine/assets/
 node_modules/

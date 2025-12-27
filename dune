@@ -15,7 +15,8 @@
   analyzer
   name_resolution
   return_validation
-  errors))
+  errors
+  ty))
 
 (menhir
  (modules grammar))

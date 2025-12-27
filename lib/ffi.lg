@@ -26,16 +26,16 @@ def log(s: str) do end
 def rand(min: int, max: int) int do end
 
 @ffi("$0")
-def str(a: 'a) str do end
+def str[T](a: T) str do end
 
 @ffi("$0.length")
-def len(a: ['a] | str) int do end
+def len[T](a: [T] | str) int do end
 
 @ffi("$1.push($0)")
-def push(item: 'a, lst: ['a]) do end
+def push[T](item: T, lst: [T]) do end
 
 @ffi("$0.pop()")
-def pop(lst: ['a]) 'a do end
+def pop[T](lst: [T]) T do end
 
 @ffi("$1.splice($0, 1)")
-def delete(index: int, lst: ['a]) do end
+def delete[T](index: int, lst: [T]) do end

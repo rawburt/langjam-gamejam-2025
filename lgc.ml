@@ -10,7 +10,9 @@ let speclist =
     ("-debug", Arg.Set Common.debug, "Compile in debug mode");
     ("-analyze", Arg.Set analyze, "Run only the analyzer");
     ("-ast", Arg.Set ast, "Show AST before compiling");
-    ("-o", Arg.Set_string output_file, "Set output file name (default: " ^ !output_file ^ ")");
+    ( "-o",
+      Arg.Set_string output_file,
+      "Set output file name (default: " ^ !output_file ^ ")" );
   ]
 
 let compile file =

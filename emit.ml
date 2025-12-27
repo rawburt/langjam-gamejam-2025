@@ -6,7 +6,7 @@ let build_ffi_map toplevels =
   let add_ffi map = function
     | TLDef def -> (
         match def.ffi with
-        | Some template -> (def.name, template) :: map
+        | Some template -> (fst def.name, template) :: map
         | None -> map)
     | _ -> map
   in
@@ -30,7 +30,7 @@ let emit_bop = function
 let emit_uop = function Minus -> "-" | Negate -> "!"
 
 let rec emit_var env = function
-  | VName (name, _) -> name
+  | VName ((name, _id), _) -> name
   | VSub (var, expr, _) ->
       let estr = emit_expr env expr in
       Printf.sprintf "%s[%s]" (emit_var env var) estr
@@ -47,7 +47,7 @@ and emit_expr env = function
   | EConst const -> emit_const const
   | EVar var -> emit_var env var
   | ECall (var, exprs, Loc (file, line)) -> (
-      let name =
+      let name, _id =
         match var with
         | VName (n, _) -> n
         | _ -> failwith "emit_expr: ECall: not a VName"
@@ -94,11 +94,11 @@ and emit_expr env = function
       let emit_field (n, e) = Printf.sprintf "%s:%s" n (emit_expr env e) in
       let f = List.map emit_field fields |> String.concat ", " in
       Printf.sprintf "{%s}" f
-  | EEnum (name, member, _) -> Printf.sprintf "%s.%s" name member
+  | EEnum ((name, _id), member, _) -> Printf.sprintf "%s.%s" name member
   | ESafeBind _ -> failwith "unexpected safe bind"
 
 let rec emit_stmt env = function
-  | SVar (name, _, expr, _) ->
+  | SVar ((name, _id), _, expr, _) ->
       Printf.sprintf "let %s = %s;" name (emit_expr env expr)
   | SMutate (var, expr, _) ->
       Printf.sprintf "%s = %s;" (emit_var env var) (emit_expr env expr)
@@ -110,7 +110,7 @@ let rec emit_stmt env = function
         match b2 with Some b -> Printf.sprintf "else {\n%s\n}" b | None -> ""
       in
       match expr with
-      | ESafeBind (bind_name, bind_expr, _) ->
+      | ESafeBind ((bind_name, _id), bind_expr, _) ->
           let be = emit_expr env bind_expr in
           let varbind = Printf.sprintf "let %s = %s;" bind_name be in
           Printf.sprintf "%s\nif (%s !== null) {\n%s\n} %s" varbind bind_name b1
@@ -118,11 +118,11 @@ let rec emit_stmt env = function
       | _ ->
           let e = emit_expr env expr in
           Printf.sprintf "if (%s) {\n%s\n} %s" e b1 b2_else)
-  | SFor (name, expr1, expr2, block, _) ->
+  | SFor ((name, _id), expr1, expr2, block, _) ->
       Printf.sprintf "for (let %s = %s; %s < %s; %s += 1) {\n%s\n}" name
         (emit_expr env expr1) name (emit_expr env expr2) name
         (emit_block env block)
-  | SForIn (name, exp, block, _) ->
+  | SForIn ((name, _id), exp, block, _) ->
       Printf.sprintf "for (const %s of %s) {\n%s\n}" name (emit_expr env exp)
         (emit_block env block)
   | SRet (expr, _) -> Printf.sprintf "return %s;" (emit_expr env expr)
@@ -154,28 +154,32 @@ let emit_toplevel env = function
       (* don't emit ffi functions *)
       | Some _ -> ""
       | None ->
-          let params = List.map fst def.params |> String.concat ", " in
-          Printf.sprintf "function %s(%s) {\n%s\n}" def.name params
+          let params =
+            List.map (fun param -> fst param |> fst) def.params
+            |> String.concat ", "
+          in
+          Printf.sprintf "function %s(%s) {\n%s\n}" (fst def.name) params
             (emit_block env def.body))
   | TLRec _ -> ""
-  | TLLoad (name, src, _) ->
+  | TLLoad ((name, _id), src, _) ->
       Printf.sprintf "const %s = engine.preload('%s');" name src
-  | TLConst (name, _, expr, _) ->
+  | TLConst ((name, _id), _, expr, _) ->
       Printf.sprintf "const %s = %s;" name (emit_expr env expr)
-  | TLEnum (name, members, _) ->
+  | TLEnum ((name, _id), members, _) ->
       let member_as_field m = Printf.sprintf "%s:'%s'" m m in
       let members' = List.map member_as_field members in
       Printf.sprintf "const %s = {%s};" name (String.concat ", " members')
 
 (* TODO: make the engine handle this *)
 let add_empty_def name toplevels =
-  let compare = function TLDef def -> def.name = name | _ -> false in
+  let compare = function TLDef def -> fst def.name = name | _ -> false in
   match List.find_opt compare toplevels with
   | Some _ -> toplevels
   | None ->
       TLDef
         {
-          name;
+          name = (name, 0);
+          type_params = [];
           params = [];
           body = Block [];
           loc = Loc ("", 0);

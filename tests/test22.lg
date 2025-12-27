@@ -5,11 +5,11 @@ rec Vec2 do
   y: int
 end
 
-def generic(a: 'a) do
+def generic[T](a: T) do
   debug(str(a))
 end
 
-def id(i: 'a) 'a do
+def id[T](i: T) T do
   ret i
 end
 

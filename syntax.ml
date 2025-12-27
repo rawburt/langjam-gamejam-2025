@@ -1,14 +1,15 @@
 type loc = Loc of string * int [@@deriving show]
+type ident = string * int [@@deriving show]
 
 let loc_get_file (Loc (f, _)) = f
 let mkloc (s : Lexing.position) = Loc (s.pos_fname, s.pos_lnum)
 
 type typing =
-  | TName of string
-  | TList of typing
-  | TOpt of typing
-  | TParam of string
-  | TUnion of typing list
+  | TName of ident * loc
+  | TList of typing * loc
+  | TOpt of typing * loc
+  | TParam of ident * loc
+  | TUnion of typing list * loc
 [@@deriving show]
 
 type bop =
@@ -30,7 +31,7 @@ type bop =
 type uop = Minus | Negate [@@deriving show]
 
 type var =
-  | VName of string * loc
+  | VName of ident * loc
   | VSub of var * expr * loc
   | VField of var * string * loc
 [@@deriving show]
@@ -50,18 +51,18 @@ and expr =
   | EBinary of bop * expr * expr * loc
   | EUnary of uop * expr * loc
   | EList of expr list * loc
-  | ERec of string * (string * expr) list * loc
-  | EEnum of string * string * loc
-  | ESafeBind of string * expr * loc
+  | ERec of ident * (string * expr) list * loc
+  | EEnum of ident * string * loc
+  | ESafeBind of ident * expr * loc
 [@@deriving show]
 
 type stmt =
-  | SVar of string * typing * expr * loc
+  | SVar of ident * typing * expr * loc
   | SMutate of var * expr * loc
   | SExpr of expr * loc
   | SIfElse of expr * block * block option * loc
-  | SFor of string * expr * expr * block * loc
-  | SForIn of string * expr * block * loc
+  | SFor of ident * expr * expr * block * loc
+  | SForIn of ident * expr * block * loc
   | SRet of expr * loc
   | SMatch of expr * (expr * block) list * loc
   | SBreak of loc
@@ -71,8 +72,9 @@ type stmt =
 and block = Block of stmt list [@@deriving show]
 
 type def = {
-  name : string;
-  params : (string * typing) list;
+  name : ident;
+  type_params : ident list;
+  params : (ident * typing) list;
   body : block;
   ret : typing option;
   ffi : string option;
@@ -80,16 +82,16 @@ type def = {
 }
 [@@deriving show]
 
-type record = { name : string; fields : (string * typing) list; loc : loc }
+type record = { name : ident; fields : (string * typing) list; loc : loc }
 [@@deriving show]
 
 type toplevel =
   | TLStmt of stmt
   | TLDef of def
   | TLRec of record
-  | TLLoad of string * string * loc
-  | TLConst of string * typing * expr * loc
-  | TLEnum of string * string list * loc
+  | TLLoad of ident * string * loc
+  | TLConst of ident * typing * expr * loc
+  | TLEnum of ident * string list * loc
 [@@deriving show]
 
 type library =

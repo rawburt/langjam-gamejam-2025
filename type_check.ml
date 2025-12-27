@@ -1,47 +1,6 @@
 open Syntax
+open Ty
 module StringSet = Set.Make (String)
-
-type ty =
-  | TyNull
-  | TyUnit
-  | TyBool
-  | TyInt
-  | TyColor
-  | TyStr
-  | TyImage
-  | TyFun of ty list * ty
-  | TyList of ty
-  | TyVar of ty option ref
-  | TyVarNamed of string
-  | TyRec of (string * ty) list
-  | TyEnum of string * string list
-  | TyOpt of ty
-  | TyUnion of ty list
-
-let rec show_ty = function
-  | TyNull -> "null"
-  | TyUnit -> "unit"
-  | TyBool -> "bool"
-  | TyInt -> "int"
-  | TyColor -> "color"
-  | TyStr -> "str"
-  | TyImage -> "image"
-  | TyFun (tys, ty) ->
-      let inner = List.map show_ty tys |> String.concat ", " in
-      Printf.sprintf "((%s) -> %s)" inner (show_ty ty)
-  | TyList ty -> "[" ^ show_ty ty ^ "]"
-  | TyVar tyoptref -> (
-      match !tyoptref with Some t -> show_ty t | None -> "_")
-  | TyVarNamed name -> "'" ^ name
-  | TyRec fields ->
-      let field_ty (name, ty) = Printf.sprintf "%s: %s" name (show_ty ty) in
-      let inner = List.map field_ty fields |> String.concat ", " in
-      Printf.sprintf "rec(%s)" inner
-  | TyEnum (name, _) -> Printf.sprintf "enum(%s)" name
-  | TyOpt ty -> show_ty ty ^ "?"
-  | TyUnion tys ->
-      let inner = List.map show_ty tys |> String.concat " | " in
-      Printf.sprintf "(%s)" inner
 
 exception TypeError of string * loc
 
@@ -139,18 +98,18 @@ let same_fields f1 f2 =
     StringSet.(diff s1 s2 |> to_list) |> List.is_empty
   else false
 
-let rec lookup_typing loc env = function
-  | TName name -> lookup loc name env.tenv
-  | TList typing -> TyList (lookup_typing loc env typing)
-  | TOpt typing -> TyOpt (lookup_typing loc env typing)
-  | TParam name -> TyVarNamed name
-  | TUnion ts ->
-      let tys = List.map (lookup_typing loc env) ts in
+let rec lookup_typing env = function
+  | TName ((name, _id), loc) -> lookup loc name env.tenv
+  | TList (typing, _loc) -> TyList (lookup_typing env typing)
+  | TOpt (typing, _loc) -> TyOpt (lookup_typing env typing)
+  | TParam ((name, _id), _loc) -> TyVarNamed name
+  | TUnion (ts, _loc) ->
+      let tys = List.map (lookup_typing env) ts in
       TyUnion tys
 
 let rec check_var env var =
   let rec check = function
-    | VName (name, loc) -> lookup loc name env.venv
+    | VName ((name, _id), loc) -> lookup loc name env.venv
     | VSub (v, expr, loc) -> (
         match check_expr env expr with
         | TyInt -> (
@@ -185,7 +144,7 @@ and check_expr env expr =
         let entry = check_var env var in
         entry.ty
     | ECall (var, exprs, loc) -> (
-        let name =
+        let name, _id =
           match var with
           | VName (n, _) -> n
           | _ -> error loc "not a valid function name"
@@ -247,7 +206,7 @@ and check_expr env expr =
         | t :: ts ->
             List.iter (unify loc t) ts;
             TyList t)
-    | ERec (name, fields, loc) -> (
+    | ERec ((name, _id), fields, loc) -> (
         let field_types (n, e) = (n, check e) in
         let fields' = List.map field_types fields |> List.sort compare in
         match lookup loc name env.tenv with
@@ -258,7 +217,7 @@ and check_expr env expr =
               TyRec ts)
             else error loc "missing record fields"
         | _ -> error loc ("not a record: " ^ name))
-    | EEnum (name, member, loc) -> (
+    | EEnum ((name, _id), member, loc) -> (
         match lookup loc name env.tenv with
         | TyEnum (_, members) ->
             (* return a member of enum so we can do exhaustiveness check on a match *)
@@ -274,7 +233,7 @@ and check_expr env expr =
 let check_var_decl ?(const = false) env name typing expr loc =
   if mem name env.venv then error loc ("duplicate symbol definition: " ^ name)
   else
-    let ty = lookup_typing loc env typing in
+    let ty = lookup_typing env typing in
     let expr_ty = check_expr env expr in
     unify loc ty expr_ty;
     let entry = { ty; const } in
@@ -282,7 +241,8 @@ let check_var_decl ?(const = false) env name typing expr loc =
 
 let rec check_stmt env stmt =
   match stmt with
-  | SVar (name, typing, expr, loc) -> check_var_decl env name typing expr loc
+  | SVar ((name, _id), typing, expr, loc) ->
+      check_var_decl env name typing expr loc
   | SMutate (var, expr, loc) ->
       let entry = check_var env var in
       if entry.const then error loc "can't mutate const"
@@ -296,7 +256,7 @@ let rec check_stmt env stmt =
   | SIfElse (expr, block1, block2, loc) ->
       let env' =
         match expr with
-        | ESafeBind (name, e, eloc) -> (
+        | ESafeBind ((name, _id), e, eloc) -> (
             if mem name env.venv then
               error loc ("duplicate symbol definition: " ^ name)
             else
@@ -313,7 +273,7 @@ let rec check_stmt env stmt =
       let _ = check_block env' block1 in
       let _ = Option.map (check_block env) block2 in
       env
-  | SFor (name, expr1, expr2, block, loc) ->
+  | SFor ((name, _id), expr1, expr2, block, loc) ->
       if mem name env.venv then
         error loc ("duplicate symbol definition: " ^ name)
       else (
@@ -325,7 +285,7 @@ let rec check_stmt env stmt =
         in
         let _ = check_block env' block in
         env)
-  | SForIn (name, expr, block, loc) ->
+  | SForIn ((name, _id), expr, block, loc) ->
       if mem name env.venv then
         error loc ("duplicate symbol definition: " ^ name)
       else
@@ -381,37 +341,51 @@ and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 let check_toplevel env = function
   | TLStmt stmt -> check_stmt env stmt
   | TLDef def ->
-      if mem def.name env.venv then
-        error def.loc ("duplicate symbol definition: " ^ def.name)
+      if mem (fst def.name) env.venv then
+        error def.loc ("duplicate symbol definition: " ^ fst def.name)
       else if Option.is_some def.ffi && def.body <> Block [] then
         error def.loc "ffi with body is not allowed"
       else
-        let format_param (name, typing) =
-          let entry =
-            { ty = lookup_typing def.loc env typing; const = false }
-          in
+        (* add type params to type env *)
+        let load_type_param env (type_param_name, _) =
+          if mem type_param_name env.tenv then
+            error def.loc
+              ("duplicate type parameter definition: " ^ type_param_name)
+          else
+            let t = TyVarNamed type_param_name in
+            { env with tenv = (type_param_name, t) :: env.tenv }
+        in
+        let original_tenv = env.tenv in
+        let env = List.fold_left load_type_param env def.type_params in
+        let format_param ((name, _id), typing) =
+          let entry = { ty = lookup_typing env typing; const = false } in
           (name, entry)
         in
         let params = List.map format_param def.params in
-        let ret = Option.map (lookup_typing def.loc env) def.ret in
+        let ret = Option.map (lookup_typing env) def.ret in
         let env' = { env with venv = params @ env.venv; ret } in
         let _ = check_block env' def.body in
         let tys = List.map (fun p -> (snd p).ty) params in
         let entry =
           { ty = TyFun (tys, Option.value ret ~default:TyUnit); const = true }
         in
-        { env with venv = (def.name, entry) :: env.venv }
+        (* use original_tenv because env.tenv has type parameters added to it and those are local to the def *)
+        {
+          env with
+          venv = (fst def.name, entry) :: env.venv;
+          tenv = original_tenv;
+        }
   | TLRec record ->
-      if mem record.name env.venv then
-        error record.loc ("duplicate symbol definition: " ^ record.name)
+      if mem (fst record.name) env.venv then
+        error record.loc ("duplicate symbol definition: " ^ fst record.name)
       else if has_duplicates (List.map fst record.fields) then
         error record.loc "duplicate field definitions"
       else
-        let type_field (n, t) = (n, lookup_typing record.loc env t) in
+        let type_field (n, t) = (n, lookup_typing env t) in
         let fields' = List.map type_field record.fields |> List.sort compare in
         let t = TyRec fields' in
-        { env with tenv = (record.name, t) :: env.tenv }
-  | TLLoad (name, value, loc) ->
+        { env with tenv = (fst record.name, t) :: env.tenv }
+  | TLLoad ((name, _id), value, loc) ->
       if mem name env.venv then
         error loc ("duplicate symbol definition: " ^ name)
       else
@@ -422,9 +396,9 @@ let check_toplevel env = function
           let entry = { ty = TyImage; const = true } in
           { env with venv = (name, entry) :: env.venv }
         else error loc ("can't load asset: " ^ filepath)
-  | TLConst (name, typing, expr, loc) ->
+  | TLConst ((name, _id), typing, expr, loc) ->
       check_var_decl ~const:true env name typing expr loc
-  | TLEnum (name, members, loc) ->
+  | TLEnum ((name, _id), members, loc) ->
       if mem name env.tenv then
         error loc ("duplicate symbol definition: " ^ name)
       else if has_duplicates members then error loc "duplicate enum members"
