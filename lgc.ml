@@ -1,16 +1,16 @@
 let usage = "lgc [options] [-o <output>] <file1>"
-let check = ref false
+let analyze = ref false
 let ast = ref false
-let output_file = ref "game.js"
+let output_file = ref "out.js"
 let files = ref []
 let anon_fun f = files := f :: !files
 
 let speclist =
   [
     ("-debug", Arg.Set Common.debug, "Compile in debug mode");
-    ("-check", Arg.Set check, "Run only the analyzer");
+    ("-analyze", Arg.Set analyze, "Run only the analyzer");
     ("-ast", Arg.Set ast, "Show AST before compiling");
-    ("-o", Arg.Set_string output_file, "Set output file name (default: game.js)");
+    ("-o", Arg.Set_string output_file, "Set output file name (default: " ^ !output_file ^ ")");
   ]
 
 let compile file =
@@ -19,7 +19,7 @@ let compile file =
   try
     if !ast then print_endline ("======= AST:\n" ^ Syntax.show_program program);
     Analyzer.run program;
-    if not !check then (
+    if not !analyze then (
       let game = Emit.compile program in
       let chan = open_out !output_file in
       Printf.fprintf chan "%s\n" game;
