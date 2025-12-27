@@ -9,6 +9,9 @@ let next_id =
     incr counter;
     id
 
+let all_unique lst =
+  List.length lst = List.length (List.sort_uniq Stdlib.compare lst)
+
 (* TODO vars and methods separate *)
 type env = { vars : int StringMap.t list; types : int StringMap.t }
 
@@ -286,7 +289,9 @@ let resolve_toplevel env = function
           (field_name, resolved_typing)
         in
         let resolved_fields = List.map (resolve_field env') record.fields in
-        (* TODO: check unique field names *)
+        if not (all_unique (List.map fst record.fields)) then
+          error record.loc
+            (Printf.sprintf "record fields must be unique in record: %s" name);
         let resolved_record =
           {
             name = (name, record_id);
@@ -318,7 +323,9 @@ let resolve_toplevel env = function
       else
         let env', enum_id = type_add env name in
         let resolved_enum = TLEnum ((name, enum_id), members, loc) in
-        (* TODO: check unique member names *)
+        if not (all_unique members) then
+          error loc
+            (Printf.sprintf "enum members must be unique in enum: %s" name);
         (env', resolved_enum)
 
 let run (Program toplevels) =
