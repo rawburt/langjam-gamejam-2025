@@ -12,8 +12,8 @@
     { "include": "#colors" },
     { "include": "#operators" },
     { "include": "#constants" },
-    { "include": "#types" },
-    { "include": "#functions" }
+    { "include": "#functions" },
+    { "include": "#types" }
   ],
   "repository": {
     "useStatement": {
@@ -103,7 +103,7 @@
       "patterns": [
         {
           "name": "keyword.type.primitive.lg",
-          "match": "\\b(int|bool|str|image|color)\\b(?!\\()"
+          "match": "\\b(int|bool|str|image|color)\\b(?!\\s*[\\[\\(])"
         },
         {
           "name": "entity.name.type.lg",
@@ -123,7 +123,7 @@
       "patterns": [
         {
           "name": "entity.name.function.lg",
-          "match": "\\b[a-z_][a-z0-9_]*(?=\\()"
+          "match": "\\b[a-z_][a-z0-9_]*(?=\\s*\\[|\\s*\\()"
         }
       ]
     }
