@@ -25,8 +25,8 @@ let compile file =
       Printf.fprintf chan "%s\n" game;
       close_out chan)
   with
-  | Typecheck.TypeError (msg, loc) -> Common.error ~loc ~kind:"type error" msg
-  | Analyzer.AnalysisError (msg, loc) ->
+  | Type_check.TypeError (msg, loc) -> Common.error ~loc ~kind:"type error" msg
+  | Errors.AnalysisError (msg, loc) ->
       Common.error ~loc ~kind:"analysis error" msg
 
 let () =

@@ -3,7 +3,19 @@
  (preprocess
   (pps ppx_deriving.show))
  (libraries str)
- (modules lgc syntax grammar lexer emit typecheck registry common analyzer))
+ (modules
+  lgc
+  syntax
+  grammar
+  lexer
+  emit
+  type_check
+  registry
+  common
+  analyzer
+  name_resolution
+  return_validation
+  errors))
 
 (menhir
  (modules grammar))
