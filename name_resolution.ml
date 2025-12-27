@@ -245,11 +245,13 @@ let resolve_def env (def : def) =
     (* params are a new scope so they can shadow variables in outer scopes *)
     let scoped_env = push_scope env_with_params in
     let resolve_param env ((param_name, _), typing) =
-      (* TODO: add params and resolve types *)
       let resolved_typing = resolve_typing env typing in
-      (* TODO param name unique -- check for exist first *)
-      let env', id = var_add env param_name in
-      (env', ((param_name, id), resolved_typing))
+      if var_mem_scope env param_name then
+        error def.loc
+          (Printf.sprintf "parameter already defined: %s" param_name)
+      else
+        let env', id = var_add env param_name in
+        (env', ((param_name, id), resolved_typing))
     in
     let env_for_body, resolved_params =
       List.fold_left_map resolve_param scoped_env def.params
