@@ -34,8 +34,6 @@ let lookup loc k e =
   | Some v -> v
   | None -> error loc ("symbol not found: " ^ k)
 
-let mem = List.mem_assoc
-
 let instantiate =
   let rec inst_ty ty =
     match ty with
@@ -85,11 +83,6 @@ let unify loc ty1 ty2 =
       (Printf.sprintf
          "type mismatch\n\nunification failed:\ntype 1 = %s\ntype 2 = %s"
          (show_ty ty1) (show_ty ty2))
-
-let has_duplicates fields =
-  let n1 = List.length fields in
-  let n2 = StringSet.(of_list fields |> to_list) |> List.length in
-  not (n1 = n2)
 
 let same_fields f1 f2 =
   if List.length f1 = List.length f2 then
@@ -231,13 +224,11 @@ and check_expr env expr =
   check expr
 
 let check_var_decl ?(const = false) env name typing expr loc =
-  if mem name env.venv then error loc ("duplicate symbol definition: " ^ name)
-  else
-    let ty = lookup_typing env typing in
-    let expr_ty = check_expr env expr in
-    unify loc ty expr_ty;
-    let entry = { ty; const } in
-    { env with venv = (name, entry) :: env.venv }
+  let ty = lookup_typing env typing in
+  let expr_ty = check_expr env expr in
+  unify loc ty expr_ty;
+  let entry = { ty; const } in
+  { env with venv = (name, entry) :: env.venv }
 
 let rec check_stmt env stmt =
   match stmt with
@@ -257,14 +248,11 @@ let rec check_stmt env stmt =
       let env' =
         match expr with
         | ESafeBind ((name, _id), e, eloc) -> (
-            if mem name env.venv then
-              error loc ("duplicate symbol definition: " ^ name)
-            else
-              match check_expr env e with
-              | TyOpt ty ->
-                  let venv = (name, { ty; const = false }) :: env.venv in
-                  { env with venv }
-              | _ -> error eloc "safe bind requires nullable expression")
+            match check_expr env e with
+            | TyOpt ty ->
+                let venv = (name, { ty; const = false }) :: env.venv in
+                { env with venv }
+            | _ -> error eloc "safe bind requires nullable expression")
         | _ ->
             let expr_ty = check_expr env expr in
             unify loc TyBool expr_ty;
@@ -274,34 +262,28 @@ let rec check_stmt env stmt =
       let _ = Option.map (check_block env) block2 in
       env
   | SFor ((name, _id), expr1, expr2, block, loc) ->
-      if mem name env.venv then
-        error loc ("duplicate symbol definition: " ^ name)
-      else (
-        unify loc TyInt (check_expr env expr1);
-        unify loc TyInt (check_expr env expr2);
-        let entry = { ty = TyInt; const = false } in
-        let env' =
-          { env with venv = (name, entry) :: env.venv; looping = true }
-        in
-        let _ = check_block env' block in
-        env)
+      unify loc TyInt (check_expr env expr1);
+      unify loc TyInt (check_expr env expr2);
+      let entry = { ty = TyInt; const = false } in
+      let env' =
+        { env with venv = (name, entry) :: env.venv; looping = true }
+      in
+      let _ = check_block env' block in
+      env
   | SForIn ((name, _id), expr, block, loc) ->
-      if mem name env.venv then
-        error loc ("duplicate symbol definition: " ^ name)
-      else
-        let expr_ty = check_expr env expr in
-        let t =
-          match expr_ty with
-          | TyList ty -> ty
-          | TyStr -> TyStr
-          | _ -> error loc "list or str required"
-        in
-        let entry = { ty = t; const = false } in
-        let env' =
-          { env with venv = (name, entry) :: env.venv; looping = true }
-        in
-        let _ = check_block env' block in
-        env
+      let expr_ty = check_expr env expr in
+      let t =
+        match expr_ty with
+        | TyList ty -> ty
+        | TyStr -> TyStr
+        | _ -> error loc "list or str required"
+      in
+      let entry = { ty = t; const = false } in
+      let env' =
+        { env with venv = (name, entry) :: env.venv; looping = true }
+      in
+      let _ = check_block env' block in
+      env
   | SRet (expr, loc) -> (
       let ty = check_expr env expr in
       match env.ret with
@@ -341,19 +323,13 @@ and check_block env (Block stmts) = List.fold_left check_stmt env stmts
 let check_toplevel env = function
   | TLStmt stmt -> check_stmt env stmt
   | TLDef def ->
-      if mem (fst def.name) env.venv then
-        error def.loc ("duplicate symbol definition: " ^ fst def.name)
-      else if Option.is_some def.ffi && def.body <> Block [] then
+      if Option.is_some def.ffi && def.body <> Block [] then
         error def.loc "ffi with body is not allowed"
       else
         (* add type params to type env *)
         let load_type_param env (type_param_name, _) =
-          if mem type_param_name env.tenv then
-            error def.loc
-              ("duplicate type parameter definition: " ^ type_param_name)
-          else
-            let t = TyVarNamed type_param_name in
-            { env with tenv = (type_param_name, t) :: env.tenv }
+          let t = TyVarNamed type_param_name in
+          { env with tenv = (type_param_name, t) :: env.tenv }
         in
         let original_tenv = env.tenv in
         let env = List.fold_left load_type_param env def.type_params in
@@ -376,36 +352,24 @@ let check_toplevel env = function
           tenv = original_tenv;
         }
   | TLRec record ->
-      if mem (fst record.name) env.venv then
-        error record.loc ("duplicate symbol definition: " ^ fst record.name)
-      else if has_duplicates (List.map fst record.fields) then
-        error record.loc "duplicate field definitions"
-      else
-        let type_field (n, t) = (n, lookup_typing env t) in
-        let fields' = List.map type_field record.fields |> List.sort compare in
-        let t = TyRec fields' in
-        { env with tenv = (fst record.name, t) :: env.tenv }
+      let type_field (n, t) = (n, lookup_typing env t) in
+      let fields' = List.map type_field record.fields |> List.sort compare in
+      let t = TyRec fields' in
+      { env with tenv = (fst record.name, t) :: env.tenv }
   | TLLoad ((name, _id), value, loc) ->
-      if mem name env.venv then
-        error loc ("duplicate symbol definition: " ^ name)
-      else
-        let filepath =
-          Filename.concat (Filename.dirname (loc_get_file loc)) value
-        in
-        if Sys.file_exists filepath then
-          let entry = { ty = TyImage; const = true } in
-          { env with venv = (name, entry) :: env.venv }
-        else error loc ("can't load asset: " ^ filepath)
+      let filepath =
+        Filename.concat (Filename.dirname (loc_get_file loc)) value
+      in
+      if Sys.file_exists filepath then
+        let entry = { ty = TyImage; const = true } in
+        { env with venv = (name, entry) :: env.venv }
+      else error loc ("can't load asset: " ^ filepath)
   | TLConst ((name, _id), typing, expr, loc) ->
       check_var_decl ~const:true env name typing expr loc
-  | TLEnum ((name, _id), members, loc) ->
-      if mem name env.tenv then
-        error loc ("duplicate symbol definition: " ^ name)
-      else if has_duplicates members then error loc "duplicate enum members"
-      else
-        let t = TyEnum (name, members) in
-        let tenv' = (name, t) :: env.tenv in
-        { env with tenv = tenv' }
+  | TLEnum ((name, _id), members, _) ->
+      let t = TyEnum (name, members) in
+      let tenv' = (name, t) :: env.tenv in
+      { env with tenv = tenv' }
 
 let check (Program toplevels) =
   let base_env =
